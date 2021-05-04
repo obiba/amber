@@ -15,6 +15,7 @@ Functionalities:
 * participants partitionning with invitation/reminder mailing
 * user roles: admin, manager, interviewer, participant
 * user/group permissions
+* multi-lang
 
 Technical features:
 
@@ -22,3 +23,4 @@ Technical features:
 * offline-first design
 * multiple clients: web, mobile, electron
 * auth with local or openid connect credentials
+* easy to deploy and to upgrade
