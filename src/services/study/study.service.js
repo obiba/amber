@@ -1,9 +1,11 @@
 // Initializes the `study` service on path `/study`
 const { Study } = require('./study.class');
+const createModel = require('../../models/study.model');
 const hooks = require('./study.hooks');
 
 module.exports = function (app) {
   const options = {
+    Model: createModel(app),
     paginate: app.get('paginate')
   };
 
