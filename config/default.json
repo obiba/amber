@@ -32,8 +32,19 @@
       "github": {
         "key": "<github oauth key>",
         "secret": "<github oauth secret>"
+      },
+      "google": {
+        "key": "<google oauth key>",
+        "secret": "<google oauth secret>",
+        "scope": ["email", "profile", "openid"]
       }
     }
   },
-  "mongodb": "mongodb://localhost:27017/amber"
+  "mongodb": "mongodb://localhost:27017/amber",
+  "smtp_user": "update_to_aws_smtp_user",
+  "smtp_pw": "update_to_aws_smtp_pw",
+  "from_email": "no-reply@test.com",
+  "client_url": "http://localhost:8080",
+  "api_url": "http://localhost:3030/",
+  "smtp_host": "aws_smtp_host"
 }
