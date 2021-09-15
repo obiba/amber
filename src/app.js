@@ -28,7 +28,7 @@ app.configure(configuration());
 app.use(helmet({
   contentSecurityPolicy: false
 }));
-/*
+
 const whitelist = [app.get('client_url')] || [process.env.client_url];
 const corsOptions = {
   origin: (origin, callback) => {
@@ -46,9 +46,9 @@ const corsOptions = {
 };
 app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
-*/
-app.options('*', cors());
-app.use(cors());
+
+//app.options('*', cors());
+//app.use(cors());
 
 app.use(compress());
 app.use(express.json());
