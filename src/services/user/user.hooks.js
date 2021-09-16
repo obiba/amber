@@ -106,7 +106,7 @@ module.exports = {
         ),
         iff(
           checkPermissions({
-            roles: ['super_admin', 'admin'],
+            roles: ['administrator'],
             field: 'permissions',
             error: false,
           }),
@@ -140,7 +140,7 @@ module.exports = {
         ),
         iff(
           checkPermissions({
-            roles: ['super_admin', 'admin'],
+            roles: ['administrator'],
             field: 'permissions',
             error: false,
           }),
