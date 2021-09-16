@@ -18,7 +18,7 @@ module.exports = function (app) {
   const FROM_EMAIL = app.get('from_email');
 
   return {
-    service: 'users',
+    service: 'user',
     notifier: function (type, user) {
       let tokenLink;
       let email;
