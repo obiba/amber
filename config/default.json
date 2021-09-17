@@ -18,8 +18,8 @@
       "header": {
         "typ": "access"
       },
-      "audience": "https://yourdomain.com",
-      "issuer": "feathers",
+      "audience": "https://example.com",
+      "issuer": "amber",
       "algorithm": "HS256",
       "expiresIn": "1d"
     },
@@ -44,7 +44,8 @@
   "smtp_user": "update_to_aws_smtp_user",
   "smtp_pw": "update_to_aws_smtp_pw",
   "from_email": "no-reply@test.com",
-  "client_url": "http://localhost:8080",
+  "client_urls": "*",
+  "amber_studio_url": "http://localhost:8080",
   "api_url": "http://localhost:3030/",
   "smtp_host": "aws_smtp_host"
 }

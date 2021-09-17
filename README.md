@@ -56,7 +56,18 @@ This project uses [Feathers](http://feathersjs.com). An open source web framewor
 
     ```
     npm start
+    # or
+    rmp run dev
     ```
+
+## Environment Variables
+
+Amber uses [dotenv](https://github.com/motdotla/dotenv) for environment variables discovery from a `.env` file. 
+
+* `CLIENT_URLS`, comma separated client urls, for the CORS policy
+* `MONGODB_URL`, the MongoDB connection string
+* `GMAIL`, the Gmail user name for the notification service
+* `GMAIL_PASSWORD`, the Gmail user password for the notification service
 
 ## Testing
 

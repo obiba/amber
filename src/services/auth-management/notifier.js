@@ -1,6 +1,6 @@
 module.exports = function (app) {
   function getLink(type, hash) {
-    const url = app.get('client_url') + '/' + type + '?token=' + hash;
+    const url = (process.env.AMBER_STUDIO_URL || app.get('amber_studio_url')) + '/' + type + '?token=' + hash;
     return url;
   }
 

@@ -1,15 +1,15 @@
+require('dotenv').config();
 const path = require('path');
 const favicon = require('serve-favicon');
-const compress = require('compression');
 const helmet = require('helmet');
 const cors = require('cors');
+const compress = require('compression');
 const logger = require('./logger');
 
 const feathers = require('@feathersjs/feathers');
 const configuration = require('@feathersjs/configuration');
 const express = require('@feathersjs/express');
 const socketio = require('@feathersjs/socketio');
-
 
 const middleware = require('./middleware');
 const services = require('./services');
@@ -24,15 +24,15 @@ const app = express(feathers());
 
 // Load app configuration
 app.configure(configuration());
-// Enable security, CORS, compression, favicon and body parsing
+
+// Enable security, CORS
+const whitelist = (process.env.CLIENT_URLS || app.get('client_urls') || '').split(' ').join('').split(',');
 app.use(helmet({
   contentSecurityPolicy: false
 }));
-
-const whitelist = [app.get('client_url')] || [process.env.client_url];
 const corsOptions = {
   origin: (origin, callback) => {
-    if (whitelist.indexOf(origin) !== -1) {
+    if (whitelist.includes('*') || whitelist.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS: ' + origin));
@@ -45,11 +45,9 @@ const corsOptions = {
   optionsSuccessStatus: 204,
 };
 app.options('*', cors(corsOptions));
-app.use(cors(corsOptions));
+app.use(cors(corsOptions));  
 
-//app.options('*', cors());
-//app.use(cors());
-
+// Enable compression, favicon and body parsing
 app.use(compress());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

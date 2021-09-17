@@ -3,7 +3,7 @@ const logger = require('./logger');
 
 module.exports = function (app) {
   mongoose.connect(
-    app.get('mongodb'),
+    process.env.MONGODB_URL || app.get('mongodb'),
     { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true }
   ).catch(err => {
     logger.error(err);
