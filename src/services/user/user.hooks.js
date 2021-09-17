@@ -51,6 +51,18 @@ const city = Joi.string()
   .max(30)
   .pattern(new RegExp('^[a-zA-Z0-9 ]{2,30}$'));
 
+const title = Joi.string()
+  .trim()
+  .min(2)
+  .max(30)
+  .pattern(new RegExp('^[a-zA-Z0-9 ]{2,30}$'));
+
+const phone = Joi.string()
+  .trim()
+  .min(2)
+  .max(30)
+  .pattern(new RegExp('^[+0-9 ]{2,30}$'));
+
 const permissions = Joi.array();
 
 const schema = Joi.object().keys({
@@ -66,6 +78,8 @@ const updateSchema = Joi.object().keys({
   lastname: lastname,
   city: city,
   institution: institution,
+  title: title,
+  phone: phone,
 });
 
 const adminUpdateSchema = Joi.object().keys({
@@ -73,6 +87,8 @@ const adminUpdateSchema = Joi.object().keys({
   lastname: lastname,
   city: city,
   institution: institution,
+  title: title,
+  phone: phone,
   permissions: permissions,
 });
 
