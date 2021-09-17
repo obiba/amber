@@ -37,7 +37,7 @@ const password = Joi.string().trim().min(2).max(30).required();
 
 const email = Joi.string().email({
   minDomainSegments: 2,
-  tlds: { allow: ['com'] },
+  //tlds: { allow: ['com','org'] },
 });
 const institution = Joi.string()
   .trim()
