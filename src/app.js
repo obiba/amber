@@ -1,4 +1,3 @@
-require('dotenv').config();
 const path = require('path');
 const favicon = require('serve-favicon');
 const helmet = require('helmet');
@@ -24,6 +23,31 @@ const app = express(feathers());
 
 // Load app configuration
 app.configure(configuration());
+let authenticationConfig = app.get('authentication');
+if (process.env.APP_NAME) {
+  authenticationConfig.jwtOptions.issuer = process.env.APP_NAME;
+}
+if (process.env.APP_SECRET_KEY) {
+  authenticationConfig.secret = process.env.APP_SECRET_KEY;
+}
+if (process.env.APP_URL) {
+  authenticationConfig.jwtOptions.audience = process.env.APP_URL;
+  app.set('api_url', process.env.APP_URL);
+}
+if (process.env.GITHUB_KEY && process.env.GITHUB_SECRET) {
+  authenticationConfig.oauth.github = {
+    key: process.env.GITHUB_KEY,
+    secret: process.env.GITHUB_SECRET,
+  };
+}
+if (process.env.GOOGLE_KEY && process.env.GOOGLE_SECRET) {
+  authenticationConfig.oauth.google = {
+    key: process.env.GOOGLE_KEY,
+    secret: process.env.GOOGLE_SECRET,
+    scope: ['email', 'profile', 'openid']
+  };
+}
+app.set('authentication', authenticationConfig);
 
 // Enable security, CORS
 const whitelist = (process.env.CLIENT_URLS || app.get('client_urls') || '').split(' ').join('').split(',');

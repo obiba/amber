@@ -64,10 +64,20 @@ This project uses [Feathers](http://feathersjs.com). An open source web framewor
 
 Amber uses [dotenv](https://github.com/motdotla/dotenv) for environment variables discovery from a `.env` file. 
 
+* `CLUSTER_COUNT`, node cluster count, defaults to all available CPU cores
+* `APP_NAME`, JWT issuer
+* `APP_SECRET_KEY`, encryption key
+* `APP_URL`, JWT audience
 * `CLIENT_URLS`, comma separated client urls, for the CORS policy
 * `MONGODB_URL`, the MongoDB connection string
 * `GMAIL`, the Gmail user name for the notification service
 * `GMAIL_PASSWORD`, the Gmail user password for the notification service
+* `GITHUB_KEY`, OAuth key for Github
+* `GITHUB_SECRET`, OAuth secret for Github
+* `GOOGLE_KEY`, OAuth key for Google
+* `GOOGLE_SECRET`, OAuth secret for Google
+* `ADMINISTRATOR_EMAIL`, user seeding when there is no administrator in the database
+* `ADMINISTRATOR_PWD`, user seeding when there is no administrator in the database
 
 ## Testing
 
