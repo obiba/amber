@@ -180,7 +180,13 @@ module.exports = {
         hashPassword('password')
       ),
     ],
-    remove: [disallow('external')],
+    remove: [
+      authenticate('jwt'),
+      checkPermissions({
+        roles: ['administrator'],
+        field: 'permissions',
+      })
+    ],
   },
 
   after: {
