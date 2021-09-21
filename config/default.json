@@ -48,5 +48,5 @@
   "amber_studio_url": "http://localhost:3080",
   "api_url": "http://localhost:3030/",
   "smtp_host": "aws_smtp_host",
-  "recaptcha_secret_key": "6Lc3D34cAAAAAB1snxAKddliKo-afLhm3pEHXpcu"
+  "recaptcha_secret_key": ""
 }
