@@ -7,8 +7,12 @@ const { setField } = require('feathers-authentication-hooks');
 const verifyHooks = require('feathers-authentication-management').hooks;
 const accountService = require('../auth-management/notifier');
 
+const allowAnonymous = require('../../hooks/allow-anonymous');
+const processRegister = require('../../hooks/process-register');
+
 const {
   disallow,
+  discard,
   iff,
   isProvider,
   preventChanges,
@@ -100,9 +104,13 @@ module.exports = {
     find: [authenticate('jwt')],
     get: [authenticate('jwt')],
     create: [
-      validate.mongoose(schema, joiOptions),
-      hashPassword('password'),
-      verifyHooks.addVerification(),
+      allowAnonymous(),
+      authenticate('jwt', 'anonymous'),
+      processRegister(), 
+      discard('token'), 
+      validate.mongoose(schema, joiOptions), 
+      hashPassword('password'), 
+      verifyHooks.addVerification()
     ],
     update: [
       authenticate('jwt'),

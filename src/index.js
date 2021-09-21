@@ -2,10 +2,10 @@
 require('dotenv').config();
 const os = require('os');
 const cluster = require('cluster');
-
 const logger = require('./logger');
 
 const start = async () => {
+
   const app = require('./app');
   const port = app.get('port');
   const server = app.listen(port);

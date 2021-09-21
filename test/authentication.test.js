@@ -8,8 +8,10 @@ describe('authentication', () => {
   
   describe('local strategy', () => {
     const userInfo = {
-      email: 'administrator',
+      email: 'admin@obiba.com',
       password: 'password',
+      firstname: 'Xx',
+      lastname: 'Yy',
       permissions: ['administrator']
     };
 
@@ -17,6 +19,7 @@ describe('authentication', () => {
       try {
         await app.service('user').create(userInfo);
       } catch (error) {
+        //console.log(error);
         // Do nothing, it just means the user already exists and can be tested
       }
     });
