@@ -98,10 +98,12 @@ const adminUpdateSchema = Joi.object().keys({
 
 const joiOptions = { convert: true, abortEarly: false };
 
+const searchQuery = require('../../hooks/search-query');
+
 module.exports = {
   before: {
     all: [],
-    find: [authenticate('jwt')],
+    find: [authenticate('jwt'), searchQuery()],
     get: [authenticate('jwt')],
     create: [
       allowAnonymous(),
