@@ -11,28 +11,30 @@ const defineRulesFor = (user) => {
   // also see https://casl.js.org/v5/en/guide/define-rules
   const { can, cannot, rules } = new AbilityBuilder();
 
-  if (!user) {
-    can('create', 'user');
-    return rules;
-  }
+  //console.log(user);
 
   if (user.role === 'administrator') {
     // administrator can do evil
     can('manage', 'all');
-    return rules;
+    // no self removal
+    cannot('delete', 'user', { _id: user._id });
+  } else {
+    if (user.role === 'manager') {
+      // can list all users
+      can('read', 'user');
+    } else {
+      // can only get itself
+      can('read', 'user', { _id: user._id });
+    }
+    // update own user
+    can('update', 'user', { _id: user._id });
+    // except role
+    cannot('update', 'user', ['role'], { _id: user._id });
+    // no self removal
+    cannot('delete', 'user', { _id: user._id });  
   }
 
-  if (user.role === 'manager') {
-    can('read', 'user');
-    can('create', 'study');
-  }
-
-  // update own user
-  can('update', 'user', { id: user.id });
-  // except role
-  cannot('update', 'user', ['role'], { id: user.id });
-  // no self removal
-  cannot('delete', 'user', { id: user.id });
+  console.debug(rules);
 
   return rules;
 };

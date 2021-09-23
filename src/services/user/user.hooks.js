@@ -4,12 +4,16 @@ const validate = require('@feathers-plus/validate-joi');
 const { authenticate } = require('@feathersjs/authentication').hooks;
 const { authorize } = require('feathers-casl').hooks;
 
-const { setField } = require('feathers-authentication-hooks');
+//const { setField } = require('feathers-authentication-hooks');
 const verifyHooks = require('feathers-authentication-management').hooks;
 const accountService = require('../auth-management/notifier');
+const { defineAbilitiesFor } = require('./user.abilities');
 
 const allowAnonymous = require('../../hooks/allow-anonymous');
+const isAnonymous = require('../../hooks/is-anonymous');
 const processRegister = require('../../hooks/process-register');
+const makeAbilities = require('../../hooks/make-abilities');
+const searchQuery = require('../../hooks/search-query');
 
 const {
   discard,
@@ -80,19 +84,8 @@ const schema = Joi.object().keys({
   firstname: firstname,
   lastname: lastname,
   email: email,
-  password: password,
-  permissions: permissions,
-  role: role
+  password: password
 });
-
-/*const updateSchema = Joi.object().keys({
-  firstname: firstname,
-  lastname: lastname,
-  city: city,
-  institution: institution,
-  title: title,
-  phone: phone,
-});*/
 
 const adminCreateSchema = Joi.object().keys({
   firstname: firstname,
@@ -120,27 +113,28 @@ const adminUpdateSchema = Joi.object().keys({
 
 const joiOptions = { convert: true, abortEarly: false };
 
-const searchQuery = require('../../hooks/search-query');
-
 module.exports = {
   before: {
     all: [],
     find: [
-      authenticate('jwt'), 
+      authenticate('jwt'),
+      makeAbilities(defineAbilitiesFor),
       searchQuery(),
       authorize({ adapter: 'feathers-mongoose' })
     ],
     get: [
       authenticate('jwt'),
+      makeAbilities(defineAbilitiesFor),
       authorize({ adapter: 'feathers-mongoose' })
     ],
     create: [
       allowAnonymous(),
       authenticate('jwt', 'anonymous'),
+      makeAbilities(defineAbilitiesFor),
       processRegister(), 
-      discard('token'), 
+      discard('token'),
       iff(
-        context => context.params.authentication && context.params.authentication.strategy === 'anonymous',
+        isAnonymous(),
         validate.mongoose(schema, joiOptions),
         validate.mongoose(adminCreateSchema, joiOptions)
       ),
@@ -150,6 +144,7 @@ module.exports = {
     ],
     update: [
       authenticate('jwt'),
+      makeAbilities(defineAbilitiesFor),
       iff(
         isProvider('external'),
         preventChanges(
@@ -164,21 +159,14 @@ module.exports = {
           'resetShortToken',
           'resetExpires'
         ),
-        // TODO
         validate.mongoose(adminUpdateSchema, joiOptions),
-        /*iff((context) => !context.params.permitted, [
-          setField({
-            from: 'params.user._id',
-            as: 'params.query._id',
-          }),
-          validate.mongoose(updateSchema, joiOptions),
-        ]),*/
         hashPassword('password')
       ),
       authorize({ adapter: 'feathers-mongoose' })
     ],
     patch: [
       authenticate('jwt'),
+      makeAbilities(defineAbilitiesFor),
       iff(
         isProvider('external'),
         preventChanges(
@@ -193,21 +181,14 @@ module.exports = {
           'resetShortToken',
           'resetExpires'
         ),
-        // TODO
         validate.mongoose(adminUpdateSchema, joiOptions),
-        /*iff((context) => !context.params.permitted, [
-          setField({
-            from: 'params.user._id',
-            as: 'params.query._id',
-          }),
-          validate.mongoose(updateSchema, joiOptions),
-        ]),*/
         hashPassword('password')
       ),
       authorize({ adapter: 'feathers-mongoose' })
     ],
     remove: [
       authenticate('jwt'),
+      makeAbilities(defineAbilitiesFor),
       authorize({ adapter: 'feathers-mongoose' })
     ],
   },

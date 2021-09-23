@@ -7,7 +7,8 @@ module.exports = function (app) {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate'),
-    multi: ['remove']
+    multi: ['remove'],
+    whitelist: ['$nor', '$and', '$regex']
   };
 
   // Initialize our service with any options it requires
