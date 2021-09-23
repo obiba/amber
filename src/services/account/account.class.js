@@ -30,13 +30,13 @@ exports.Account = class Account {
 
   async patch(id, data, params) {
     console.log('id', id, data);
-    let user = await this.app.service('users').find({
+    let user = await this.app.service('user').find({
       query: {
         email: data.email,
       },
     });
     let updatedUser = Object.assign({}, user, data.user);
-    await this.app.service('users').patch(user.id, user);
+    await this.app.service('user').patch(user.id, user);
     console.log('user', user);
     return data;
   }

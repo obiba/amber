@@ -11,11 +11,24 @@ class AnonymousStrategy extends AuthenticationBaseStrategy {
   }
 }
 
+class ActiveLocalStrategy extends LocalStrategy {
+  async getEntityQuery(query) {
+    // Query for user but only include non `inactive` ones
+    return {
+      ...query,
+      role: {
+        $ne: 'inactive'
+      },
+      $limit: 1
+    };
+  }
+}
+
 module.exports = app => {
   const authentication = new AuthenticationService(app);
 
   authentication.register('jwt', new JWTStrategy());
-  authentication.register('local', new LocalStrategy());
+  authentication.register('local', new ActiveLocalStrategy());
   authentication.register('anonymous', new AnonymousStrategy());
 
   app.use('/authentication', authentication);

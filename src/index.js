@@ -18,14 +18,12 @@ const start = async () => {
       password: process.env.ADMINISTRATOR_PWD,
       firstname: 'Seed',
       lastname: 'Vicious',
-      permissions: ['administrator']
+      role: 'administrator'
     };
     app.service('user').find({
       query: {
         $limit: 0,
-        permissions: {
-          $in: 'administrator' 
-        }
+        role: 'administrator'
       }
     })
       .then(users => {

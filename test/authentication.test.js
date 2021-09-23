@@ -12,14 +12,14 @@ describe('authentication', () => {
       password: 'password',
       firstname: 'Xx',
       lastname: 'Yy',
-      permissions: ['administrator']
+      role: 'administrator'
     };
 
     before(async () => {
       try {
         await app.service('user').create(userInfo);
       } catch (error) {
-        //console.log(error);
+        console.error(error);
         // Do nothing, it just means the user already exists and can be tested
       }
     });
