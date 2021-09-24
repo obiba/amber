@@ -5,23 +5,23 @@
 module.exports = (options = {}) => {
   return async context => {
 
-    const query = context.params.query;
-    if (query) {
-      for (let field in query) {
-        if(query[field].$search && field.indexOf('$') == -1) {
-          query[field] = { $regex: new RegExp(query[field].$search, 'i') };
+    const rewriteQuery = (q) => {
+      for (let field in q) {
+        if(q[field].$search && field.indexOf('$') == -1) {
+          q[field] = { $regex: new RegExp(q[field].$search, 'i') };
         }
-        if(field == '$or') {
-          query[field].map((action) => {
-            let f = Object.keys(action)[0];
-            if(action[f].$search) {
-              action[f] = { $regex: new RegExp(action[f].$search, 'i') };
-            }
-            return action;
+        if(field === '$or' || field === '$and') {
+          q[field].map((action) => {
+            return rewriteQuery(action);
           });
         }
       }
-      context.params.query = query;
+      return q;
+    };
+
+    const query = context.params.query;
+    if (query) {
+      context.params.query = rewriteQuery(query);
     }
     
     return context;
