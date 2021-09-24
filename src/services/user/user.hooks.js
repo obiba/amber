@@ -135,9 +135,9 @@ module.exports = {
       discard('token'),
       iff(
         isAnonymous(),
-        validate.mongoose(schema, joiOptions),
-        validate.mongoose(adminCreateSchema, joiOptions)
-      ),
+        validate.mongoose(schema, joiOptions))
+        .else(
+          validate.mongoose(adminCreateSchema, joiOptions)),
       hashPassword('password'), 
       verifyHooks.addVerification(),
       authorize({ adapter: 'feathers-mongoose' })
