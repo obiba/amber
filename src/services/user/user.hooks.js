@@ -31,14 +31,12 @@ const firstname = Joi.string()
   .trim()
   .min(2)
   .max(30)
-  .pattern(new RegExp('^[a-zA-Z0-9 ]{2,30}$'))
   .required();
 
 const lastname = Joi.string()
   .trim()
   .min(2)
   .max(30)
-  .pattern(new RegExp('^[a-zA-Z0-9 ]{2,30}$'))
   .required();
 
 const password = Joi.string().trim().min(2).max(30).required();
@@ -53,20 +51,17 @@ const email = Joi.string()
 const institution = Joi.string()
   .trim()
   .min(2)
-  .max(30)
-  .pattern(new RegExp('^[a-zA-Z0-9 ]{2,30}$'));
+  .max(30);
 
 const city = Joi.string()
   .trim()
   .min(2)
-  .max(30)
-  .pattern(new RegExp('^[a-zA-Z0-9 ]{2,30}$'));
+  .max(30);
 
 const title = Joi.string()
   .trim()
   .min(2)
-  .max(30)
-  .pattern(new RegExp('^[a-zA-Z0-9 ]{2,30}$'));
+  .max(30);
 
 const phone = Joi.string()
   .trim()
