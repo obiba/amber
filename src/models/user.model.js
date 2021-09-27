@@ -11,6 +11,7 @@ module.exports = function (app) {
     password: { type: String },
     firstname: { type: String },
     lastname: { type: String },
+    language: { type: String, default: 'en' },
     institution: { type: String },
     department: { type: String },
     title: { type: String },

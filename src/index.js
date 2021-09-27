@@ -18,6 +18,7 @@ const start = async () => {
       password: process.env.ADMINISTRATOR_PWD,
       firstname: 'Seed',
       lastname: 'Vicious',
+      language: 'en',
       role: 'administrator'
     };
     app.service('user').find({

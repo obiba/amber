@@ -39,6 +39,11 @@ const lastname = Joi.string()
   .max(30)
   .required();
 
+const language = Joi.string()
+  .trim()
+  .min(2)
+  .max(5);
+
 const password = Joi.string().trim().min(2).max(30).required();
 
 const email = Joi.string()
@@ -78,6 +83,7 @@ const role = Joi.string()
 const schema = Joi.object().keys({
   firstname: firstname,
   lastname: lastname,
+  language: language,
   email: email,
   password: password
 });
@@ -85,6 +91,7 @@ const schema = Joi.object().keys({
 const adminCreateSchema = Joi.object().keys({
   firstname: firstname,
   lastname: lastname,
+  language: language,
   email: email,
   password: password,
   permissions: permissions,
@@ -98,6 +105,7 @@ const adminCreateSchema = Joi.object().keys({
 const adminUpdateSchema = Joi.object().keys({
   firstname: firstname,
   lastname: lastname,
+  language: language,
   city: city,
   institution: institution,
   title: title,
