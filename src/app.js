@@ -101,6 +101,7 @@ app.configure(casl());
 app.use(express.notFound());
 app.use(express.errorHandler({ logger }));
 
+// Global hooks
 app.hooks(appHooks);
 
 module.exports = app;

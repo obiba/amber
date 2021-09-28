@@ -1,6 +1,7 @@
 const { AuthenticationBaseStrategy, AuthenticationService, JWTStrategy } = require('@feathersjs/authentication');
 const { LocalStrategy } = require('@feathersjs/authentication-local');
 const { expressOauth } = require('@feathersjs/authentication-oauth');
+const authActivity = require('./hooks/auth-activity');
 
 class AnonymousStrategy extends AuthenticationBaseStrategy {
   // eslint-disable-next-line no-unused-vars
@@ -32,5 +33,10 @@ module.exports = app => {
   authentication.register('anonymous', new AnonymousStrategy());
 
   app.use('/authentication', authentication);
+  app.service('authentication').hooks({
+    after: {
+      create: [authActivity()]
+    }
+  });
   app.configure(expressOauth());
 };
