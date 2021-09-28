@@ -1,8 +1,9 @@
 // Application hooks that run for every service
+const logger = require('./hooks/log-activity');
 
 module.exports = {
   before: {
-    all: [],
+    all: [logger()],
     find: [],
     get: [],
     create: [],
@@ -12,7 +13,7 @@ module.exports = {
   },
 
   after: {
-    all: [],
+    all: [logger()],
     find: [],
     get: [],
     create: [],
@@ -22,7 +23,7 @@ module.exports = {
   },
 
   error: {
-    all: [],
+    all: [logger()],
     find: [],
     get: [],
     create: [],

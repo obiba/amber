@@ -1,4 +1,6 @@
+const logger = require('../../logger');
 const { AbilityBuilder, createAliasResolver, makeAbilityFromRules } = require('feathers-casl');
+
 
 // don't forget this, as `read` is used internally
 const resolveAction = createAliasResolver({
@@ -34,7 +36,7 @@ const defineRulesFor = (user) => {
     cannot('delete', 'user', { _id: user._id });  
   }
 
-  console.debug(rules);
+  logger.debug('  rules: ' + JSON.stringify(rules, null, '  '));
 
   return rules;
 };

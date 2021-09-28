@@ -153,6 +153,7 @@ module.exports = {
         preventChanges(
           true,
           'email',
+          'lastLoggedIn',
           'isVerified',
           'verifyToken',
           'verifyShortToken',
@@ -175,6 +176,7 @@ module.exports = {
         preventChanges(
           true,
           'email',
+          'lastLoggedIn',
           'isVerified',
           'verifyToken',
           'verifyShortToken',

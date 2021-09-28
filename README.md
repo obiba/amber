@@ -78,6 +78,9 @@ Amber uses [dotenv](https://github.com/motdotla/dotenv) for environment variable
 * `GOOGLE_SECRET`, OAuth secret for Google
 * `ADMINISTRATOR_EMAIL`, user seeding when there is no administrator in the database
 * `ADMINISTRATOR_PWD`, user seeding when there is no administrator in the database
+* `LOG_LEVEL`, logger level (`error`, `warn`, `info`, `verbose`, `debug`, `silly`, etc. (see [winstonjs](https://github.com/winstonjs/winston))), default is `info`
+* `LOG_FILE`, file logger path
+* `LOG_FILE_LEVEL`, file logger level when `LOG_FILE` is specified, default is `LOG_LEVEL` 
 
 ## Testing
 

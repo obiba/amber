@@ -12,6 +12,7 @@ describe('authentication', () => {
       password: 'password',
       firstname: 'Xx',
       lastname: 'Yy',
+      language: 'en',
       role: 'administrator'
     };
 
