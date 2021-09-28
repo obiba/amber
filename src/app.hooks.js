@@ -1,6 +1,5 @@
 // Application hooks that run for every service
 const logActivity = require('./hooks/log-activity');
-const authActivity = require('./hooks/auth-activity');
 
 module.exports = {
   before: {
@@ -17,7 +16,7 @@ module.exports = {
     all: [logActivity()],
     find: [],
     get: [],
-    create: [authActivity()],
+    create: [],
     update: [],
     patch: [],
     remove: []
