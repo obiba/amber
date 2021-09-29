@@ -14,6 +14,8 @@ const isAnonymous = require('../../hooks/is-anonymous');
 const processRegister = require('../../hooks/process-register');
 const makeAbilities = require('../../hooks/make-abilities');
 const searchQuery = require('../../hooks/search-query');
+const addUserToGroupDomain = require('../../hooks/add-user-to-group-domain');
+const deleteUserFromGroups = require('../../hooks/delete-user-from-groups');
 
 const {
   discard,
@@ -115,6 +117,7 @@ const adminUpdateSchema = Joi.object().keys({
 });
 
 const joiOptions = { convert: true, abortEarly: false };
+
 
 module.exports = {
   before: {
@@ -223,10 +226,10 @@ module.exports = {
       (context) => {
         accountService(context.app).notifier(
           'resendVerifySignup',
-          context.data
-        );
+          context.data);
       },
-      verifyHooks.removeVerification(),
+      verifyHooks.removeVerification(), 
+      addUserToGroupDomain()
     ],
     update: [
       authorize({ adapter: 'feathers-mongoose' })
@@ -235,7 +238,8 @@ module.exports = {
       authorize({ adapter: 'feathers-mongoose' })
     ],
     remove: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'feathers-mongoose' }), 
+      deleteUserFromGroups()
     ],
   },
 
