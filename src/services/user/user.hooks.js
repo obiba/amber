@@ -9,10 +9,10 @@ const verifyHooks = require('feathers-authentication-management').hooks;
 const accountService = require('../auth-management/notifier');
 const { defineAbilitiesFor } = require('./user.abilities');
 
+const makeAbilities = require('../../hooks/make-abilities');
 const allowAnonymous = require('../../hooks/allow-anonymous');
 const isAnonymous = require('../../hooks/is-anonymous');
 const processRegister = require('../../hooks/process-register');
-const makeAbilities = require('../../hooks/make-abilities');
 const searchQuery = require('../../hooks/search-query');
 const addUserToGroupDomain = require('../../hooks/add-user-to-group-domain');
 const deleteUserFromGroups = require('../../hooks/delete-user-from-groups');
