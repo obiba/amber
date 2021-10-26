@@ -16,6 +16,7 @@ const processRegister = require('../../hooks/process-register');
 const searchQuery = require('../../hooks/search-query');
 const addUserToGroupDomain = require('../../hooks/add-user-to-group-domain');
 const deleteUserFromGroups = require('../../hooks/delete-user-from-groups');
+const checkUpdateUser = require('../../hooks/check-update-user');
 
 const {
   discard,
@@ -119,6 +120,8 @@ const adminUpdateSchema = Joi.object().keys({
 const joiOptions = { convert: true, abortEarly: false };
 
 
+
+
 module.exports = {
   before: {
     all: [],
@@ -137,20 +140,21 @@ module.exports = {
       allowAnonymous(),
       authenticate('jwt', 'anonymous'),
       makeAbilities(defineAbilitiesFor),
-      processRegister(), 
+      processRegister(),
       discard('token'),
       iff(
         isAnonymous(),
         validate.mongoose(schema, joiOptions))
         .else(
           validate.mongoose(adminCreateSchema, joiOptions)),
-      hashPassword('password'), 
+      hashPassword('password'),
       verifyHooks.addVerification(),
       authorize({ adapter: 'feathers-mongoose' })
     ],
     update: [
       authenticate('jwt'),
       makeAbilities(defineAbilitiesFor),
+      checkUpdateUser(),
       iff(
         isProvider('external'),
         preventChanges(
@@ -174,6 +178,7 @@ module.exports = {
     patch: [
       authenticate('jwt'),
       makeAbilities(defineAbilitiesFor),
+      checkUpdateUser(),
       iff(
         isProvider('external'),
         preventChanges(
@@ -228,7 +233,7 @@ module.exports = {
           'resendVerifySignup',
           context.data);
       },
-      verifyHooks.removeVerification(), 
+      verifyHooks.removeVerification(),
       addUserToGroupDomain()
     ],
     update: [
@@ -238,7 +243,7 @@ module.exports = {
       authorize({ adapter: 'feathers-mongoose' })
     ],
     remove: [
-      authorize({ adapter: 'feathers-mongoose' }), 
+      authorize({ adapter: 'feathers-mongoose' }),
       deleteUserFromGroups()
     ],
   },

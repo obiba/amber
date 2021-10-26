@@ -30,8 +30,6 @@ const defineRulesFor = (user) => {
     }
     // update own user
     can('update', 'user', { _id: user._id });
-    // except role
-    cannot('update', 'user', ['role'], { _id: user._id });
     // no self removal
     cannot('delete', 'user', { _id: user._id });
   }
