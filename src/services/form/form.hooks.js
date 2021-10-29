@@ -1,11 +1,14 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
 
 const createForm = require('../../hooks/create-form');
+const searchQuery = require('../../hooks/search-query');
 
 module.exports = {
   before: {
     all: [ authenticate('jwt') ],
-    find: [],
+    find: [
+      searchQuery()
+    ],
     get: [],
     create: [
       createForm()

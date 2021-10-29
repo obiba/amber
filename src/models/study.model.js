@@ -14,7 +14,7 @@ module.exports = function (app) {
     name: { type: String, required: true },
     description: { type: String, required: false },
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
-    populations: { type: [PopulationSchema], default: {}}
+    forms: { type: [PopulationSchema], default: {}}
   }, {
     timestamps: true
   });

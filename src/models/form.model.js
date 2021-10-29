@@ -11,9 +11,9 @@ module.exports = function (app) {
     description: { type: String, required: false },
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
     study: { type: Schema.Types.ObjectId, ref: 'study' },
-    schema: { type: Object },       // the form schema definition: items, groups, layout
-    translations: { type: Object }, // the translation keys, by language
-    data: { type: Object }          // item options, data initialization
+    items: { type: [Object] },  // the form schema definition per items
+    i18n: { type: Object },     // the translation keys, by language
+    data: { type: Object }      // item options, data initialization
   }, {
     timestamps: true
   });
