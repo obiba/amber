@@ -5,6 +5,7 @@ const { defineAbilitiesFor } = require('./study.abilities');
 const makeAbilities = require('../../hooks/make-abilities');
 const searchQuery = require('../../hooks/search-query');
 const createStudy = require('../../hooks/create-study');
+const removeStudyForms = require('../../hooks/remove-study-forms');
 
 module.exports = {
   before: {
@@ -43,7 +44,9 @@ module.exports = {
     create: [],
     update: [],
     patch: [],
-    remove: []
+    remove: [
+      removeStudyForms()
+    ]
   },
 
   error: {

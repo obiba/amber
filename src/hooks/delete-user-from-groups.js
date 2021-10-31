@@ -16,16 +16,17 @@ module.exports = (options = {}) => {
             $in: [userId]
           }
         }
-      }).then(groups => {
-        if (groups.total > 0) {
-          groups.data.forEach(group => {
-            logger.info('Cleaning group "' + group.name + '" from removed user ' + userId);
-            group.users = group.users.filter(id => String(id) !== String(userId)); // note: comparing ObjectIds
-            console.log(group);
-            groupService.patch(group._id, { users: group.users });
-          });
-        }
-      });
+      })
+        .then(groups => {
+          if (groups.total > 0) {
+            groups.data.forEach(group => {
+              logger.info('Cleaning group "' + group.name + '" from removed user ' + userId);
+              group.users = group.users.filter(id => String(id) !== String(userId)); // note: comparing ObjectIds
+              groupService.patch(group._id, { users: group.users });
+            });
+          }
+        })
+        .catch(err => console.log(err));
     };
 
     if (Array.isArray(context.result)) {
