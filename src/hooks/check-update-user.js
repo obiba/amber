@@ -4,7 +4,7 @@
 // eslint-disable-next-line no-unused-vars
 module.exports = (options = {}) => {
   return async context => {
-    if (context.params.user.role !== 'administrator')
+    if (context.params.user && context.params.user.role !== 'administrator')
       context.data.role = context.params.user.role;
     // clean not required fields that cannot be empty
     ['phone', 'title', 'institution', 'city'].forEach(field => {
