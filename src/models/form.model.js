@@ -16,7 +16,7 @@ module.exports = function (app) {
     description: { type: String, required: false },
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
     study: { type: Schema.Types.ObjectId, ref: 'study' },
-    schema: { type: [FormSchema], default: {}}
+    schema: { type: FormSchema, default: {}}
   }, {
     timestamps: true
   });

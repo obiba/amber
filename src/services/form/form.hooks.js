@@ -2,6 +2,8 @@ const { authenticate } = require('@feathersjs/authentication').hooks;
 
 const createForm = require('../../hooks/create-form');
 const searchQuery = require('../../hooks/search-query');
+const formAddToStudy = require('../../hooks/form-add-to-study');
+const formRemoveFromStudy = require('../../hooks/form-remove-from-study');
 
 module.exports = {
   before: {
@@ -22,10 +24,14 @@ module.exports = {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [
+      formAddToStudy()
+    ],
     update: [],
     patch: [],
-    remove: []
+    remove: [
+      formRemoveFromStudy()
+    ]
   },
 
   error: {

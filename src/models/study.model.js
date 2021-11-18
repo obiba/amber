@@ -6,15 +6,11 @@ module.exports = function (app) {
   const modelName = 'study';
   const mongooseClient = app.get('mongooseClient');
   const { Schema } = mongooseClient;
-  const PopulationSchema = new Schema({ 
-    name: { type: String, required: true, default: 'baseline' },
-    description: { type: String, required: false },
-  });
   const schema = new Schema({
     name: { type: String, required: true },
     description: { type: String, required: false },
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
-    forms: { type: [PopulationSchema], default: {}}
+    forms: { type: [Schema.Types.ObjectId], ref: 'form' },
   }, {
     timestamps: true
   });
