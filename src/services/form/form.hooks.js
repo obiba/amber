@@ -1,6 +1,6 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
 
-const createForm = require('../../hooks/create-form');
+const formCreate = require('../../hooks/form-create');
 const searchQuery = require('../../hooks/search-query');
 const formAddToStudy = require('../../hooks/form-add-to-study');
 const formRemoveFromStudy = require('../../hooks/form-remove-from-study');
@@ -13,7 +13,7 @@ module.exports = {
     ],
     get: [],
     create: [
-      createForm()
+      formCreate()
     ],
     update: [],
     patch: [],

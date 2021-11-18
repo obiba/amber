@@ -4,8 +4,8 @@ const { defineAbilitiesFor } = require('./study.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
 const searchQuery = require('../../hooks/search-query');
-const createStudy = require('../../hooks/create-study');
-const removeStudyForms = require('../../hooks/remove-study-forms');
+const studyCreate = require('../../hooks/study-create');
+const studyRemoveForms = require('../../hooks/study-remove-forms');
 
 module.exports = {
   before: {
@@ -21,7 +21,7 @@ module.exports = {
       authorize({ adapter: 'feathers-mongoose' })
     ],
     create: [
-      createStudy(),
+      studyCreate(),
       authorize({ adapter: 'feathers-mongoose' })
     ],
     update: [
@@ -45,7 +45,7 @@ module.exports = {
     update: [],
     patch: [],
     remove: [
-      removeStudyForms()
+      studyRemoveForms()
     ]
   },
 

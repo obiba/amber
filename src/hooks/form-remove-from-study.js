@@ -6,10 +6,26 @@ const logger = require('../logger');
 module.exports = (options = {}) => {
   return async context => {
     const studyService = context.app.service('study');
-    const study = await studyService.get(context.result.study);
-    logger.debug('Removing form ' + context.result._id + ' from study: ' + study._id);
-    study.forms = study.forms.filter(fid => fid.toString() !== context.result._id.toString());
-    studyService.update(study._id, study);
+
+    // remove forms associated to the removed study
+    const removeFormFromStudy = (form) => {
+      studyService.get(form.study)
+        .then(study => {
+          logger.debug('Removing form ' + form._id + ' from study: ' + study._id);
+          study.forms = study.forms.filter(fid => fid.toString() !== form._id.toString());
+          studyService.update(study._id, study);    
+        })
+        .catch(err => console.log(err));
+    };
+
+    if (Array.isArray(context.result)) {
+      context.result.forEach(form => {
+        removeFormFromStudy(form);
+      });
+    } else {
+      removeFormFromStudy(context.result);
+    }
+
     return context;
   };
 };
