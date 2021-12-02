@@ -7,8 +7,8 @@ module.exports = function (app) {
   const mongooseClient = app.get('mongooseClient');
   const { Schema } = mongooseClient;
   const FormSchema = new Schema({
-    name: { type: String, required: true, default: '__root' },
-    label: { type: String, required: true },
+    name: { type: String, required: true, default: '.' },
+    label: { type: String, required: true, default: 'form_title' },
     description: { type: String, required: false },
     items: { type: [Object] },  // the form schema definition per items
     i18n: { type: Object },     // the translation keys, by language
