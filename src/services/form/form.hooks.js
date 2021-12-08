@@ -5,6 +5,8 @@ const searchQuery = require('../../hooks/search-query');
 const formAddToStudy = require('../../hooks/form-add-to-study');
 const formRemoveFromStudy = require('../../hooks/form-remove-from-study');
 
+const formRemoveRevisions = require('../../hooks/form-remove-revisions');
+
 module.exports = {
   before: {
     all: [ authenticate('jwt') ],
@@ -30,7 +32,8 @@ module.exports = {
     update: [],
     patch: [],
     remove: [
-      formRemoveFromStudy()
+      formRemoveFromStudy(),
+      formRemoveRevisions()
     ]
   },
 
