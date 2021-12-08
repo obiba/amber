@@ -6,6 +6,7 @@ const account = require('./account/account.service.js');
 const group = require('./group/group.service.js');
 const form = require('./form/form.service.js');
 const metrics = require('./metrics/metrics.service.js');
+const formRevision = require('./form-revision/form-revision.service.js');
 // eslint-disable-next-line no-unused-vars
 module.exports = function (app) {
   app.configure(user);
@@ -16,4 +17,5 @@ module.exports = function (app) {
   app.configure(group);
   app.configure(form);
   app.configure(metrics);
+  app.configure(formRevision);
 };
