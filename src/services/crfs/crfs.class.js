@@ -9,6 +9,7 @@ exports.Crfs = class Crfs {
 
   async find (params) {
     const formRevisionService = this.app.service('form-revision');
+    params.query.state = 'active';
     const result = await this.app.service('case-report-form').find(params);
     
     const data = [];
