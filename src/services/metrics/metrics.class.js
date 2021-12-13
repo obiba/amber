@@ -17,14 +17,16 @@ exports.Metrics = class Metrics {
       this.app.service('user').find(p),
       this.app.service('group').find(p),
       this.app.service('study').find(p),
-      this.app.service('form').find(p)
+      this.app.service('form').find(p),
+      this.app.service('case-report-form').find(p)
     ]);
     return {
       counts: {
         users: counts[0].total,
         groups: counts[1].total,
         studies: counts[2].total,
-        forms: counts[3].total
+        forms: counts[3].total,
+        case_report_forms: counts[4].total
       }
     };
   }
