@@ -11,6 +11,7 @@ module.exports = function (app) {
     study: { type: Schema.Types.ObjectId, ref: 'study' },
     form: { type: Schema.Types.ObjectId, ref: 'form' },
     revision: { type: Number, required: false },
+    state: { type: String, enum: ['active', 'paused'], default: 'active' }
   }, {
     timestamps: true
   });
