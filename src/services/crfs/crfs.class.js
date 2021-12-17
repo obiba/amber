@@ -25,7 +25,7 @@ exports.Crfs = class Crfs {
       });
       if (frResult.total > 0) {
         data.push({
-          _id: frResult.data[0]._id,
+          _id: crf._id,
           schema: frResult.data[0].schema,
           revision: frResult.data[0].revision
         });
