@@ -21,8 +21,8 @@ module.exports = function (app) {
   });
   const schema = new Schema({
     publishedBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
-    study: { type: Schema.Types.ObjectId, ref: 'study' },
-    form: { type: Schema.Types.ObjectId, ref: 'form' },
+    study: { type: Schema.Types.ObjectId, ref: 'study', required: true },
+    form: { type: Schema.Types.ObjectId, ref: 'form', required: true },
     schema: { type: FormSchema, default: {}},
     revision: { type: Number, required: false },
     comment: { type: String, required: false }
