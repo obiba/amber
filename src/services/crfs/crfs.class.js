@@ -36,9 +36,7 @@ exports.Crfs = class Crfs {
   }
 
   async get (id, params) {
-    return {
-      id, text: `A new message with ID: ${id}!`
-    };
+    throw new BadRequest('Not implemented');
   }
 
   async create (data, params) {

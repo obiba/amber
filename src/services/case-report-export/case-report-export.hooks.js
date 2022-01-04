@@ -1,18 +1,11 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
 
-const caseReportCreate = require('../../hooks/case-report-create');
-const searchQuery = require('../../hooks/search-query');
-
 module.exports = {
   before: {
     all: [ authenticate('jwt') ],
-    find: [
-      searchQuery()
-    ],
+    find: [],
     get: [],
-    create: [
-      caseReportCreate()
-    ],
+    create: [],
     update: [],
     patch: [],
     remove: []
