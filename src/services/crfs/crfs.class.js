@@ -20,6 +20,9 @@ exports.Crfs = class Crfs {
         study: crf.study,
         form: crf.form
       };
+      if (crf.revision) {
+        q.revision = crf.revision;
+      }
       const frResult = await formRevisionService.find({
         query: q
       });
