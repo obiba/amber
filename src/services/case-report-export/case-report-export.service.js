@@ -16,23 +16,26 @@ const mkTmpDir = () => {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'amber-'));
 };
 
-const doCsvResponse = (res) => {
-  // extract only one form-version
-  const key = Object.keys(res.data).pop();
-  const tableName = res.data[key].formRevision.name + '-' + res.data[key].formRevision.revision;
-  const csv = toCSV(res.data[key].data, res.data[key].fields);
-  res.attachment(`${tableName}.csv`);
-  res.type('csv');
-  res.end(csv);
+const makeTableName = (formRevision) => {
+  const tableName = formRevision.name + '-' + formRevision.revision;
+  return tableName;
 };
 
 const makeAttributes = (key, i18n) => {
-  return Object.keys(i18n).map(locale => { 
-    return {
-      value: i18n[locale][key] ? i18n[locale][key] : key,
-      locale: locale
-    };
-  });
+  if (i18n) {
+    return Object.keys(i18n).map(locale => { 
+      return {
+        value: i18n[locale][key] ? i18n[locale][key] : key,
+        locale: locale
+      };
+    });
+  } else {
+    return [
+      {
+        value: key
+      }
+    ];
+  }
 };
 
 const makeVariables = (item, options) => {
@@ -70,12 +73,16 @@ const makeVariables = (item, options) => {
     variable.attributes = [];
     ['label', 'description'].forEach(key => {
       if (item[key]) {
-        makeAttributes(item[key], options.i18n).forEach(attr => 
-          variable.attributes.push({
+        makeAttributes(item[key], options.i18n).forEach(attr => {
+          const attribute = {
             name: key,
-            value: attr.value,
-            locale: attr.locale
-          }));
+            value: attr.value
+          };
+          if (attr.locale) {
+            attribute.locale = attr.locale;
+          }
+          variable.attributes.push(attribute);
+        });
       }
     });
     if (item.options) {
@@ -86,11 +93,14 @@ const makeVariables = (item, options) => {
         };
         if (opt.label) {
           category.attributes = makeAttributes(opt.label, options.i18n).map(attr => { 
-            return {
+            const attribute = {
               name: 'label',
-              value: attr.value,
-              locale: attr.locale
+              value: attr.value
             };
+            if (attr.locale) {
+              attribute.locale = attr.locale;
+            }
+            return attribute;
           });
         }
         variable.categories.push(category);
@@ -100,11 +110,39 @@ const makeVariables = (item, options) => {
   }
 };
 
+const makeTable = (formRevision) => {
+  const schema = formRevision.schema;
+  const table = {
+    table: makeTableName(formRevision),
+    entityType: 'Participant',
+    variables: []
+  };
+  schema.items.forEach(item => {
+    const variables = makeVariables(item, { entityType: table.entityType, i18n: schema.i18n });
+    if (Array.isArray(variables)) {
+      variables.forEach(variable => table.variables.push(variable));
+    } else {
+      table.variables.push(variables);
+    }
+  });
+  return table;
+};
+
+const doCsvResponse = (res) => {
+  // extract only one form-version
+  const key = Object.keys(res.data).pop();
+  const tableName = makeTableName(res.data[key].formRevision);
+  const csv = toCSV(res.data[key].data, res.data[key].fields);
+  res.attachment(`${tableName}.csv`);
+  res.type('csv');
+  res.end(csv);
+};
+
 const doZipResponse = (res) => {
   const tmpDir = mkTmpDir();
   // write data
   for (const key in res.data) {
-    const tableName = res.data[key].formRevision.name + '-' + res.data[key].formRevision.revision;
+    const tableName = makeTableName(res.data[key].formRevision);
     if (!fs.existsSync(path.join(tmpDir, tableName))) {
       fs.mkdirSync(path.join(tmpDir, tableName));
     }
@@ -112,22 +150,8 @@ const doZipResponse = (res) => {
     const csv = toCSV(res.data[key].data, res.data[key].fields);
     fs.writeFileSync(path.join(tmpDir, tableName, 'data.csv'), csv);
     // write variables
-    const schema = res.data[key].formRevision.schema;
-    const table = {
-      table: tableName,
-      entityType: 'Participant',
-      datasourceName: '',
-      variables: []
-    };
-    schema.items.forEach(item => {
-      const variables = makeVariables(item, { entityType: table.entityType, i18n: schema.i18n });
-      if (Array.isArray(variables)) {
-        variables.forEach(variable => table.variables.push(variable));
-      } else {
-        table.variables.push(variables);
-      }
-    });
-    fs.writeFileSync(path.join(tmpDir, tableName, 'table.json'), JSON.stringify(table));
+    const table = makeTable(res.data[key].formRevision);
+    fs.writeFileSync(path.join(tmpDir, tableName, 'variables.json'), JSON.stringify(table.variables));
   }
   const archive = archiver('zip');
   archive.on('error', (err) => {
@@ -149,7 +173,15 @@ const doZipResponse = (res) => {
 
 const doJsonResponse = (res) => {
   res.attachment('case-report-export.json');
-  res.json(res.data);
+  const data = {};
+  for (const key in res.data) {
+    const tableName = makeTableName(res.data[key].formRevision);
+    data[tableName] = {
+      data: res.data[key].data,
+      variables: makeTable(res.data[key].formRevision).variables
+    };
+  }
+  res.json(data);
 };
 
 module.exports = function (app) {
