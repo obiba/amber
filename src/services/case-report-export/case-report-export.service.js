@@ -42,7 +42,7 @@ const makeVariables = (item, options) => {
   const prefix = options.prefix ? options.prefix + '.' : '';
   if (item.items) {
     const variables = [];
-    item.items.forEach(it => {
+    item.items.filter(it => it.type !== 'section').forEach(it => {
       const vars = makeVariables(it, {
         entityType: options.entityType,
         i18n: options.i18n,
@@ -55,7 +55,7 @@ const makeVariables = (item, options) => {
       }
     });
     return variables;
-  } else {
+  } else if (item.type !== 'section') {
     const variable = {
       name: prefix + item.name,
       valueType: 'text',
@@ -107,6 +107,8 @@ const makeVariables = (item, options) => {
       });
     }
     return variable;
+  } else {
+    return [];
   }
 };
 
@@ -164,7 +166,7 @@ const doZipResponse = (res) => {
     console.log('Archive wrote %d bytes', archive.pointer());
   });
   //set the archive name
-  res.attachment('archive-name.zip');
+  res.attachment('case-report-export.zip');
   //this is the streaming magic
   archive.pipe(res);
   archive.directory(tmpDir, '');
