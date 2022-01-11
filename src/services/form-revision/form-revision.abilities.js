@@ -20,6 +20,8 @@ const defineRulesFor = (user) => {
     can('manage', 'all');
   } else if (user.role === 'manager') { 
     can('manage', 'form-revision');
+  } else if (user.role === 'interviewer') {
+    can('read', 'form-revision');
   }
 
   logger.debug('  rules: ' + JSON.stringify(rules, null, '  '));
