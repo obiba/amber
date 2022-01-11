@@ -23,7 +23,6 @@ module.exports = {
     create: [
       caseReportCreate(),
       authorize({ adapter: 'feathers-mongoose' })
-    
     ],
     update: [
       authorize({ adapter: 'feathers-mongoose' })

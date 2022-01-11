@@ -16,9 +16,10 @@ const defineRulesFor = (user) => {
   //console.log(user);
 
   if (user.role === 'administrator') {
+    // administrator can do evil
     can('manage', 'all');
-  } else if (user.role === 'manager') {
-    can('read', 'case-report-export');
+  } else if (user.role === 'manager') { 
+    can('manage', 'form-revision');
   }
 
   logger.debug('  rules: ' + JSON.stringify(rules, null, '  '));

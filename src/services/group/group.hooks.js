@@ -1,21 +1,41 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
+const { authorize } = require('feathers-casl').hooks;
+const { defineAbilitiesFor } = require('./group.abilities');
+
+const makeAbilities = require('../../hooks/make-abilities');
 const searchQuery = require('../../hooks/search-query');
 
 module.exports = {
   before: {
-    all: [ authenticate('jwt') ],
-    find: [
-      searchQuery()
+    all: [
+      authenticate('jwt'),
+      makeAbilities(defineAbilitiesFor)
     ],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    find: [
+      searchQuery(),
+      authorize({ adapter: 'feathers-mongoose' })
+    ],
+    get: [
+      authorize({ adapter: 'feathers-mongoose' })
+    ],
+    create: [
+      authorize({ adapter: 'feathers-mongoose' })
+    ],
+    update: [
+      authorize({ adapter: 'feathers-mongoose' })
+    ],
+    patch: [
+      authorize({ adapter: 'feathers-mongoose' })
+    ],
+    remove: [
+      authorize({ adapter: 'feathers-mongoose' })
+    ]
   },
 
   after: {
-    all: [],
+    all: [
+      authorize({ adapter: 'feathers-mongoose' })
+    ],
     find: [],
     get: [],
     create: [],

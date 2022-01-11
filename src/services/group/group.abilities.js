@@ -15,11 +15,12 @@ const defineRulesFor = (user) => {
 
   //console.log(user);
 
-  // read only, restricted service
   if (user.role === 'administrator') {
+    // administrator can do evil
     can('manage', 'all');
-  } else if (user.role === 'manager' || user.role === 'interviewer') {
-    can('read', 'crfs');
+  } else if (user.role === 'manager') {
+    // can list all users
+    can('read', 'group');
   }
 
   logger.debug('  rules: ' + JSON.stringify(rules, null, '  '));
