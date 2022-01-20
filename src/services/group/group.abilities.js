@@ -19,7 +19,7 @@ const defineRulesFor = (user) => {
     // administrator can do evil
     can('manage', 'all');
   } else if (user.role === 'manager') {
-    // can list all users
+    // can list all groups
     can('read', 'group');
   }
 

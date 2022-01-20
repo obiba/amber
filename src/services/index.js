@@ -12,6 +12,7 @@ const formRevisionDigest = require('./form-revision-digest/form-revision-digest.
 const crfs = require('./crfs/crfs.service.js');
 const caseReport = require('./case-report/case-report.service.js');
 const caseReportExport = require('./case-report-export/case-report-export.service.js');
+const subjects = require('./subjects/subjects.service.js');
 // eslint-disable-next-line no-unused-vars
 module.exports = function (app) {
   app.configure(user);
@@ -28,4 +29,5 @@ module.exports = function (app) {
   app.configure(crfs);
   app.configure(caseReport);
   app.configure(caseReportExport);
+  app.configure(subjects);
 };
