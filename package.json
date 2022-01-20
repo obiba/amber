@@ -65,6 +65,7 @@
     "mongoose": "^5.13.9",
     "nodemailer-smtp-transport": "^2.7.4",
     "serve-favicon": "^2.5.0",
+    "string-template": "^1.0.0",
     "winston": "^3.3.3"
   },
   "devDependencies": {

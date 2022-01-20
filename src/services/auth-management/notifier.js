@@ -1,3 +1,5 @@
+var format = require('string-template');
+
 module.exports = function (app) {
   function getLink(type, hash) {
     const url = (process.env.AMBER_STUDIO_URL || app.get('amber_studio_url')) + '/' + type + '?token=' + hash;
@@ -20,60 +22,68 @@ module.exports = function (app) {
   return {
     service: 'user',
     notifier: function (type, user) {
-      let tokenLink;
       let email;
       console.log('type', type);
+      const emailTemplates = app.get('email_templates');
+      const subject = emailTemplates[type][user.language] ? emailTemplates[type][user.language].subject : emailTemplates[type].en;
+      const html = emailTemplates[type][user.language] ? emailTemplates[type][user.language].html : emailTemplates[type].en;
+      const context = {
+        email: user.email,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        language: user.language,
+        role: user.role
+      };
       switch (type) {
       case 'resendVerifySignup':
         //sending the user the verification email
         console.log('user', user);
-        tokenLink = getLink('verify', user.verifyToken);
+        context.tokenLink = getLink('verify', user.verifyToken);
         email = {
           from: FROM_EMAIL,
           to: user.email,
-          subject: 'Verify Email',
-          html: tokenLink,
+          subject: subject,
+          html: format(html, context),
         };
         return sendEmail(email);
       case 'verifySignup':
         // confirming verification
-        tokenLink = getLink('verify', user.verifyToken);
+        context.tokenLink = getLink('verify', user.verifyToken);
         email = {
           from: FROM_EMAIL,
           to: user.email,
-          subject: 'Email Verified',
-          html: 'Thanks for verifying your email',
+          subject: subject,
+          html: format(html, context),
         };
         return sendEmail(email);
       case 'sendResetPwd':
         console.log('user', user);
-        tokenLink = getLink('reset-password', user.resetToken);
+        context.tokenLink = getLink('reset-password', user.resetToken);
         email = {
           from: FROM_EMAIL,
           to: user.email,
-          subject: 'Reset Password',
-          html: `<html><b>Reset Password</b>: ${tokenLink}</html>`,
+          subject: subject,
+          html: format(html, context),
         };
         return sendEmail(email);
       case 'resetPwd':
-        tokenLink = getLink('reset-password', user.resetToken);
+        context.tokenLink = getLink('reset-password', user.resetToken);
         email = email = {
           from: FROM_EMAIL,
           to: user.email,
-          subject: 'Successfully Reset Password',
-          html: '<html><b>Successfully reset password.</b></html>',
+          subject: subject,
+          html: format(html, context),
         };
         return sendEmail(email);
       case 'passwordChange':
         email = {
           from: FROM_EMAIL,
           to: user.email,
-          subject: 'Password Changed',
-          html:
-            '<html><b>Successfully updated password. If this was not you, let us know.</b></html>',
+          subject: subject,
+          html: format(html, context),
         };
         return sendEmail(email);
-      case 'identityChange':
+      /* case 'identityChange':
         tokenLink = getLink('verify', user.verifyToken);
         console.log('user', user);
         email = {
@@ -82,7 +92,7 @@ module.exports = function (app) {
           subject: 'Verify New Email Address',
           html: `<html><b>${tokenLink}</b></html>`,
         };
-        return sendEmail(email);
+        return sendEmail(email); */
       default:
         break;
       }

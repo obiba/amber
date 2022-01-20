@@ -44,6 +44,58 @@
   "smtp_user": "update_to_aws_smtp_user",
   "smtp_pw": "update_to_aws_smtp_pw",
   "from_email": "no-reply@test.com",
+  "email_templates": {
+    "resendVerifySignup": {
+      "en": {
+        "subject": "[Amber] Verify Email",
+        "html": "<html><p>Dear {firstname} {lastname},</p> <p>Please follow this link <a href='{tokenLink}'>to enable us to verify your email address</a>.</p></html>"
+      },
+      "fr": {
+        "subject": "[Amber] Vérification du courriel",
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Veuillez suivre ce lien <a href='{tokenLink}'>afin de nous permettre de vérifier votre adresse courriel</a>.</p></html>"
+      }
+    },
+    "verifySignup": {
+      "en": {
+        "subject": "[Amber] Email Verified",
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Thanks for verifying your email address.</p></html>"
+      },
+      "fr": {
+        "subject": "[Amber] Courriel vérifié",
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Merci d'avoir vérifié votre adresse courriel.</p></html>"
+      }
+    },
+    "sendResetPwd": {
+      "en": {
+        "subject": "[Amber] Reset Password",
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Please follow this link <a href='{tokenLink}'>to reset your password</a>.</p></html>"
+      },
+      "fr": {
+        "subject": "[Amber] Réinitialisation du mot de passe",
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Veuillez suivre ce lien <a href='{tokenLink}'>afin de réinitialiser votre mot de passe</a>.</p></html>"
+      }
+    },
+    "resetPwd": {
+      "en": {
+        "subject": "[Amber] Successfully Reset Password",
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p><b>Successfully reset password.</b></p></html>"
+      },
+      "fr": {
+        "subject": "[Amber] Mot de passe réinitialisé",
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p><b>Le mot de passe a été mis à jour avec succès.</b></html>"
+      }
+    },
+    "passwordChange": {
+      "en": {
+        "subject": "[Amber] Password Changed",
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p><b>Successfully updated password</b>. If this was not you, let us know.</p></html>"
+      },
+      "fr": {
+        "subject": "[Amber] Mot de passe modifié",
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p><b>Mot de passe mis à jour</b>. Si vous n'êtes pas l'auteur de ce changement, veuillez nous contacter.</p></html>"
+      }
+    }
+  },
   "client_urls": "*",
   "amber_studio_url": "http://localhost:3080",
   "api_url": "http://localhost:3030/",
