@@ -11,7 +11,7 @@ module.exports = (options = {}) => {
       const userId = user._id;
       groupService.find({
         query: {
-          $limit: 100,
+          $limit: 1000,
           users: {
             $in: [userId]
           }

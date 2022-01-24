@@ -4,6 +4,7 @@ const { defineAbilitiesFor } = require('./group.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
 const searchQuery = require('../../hooks/search-query');
+const groupDeleteFromPermissions = require('../../hooks/group-delete-from-permissions');
 
 module.exports = {
   before: {
@@ -41,7 +42,7 @@ module.exports = {
     create: [],
     update: [],
     patch: [],
-    remove: []
+    remove: [groupDeleteFromPermissions()]
   },
 
   error: {

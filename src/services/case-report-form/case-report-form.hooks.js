@@ -4,11 +4,13 @@ const { defineAbilitiesFor } = require('./case-report-form.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
 const caseReportFormCreate = require('../../hooks/case-report-form-create');
+const addUserGroupsToContext = require('../../hooks/user-add-groups-to-context');
 
 module.exports = {
   before: {
     all: [
       authenticate('jwt'),
+      addUserGroupsToContext(),
       makeAbilities(defineAbilitiesFor)
     ],
     find: [

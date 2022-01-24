@@ -14,8 +14,8 @@ const allowAnonymous = require('../../hooks/allow-anonymous');
 const isAnonymous = require('../../hooks/is-anonymous');
 const processRegister = require('../../hooks/process-register');
 const searchQuery = require('../../hooks/search-query');
-const addUserToGroupDomain = require('../../hooks/add-user-to-group-domain');
-const deleteUserFromGroups = require('../../hooks/delete-user-from-groups');
+const addUserToGroupDomain = require('../../hooks/user-add-to-group-domain');
+const userDeleteFromGroups = require('../../hooks/user-delete-from-groups');
 const checkUpdateUser = require('../../hooks/check-update-user');
 
 const {
@@ -118,6 +118,11 @@ const adminUpdateSchema = Joi.object().keys({
 });
 
 const joiOptions = { convert: true, abortEarly: false };
+
+
+
+
+const userDeleteFromPermissions = require('../../hooks/user-delete-from-permissions');
 
 
 
@@ -244,7 +249,8 @@ module.exports = {
     ],
     remove: [
       authorize({ adapter: 'feathers-mongoose' }),
-      deleteUserFromGroups()
+      userDeleteFromGroups(),
+      userDeleteFromPermissions()
     ],
   },
 
