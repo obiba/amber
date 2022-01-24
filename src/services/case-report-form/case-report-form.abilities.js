@@ -21,7 +21,8 @@ const defineRulesFor = (user, groups) => {
     can('manage', 'case-report-form');
   } else if (user.role === 'interviewer') {
     // unrestricted access
-    can('read', 'case-report-form', { permissions: { $exists: false, $eq: null } });
+    can('read', 'case-report-form', { permissions: { $exists: false } });
+    can('read', 'case-report-form', { permissions: { $eq: null } });
     // restricted access to users and groups
     const hasPermissionsCriterion = { $exists: true, $ne: null };
     can('read', 'case-report-form', { permissions: hasPermissionsCriterion, 'permissions.users': user._id });
