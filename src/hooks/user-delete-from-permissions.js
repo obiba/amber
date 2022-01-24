@@ -5,7 +5,7 @@ const logger = require('../logger');
 // eslint-disable-next-line no-unused-vars
 module.exports = (options = {}) => {
   return async context => {
-    const removeUserFromService = (user, serviceName, service) => {
+    const removeUserPermissionFromService = (user, serviceName, service) => {
       const userId = user._id;
       service.find({
         query: {
@@ -32,10 +32,10 @@ module.exports = (options = {}) => {
       const service = context.app.service(serviceName);
       if (Array.isArray(context.result)) {
         context.result.forEach(user => {
-          removeUserFromService(user, serviceName, service);
+          removeUserPermissionFromService(user, serviceName, service);
         });
       } else {
-        removeUserFromService(context.result, serviceName, service);
+        removeUserPermissionFromService(context.result, serviceName, service);
       }
     });
 
