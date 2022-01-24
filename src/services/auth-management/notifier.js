@@ -32,7 +32,8 @@ module.exports = function (app) {
         firstname: user.firstname,
         lastname: user.lastname,
         language: user.language,
-        role: user.role
+        role: user.role,
+        amber_studio_url: (process.env.AMBER_STUDIO_URL || app.get('amber_studio_url'))
       };
       switch (type) {
       case 'resendVerifySignup':
