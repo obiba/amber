@@ -38,13 +38,31 @@ exports.CaseReportExport = class CaseReportExport {
         if (!crResult[key]) {
           crResult[key] = { data: [], fields: [], formRevision: formRevisions[key] };
         }
-        const flattenData = flatten(cr.data);
+        const flattenData = this.flattenByItem(formRevisions[key].schema.items, cr.data);
         const fields = crResult[key].fields.concat(Object.keys(flattenData));
         crResult[key].fields = fields.filter((item, pos) => fields.indexOf(item) === pos);
         crResult[key].data.push(flattenData);
       }
     }
     return crResult;
+  }
+
+  flattenByItem (items, data, path) {
+    const rval = {};
+    items.forEach(item => {
+      if (item.items) {
+        const npath = path ? [...path] : [];
+        npath.push(item.name);
+        const rval2 = this.flattenByItem(item.items, data[item.name], npath);
+        Object.entries(rval2).forEach(([key, value]) => {
+          rval[npath.join('.') + '.' + key] = value;
+          //console.log(`${key}: ${value}`);
+        });
+      } else if (data) {
+        rval[item.name] = data[item.name];
+      }
+    });
+    return rval;
   }
 
   async get (id, params) {

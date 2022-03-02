@@ -66,7 +66,15 @@ const makeVariables = (item, options) => {
       variable.valueType = 'boolean';
     } else if (['number', 'slider', 'rating'].includes(item.type)) {
       variable.valueType = 'integer';
-    } // TODO date etc...
+    } else if (['date'].includes(item.type)) {
+      variable.valueType = 'date';
+    } else if (['datetime'].includes(item.type)) {
+      variable.valueType = 'datetime';
+    } else if (['toggle'].includes(item.type)) {
+      variable.valueType = 'boolean';
+    } else if (['map'].includes(item.type)) {
+      variable.valueType = item.geometryType.toLowerCase();
+    }
     if (item.multiple) {
       variable.isRepeatable = true;
     }
