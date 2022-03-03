@@ -1,4 +1,5 @@
-var format = require('string-template');
+const format = require('string-template');
+const logger = require('../../logger');
 
 module.exports = function (app) {
   function getLink(type, hash) {
@@ -11,10 +12,10 @@ module.exports = function (app) {
       .service('email')
       .create(email)
       .then(function (result) {
-        console.log('Sent email', result);
+        logger.debug('Sent email', result);
       })
       .catch((err) => {
-        console.log('Error sending email', err);
+        logger.error('Error sending email', err);
       });
   }
   const FROM_EMAIL = app.get('from_email');
@@ -23,7 +24,7 @@ module.exports = function (app) {
     service: 'user',
     notifier: function (type, user) {
       let email;
-      console.log('type', type);
+      logger.debug('type', type);
       const emailTemplates = app.get('email_templates');
       const subject = emailTemplates[type][user.language] ? emailTemplates[type][user.language].subject : emailTemplates[type].en;
       const html = emailTemplates[type][user.language] ? emailTemplates[type][user.language].html : emailTemplates[type].en;
@@ -38,7 +39,7 @@ module.exports = function (app) {
       switch (type) {
       case 'resendVerifySignup':
         //sending the user the verification email
-        console.log('user', user);
+        logger.debug('user', user);
         context.tokenLink = getLink('verify', user.verifyToken);
         email = {
           from: FROM_EMAIL,
@@ -58,7 +59,7 @@ module.exports = function (app) {
         };
         return sendEmail(email);
       case 'sendResetPwd':
-        console.log('user', user);
+        logger.debug('user', user);
         context.tokenLink = getLink('reset-password', user.resetToken);
         email = {
           from: FROM_EMAIL,
@@ -86,7 +87,7 @@ module.exports = function (app) {
         return sendEmail(email);
       /* case 'identityChange':
         tokenLink = getLink('verify', user.verifyToken);
-        console.log('user', user);
+        logger.debug('user', user);
         email = {
           from: FROM_EMAIL,
           to: [user.verifyChanges.email, user.email],
