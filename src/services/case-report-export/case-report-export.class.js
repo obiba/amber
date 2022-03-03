@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 const { BadRequest } = require('@feathersjs/errors');
-const { flatten } = require('flatten-anything');
 
 exports.CaseReportExport = class CaseReportExport {
   constructor (options, app) {
@@ -33,12 +32,17 @@ exports.CaseReportExport = class CaseReportExport {
           if (!forms[cr.form]) {
             forms[cr.form] = await formService.get(cr.form);
           }
-          formRevisions[key].name = forms[cr.form].name;
+          if (formRevisions[key]) {
+            formRevisions[key].name = forms[cr.form].name;
+          } else {
+            // case the form revision was removed, fallback to the current form
+            formRevisions[key] = forms[cr.form];
+          }
         }
         if (!crResult[key]) {
           crResult[key] = { data: [], fields: [], formRevision: formRevisions[key] };
         }
-        const flattenData = this.flattenByItem(formRevisions[key].schema.items, cr.data);
+        const flattenData = this.flattenByItems(formRevisions[key].schema.items, cr.data);
         const fields = crResult[key].fields.concat(Object.keys(flattenData));
         crResult[key].fields = fields.filter((item, pos) => fields.indexOf(item) === pos);
         crResult[key].data.push(flattenData);
@@ -47,21 +51,22 @@ exports.CaseReportExport = class CaseReportExport {
     return crResult;
   }
 
-  flattenByItem (items, data, path) {
+  flattenByItems (items, data, path) {
     const rval = {};
-    items.forEach(item => {
-      if (item.items) {
-        const npath = path ? [...path] : [];
-        npath.push(item.name);
-        const rval2 = this.flattenByItem(item.items, data[item.name], npath);
-        Object.entries(rval2).forEach(([key, value]) => {
-          rval[npath.join('.') + '.' + key] = value;
-          //console.log(`${key}: ${value}`);
-        });
-      } else if (data) {
-        rval[item.name] = data[item.name];
-      }
-    });
+    if (data) {
+      items.forEach(item => {
+        if (item.items) {
+          const npath = path ? [...path] : [];
+          npath.push(item.name);
+          const rval2 = this.flattenByItems(item.items, data[item.name], npath);
+          Object.entries(rval2).forEach(([key, value]) => {
+            rval[npath.join('.') + '.' + key] = value;
+          });
+        } else {
+          rval[item.name] = data[item.name];
+        }
+      });
+    }
     return rval;
   }
 

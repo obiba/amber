@@ -58,7 +58,6 @@
     "feathers-mailer": "^3.1.0",
     "feathers-mongoose": "^8.3.3",
     "feathers-validate-joi": "^4.0.1",
-    "flatten-anything": "^2.0.4",
     "helmet": "^4.6.0",
     "json2csv": "^5.0.6",
     "mongodb-core": "^3.2.7",

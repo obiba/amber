@@ -73,7 +73,7 @@ const makeVariables = (item, options) => {
     } else if (['toggle'].includes(item.type)) {
       variable.valueType = 'boolean';
     } else if (['map'].includes(item.type)) {
-      variable.valueType = item.geometryType.toLowerCase();
+      variable.valueType = item.geometryType ? item.geometryType.toLowerCase() : 'point';
     }
     if (item.multiple) {
       variable.isRepeatable = true;
