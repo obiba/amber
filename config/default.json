@@ -45,6 +45,16 @@
   "smtp_pw": "update_to_aws_smtp_pw",
   "from_email": "no-reply@test.com",
   "email_templates": {
+    "notifySignup": {
+      "en": {
+        "subject": "[Amber] New Signup",
+        "html": "<html><p>Dear {firstname} {lastname},</p> <p>A new user registered itself with email address {newUserEmail}. You can assign a role to this user.</p></html>"
+      },
+      "fr": {
+        "subject": "[Amber] Nouvel enregistrement",
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Un nouvel utilisateur s'est enregistré avec l'adresse courriel {newUserEmail}. Vous pouvez lui assigner un rôle.</p></html>"
+      }
+    },
     "resendVerifySignup": {
       "en": {
         "subject": "[Amber] Verify Email",

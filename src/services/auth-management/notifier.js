@@ -2,6 +2,7 @@ const format = require('string-template');
 const logger = require('../../logger');
 
 module.exports = function (app) {
+
   function getLink(type, hash) {
     const url = (process.env.AMBER_STUDIO_URL || app.get('amber_studio_url')) + '/' + type + '?token=' + hash;
     return url;
@@ -22,7 +23,7 @@ module.exports = function (app) {
 
   return {
     service: 'user',
-    notifier: function (type, user) {
+    notifier: function (type, user, data) {
       let email;
       logger.debug('type', type);
       const emailTemplates = app.get('email_templates');
@@ -36,10 +37,21 @@ module.exports = function (app) {
         role: user.role,
         amber_studio_url: (process.env.AMBER_STUDIO_URL || app.get('amber_studio_url'))
       };
+      logger.debug('user', user);
       switch (type) {
+      case 'notifySignup':
+        logger.debug('data', data);
+        context.newUserEmail = data.email;
+        email = {
+          from: FROM_EMAIL,
+          to: user.email,
+          subject: subject,
+          html: format(html, context),
+        };
+        return sendEmail(email);
       case 'resendVerifySignup':
         //sending the user the verification email
-        logger.debug('user', user);
+        
         context.tokenLink = getLink('verify', user.verifyToken);
         email = {
           from: FROM_EMAIL,

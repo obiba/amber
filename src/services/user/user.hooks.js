@@ -47,7 +47,18 @@ const language = Joi.string()
   .min(2)
   .max(5);
 
-const password = Joi.string().trim().min(2).max(30).required();
+/* const pattern = '/(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[$@$!#.])[A-Za-zd$@$!%*?&.]{8,64}/';
+
+const password = Joi.string()
+  .regex(RegExp(pattern)) // you have to put it in this way and it will work :)
+  .required()
+  .min(8)
+  .max(64); */
+
+const password = Joi.string().trim()
+  .min(8)
+  .max(64)
+  .required();
 
 const email = Joi.string()
   .email({
@@ -123,6 +134,11 @@ const joiOptions = { convert: true, abortEarly: false };
 
 
 const userDeleteFromPermissions = require('../../hooks/user-delete-from-permissions');
+
+
+
+
+const userSignupNotifyAdmin = require('../../hooks/user-signup-notify-admin');
 
 
 
@@ -232,15 +248,13 @@ module.exports = {
     get: [
       authorize({ adapter: 'feathers-mongoose' })
     ],
-    create: [
-      (context) => {
-        accountService(context.app).notifier(
-          'resendVerifySignup',
-          context.data);
-      },
-      verifyHooks.removeVerification(),
-      addUserToGroupDomain()
-    ],
+    create: [(context) => {
+      accountService(context.app).notifier(
+        'resendVerifySignup',
+        context.data);
+    }, verifyHooks.removeVerification(), 
+    addUserToGroupDomain(), 
+    userSignupNotifyAdmin()],
     update: [
       authorize({ adapter: 'feathers-mongoose' })
     ],
