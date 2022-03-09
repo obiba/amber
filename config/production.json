@@ -2,5 +2,6 @@
   "host": "amber-app.example.org",
   "port": "PORT",
   "client_urls": "https://amber-studio.example.org,https://amber-collect.example.org",
-  "amber_studio_url": "https://amber-studio.example.org"
+  "amber_studio_url": "https://amber-studio.example.org",
+  "amber_collect_url": "https://amber-collect.example.org"
 }

@@ -68,7 +68,7 @@
     "verifySignup": {
       "en": {
         "subject": "[Amber] Email Verified",
-        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Thanks for verifying your email address.</p></html>"
+        "html": "<html><p>Dear {firstname} {lastname},</p> <p>Thanks for verifying your email address.</p></html>"
       },
       "fr": {
         "subject": "[Amber] Courriel vérifié",
@@ -78,7 +78,7 @@
     "sendResetPwd": {
       "en": {
         "subject": "[Amber] Reset Password",
-        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Please follow this link <a href='{tokenLink}'>to reset your password</a>.</p></html>"
+        "html": "<html><p>Dear {firstname} {lastname},</p> <p>Please follow this link <a href='{tokenLink}'>to reset your password</a>.</p></html>"
       },
       "fr": {
         "subject": "[Amber] Réinitialisation du mot de passe",
@@ -88,7 +88,7 @@
     "resetPwd": {
       "en": {
         "subject": "[Amber] Successfully Reset Password",
-        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p><b>Successfully reset password.</b></p></html>"
+        "html": "<html><p>Dear {firstname} {lastname},</p> <p><b>Successfully reset password.</b></p></html>"
       },
       "fr": {
         "subject": "[Amber] Mot de passe réinitialisé",
@@ -98,7 +98,7 @@
     "passwordChange": {
       "en": {
         "subject": "[Amber] Password Changed",
-        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p><b>Successfully updated password</b>. If this was not you, let us know.</p></html>"
+        "html": "<html><p>Dear {firstname} {lastname},</p> <p><b>Successfully updated password</b>. If this was not you, let us know.</p></html>"
       },
       "fr": {
         "subject": "[Amber] Mot de passe modifié",
@@ -108,6 +108,7 @@
   },
   "client_urls": "*",
   "amber_studio_url": "http://localhost:3080",
+  "amber_collect_url": "http://localhost:3090",
   "api_url": "http://localhost:3030/",
   "smtp_host": "aws_smtp_host",
   "recaptcha_secret_key": ""
