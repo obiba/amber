@@ -4,6 +4,7 @@
 module.exports = (options = {}) => {
   return (context) => {
     const userService = context.app.service('user');
-    userService.patch(context.result.user._id, { lastLoggedIn: new Date() });
+    const now = Date.now();
+    userService.patch(context.result.user._id, { lastLoggedIn: now, lastSeen: now });
   };
 };

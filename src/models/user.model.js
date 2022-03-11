@@ -22,6 +22,7 @@ module.exports = function (app) {
     passwordReset: { type: String },
     passwordResetToken: { type: String },
     lastLoggedIn: { type: Date },
+    lastSeen: { type: Date },
     isVerified: { type: Boolean },
     verifyToken: { type: String },
     verifyShortToken: { type: String },

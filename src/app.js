@@ -8,7 +8,6 @@ const logger = require('./logger');
 const feathers = require('@feathersjs/feathers');
 const configuration = require('@feathersjs/configuration');
 const express = require('@feathersjs/express');
-const socketio = require('@feathersjs/socketio');
 const casl = require('feathers-casl');
 
 const middleware = require('./middleware');
