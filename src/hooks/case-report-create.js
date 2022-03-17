@@ -9,7 +9,7 @@ module.exports = (options = {}) => {
       const crfService = context.app.service('case-report-form');
       const crf = await crfService.get(context.data.crfId);
       context.data.study = crf.study;
-      context.data.form = crf.form;  
+      context.data.form = crf.form;
     }
     delete context.data.id;
     // Set created by the logged in user

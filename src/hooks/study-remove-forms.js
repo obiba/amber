@@ -4,25 +4,32 @@
 // eslint-disable-next-line no-unused-vars
 module.exports = (options = {}) => {
   return async context => {
-    const formService = context.app.service('form');
 
-    // remove forms associated to the removed study
-    const removeStudyForms = (study) => {
-      formService.find({ query: { study: study._id } })
-        .then(forms => {
-          if (forms.total>0) {
-            forms.data.forEach(form => formService.remove(form._id));
+    // attempt to remove forms before removing the study
+    // will fail if there are associated case reports
+    const removeForms = async (id) => {
+      const formResult = await context.app.service('form').find({
+        query: {
+          study: id,
+          $select: [ '_id' ]
+        }
+      });
+      const params = {
+        query: {
+          _id: {
+            $in: formResult.data.map(fr => fr._id.toString())
           }
-        })
-        .catch(err => console.log(err));
+        }
+      };
+      await context.app.service('form').remove(null, params);
     };
 
-    if (Array.isArray(context.result)) {
-      context.result.forEach(study => {
-        removeStudyForms(study);
-      });
-    } else {
-      removeStudyForms(context.result);
+    if (context.id) {
+      await removeForms(context.id);
+    }  else if (context.params.query._id && context.params.query._id.$in) {
+      for (let id of context.params.query._id.$in) {
+        await removeForms(id);
+      }
     }
 
     return context;

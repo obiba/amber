@@ -31,7 +31,8 @@ module.exports = {
       authorize({ adapter: 'feathers-mongoose' })
     ],
     remove: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'feathers-mongoose' }),
+      studyRemoveForms()
     ]
   },
 
@@ -45,7 +46,6 @@ module.exports = {
     update: [],
     patch: [],
     remove: [
-      studyRemoveForms()
     ]
   },
 

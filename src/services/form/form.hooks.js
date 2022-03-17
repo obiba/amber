@@ -10,6 +10,8 @@ const formRemoveFromStudy = require('../../hooks/form-remove-from-study');
 
 const formRemoveRevisions = require('../../hooks/form-remove-revisions');
 
+const formRemoveCaseReportForms = require('../../hooks/form-remove-case-report-forms');
+
 module.exports = {
   before: {
     all: [
@@ -34,7 +36,9 @@ module.exports = {
       authorize({ adapter: 'feathers-mongoose' })
     ],
     remove: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'feathers-mongoose' }),
+      formRemoveRevisions(),
+      formRemoveCaseReportForms()
     ]
   },
 
@@ -50,8 +54,7 @@ module.exports = {
     update: [],
     patch: [],
     remove: [
-      formRemoveFromStudy(),
-      formRemoveRevisions()
+      formRemoveFromStudy()
     ]
   },
 

@@ -6,6 +6,10 @@ const makeAbilities = require('../../hooks/make-abilities');
 const formRevisionCreate = require('../../hooks/form-revision-create');
 const searchQuery = require('../../hooks/search-query');
 
+const formRevisionCheckRemove = require('../../hooks/form-revision-check-remove');
+
+const formRevisionRemoveCaseReportForms = require('../../hooks/form-revision-remove-case-report-forms');
+
 module.exports = {
   before: {
     all: [
@@ -30,7 +34,9 @@ module.exports = {
       authorize({ adapter: 'feathers-mongoose' })
     ],
     remove: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'feathers-mongoose' }),
+      formRevisionCheckRemove(),
+      formRevisionRemoveCaseReportForms()
     ]
   },
 
