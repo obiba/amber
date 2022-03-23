@@ -8,7 +8,7 @@ module.exports = (options = {}) => {
     const encrypted = crypto.encrypt(JSON.stringify(context.data.data));
     context.data.data = {
       _id: context.data.data._id,
-      value: encrypted
+      __value: encrypted
     };
     return context;
   };
