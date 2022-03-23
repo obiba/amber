@@ -7,6 +7,10 @@ const makeAbilities = require('../../hooks/make-abilities');
 const caseReportCreate = require('../../hooks/case-report-create');
 const searchQuery = require('../../hooks/search-query');
 
+const caseReportEncrypt = require('../../hooks/case-report-encrypt');
+
+const caseReportDecrypt = require('../../hooks/case-report-decrypt');
+
 module.exports = {
   before: {
     all: [
@@ -22,13 +26,16 @@ module.exports = {
     ],
     create: [
       caseReportCreate(),
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'feathers-mongoose' }),
+      caseReportEncrypt()
     ],
     update: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'feathers-mongoose' }),
+      caseReportEncrypt()
     ],
     patch: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'feathers-mongoose' }),
+      caseReportEncrypt()
     ],
     remove: [
       authorize({ adapter: 'feathers-mongoose' })
@@ -39,8 +46,8 @@ module.exports = {
     all: [
       authorize({ adapter: 'feathers-mongoose' })
     ],
-    find: [],
-    get: [],
+    find: [caseReportDecrypt()],
+    get: [caseReportDecrypt()],
     create: [],
     update: [],
     patch: [],

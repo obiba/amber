@@ -18,6 +18,7 @@ const channels = require('./channels');
 const authentication = require('./authentication');
 
 const mongoose = require('./mongoose');
+const crypto = require('./crypto');
 
 const app = express(feathers());
 
@@ -81,9 +82,9 @@ app.use('/', express.static(app.get('public')));
 
 // Set up Plugins and providers
 app.configure(express.rest());
-// app.configure(socketio());
 
 app.configure(mongoose);
+app.configure(crypto);
 
 // Configure other middleware (see `middleware/index.js`)
 app.configure(middleware);
