@@ -16,8 +16,8 @@ const start = async () => {
     const userInfo = {
       email: process.env.ADMINISTRATOR_EMAIL,
       password: process.env.ADMINISTRATOR_PWD,
-      firstname: 'Seed',
-      lastname: 'Vicious',
+      firstname: 'Super',
+      lastname: 'User',
       language: 'en',
       role: 'administrator'
     };

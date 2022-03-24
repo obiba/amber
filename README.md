@@ -69,7 +69,10 @@ Amber uses [dotenv](https://github.com/motdotla/dotenv) for environment variable
 * `APP_SECRET_KEY`, encryption key
 * `APP_URL`, JWT audience
 * `CLIENT_URLS`, comma separated client urls, for the CORS policy
+* `AMBER_STUDIO_URL`, Amber Studio app url, to be included in the notification emails
+* `AMBER_COLLECT_URL`, Amber Collect app url, to be included in the notification emails
 * `MONGODB_URL`, the MongoDB connection string
+* `ENCRYPT_DATA`, whether the patient/participant data should be encrypted in the database
 * `GMAIL`, the Gmail user name for the notification service
 * `GMAIL_PASSWORD`, the Gmail user password for the notification service
 * `GITHUB_KEY`, OAuth key for Github
@@ -80,7 +83,8 @@ Amber uses [dotenv](https://github.com/motdotla/dotenv) for environment variable
 * `ADMINISTRATOR_PWD`, user seeding when there is no administrator in the database
 * `LOG_LEVEL`, logger level (`error`, `warn`, `info`, `verbose`, `debug`, `silly`, etc. (see [winstonjs](https://github.com/winstonjs/winston))), default is `info`
 * `LOG_FILE`, file logger path
-* `LOG_FILE_LEVEL`, file logger level when `LOG_FILE` is specified, default is `LOG_LEVEL` 
+* `LOG_FILE_LEVEL`, file logger level when `LOG_FILE` is specified, default is `LOG_LEVEL`
+* `NODE_ENV`, name of the config file to be merged with the default one (e.g. `production`)
 
 ## Testing
 

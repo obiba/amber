@@ -24,6 +24,14 @@ const app = express(feathers());
 
 // Load app configuration
 app.configure(configuration());
+
+// Encryption
+if (process.env.ENCRYPT_DATA && 
+  (process.env.ENCRYPT_DATA === true || process.env.ENCRYPT_DATA === 'true' || process.env.ENCRYPT_DATA === 1 || process.env.ENCRYPT_DATA === '1')) {
+  app.set('encrypt_data', true);
+}
+
+// Authentication
 let authenticationConfig = app.get('authentication');
 if (process.env.APP_NAME) {
   authenticationConfig.jwtOptions.issuer = process.env.APP_NAME;
