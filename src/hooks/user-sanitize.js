@@ -11,11 +11,16 @@ const xssOpts = {
 module.exports = (options = {}) => {
   return async context => {
     if (context.params.provider) {
-      context.data.firstname = context.data.firstname && xss(context.data.firstname, xssOpts);
-      context.data.lastname = context.data.lastname && xss(context.data.lastname, xssOpts);
-      context.data.institution = context.data.institution && xss(context.data.institution, xssOpts);
-      context.data.city = context.data.city && xss(context.data.city, xssOpts);
-      context.data.title = context.data.title && xss(context.data.title, xssOpts);
+      if (context.data.firstname)
+        context.data.firstname = xss(context.data.firstname, xssOpts);
+      if (context.data.lastname)
+        context.data.lastname = xss(context.data.lastname, xssOpts);
+      if (context.data.institution)
+        context.data.institution = xss(context.data.institution, xssOpts);
+      if (context.data.city)
+        context.data.city = xss(context.data.city, xssOpts);
+      if (context.data.title)
+        context.data.title = xss(context.data.title, xssOpts);
     }
     return context;
   };

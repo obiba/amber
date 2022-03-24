@@ -47,15 +47,9 @@ const language = Joi.string()
   .min(2)
   .max(5);
 
-/* const pattern = '/(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[$@$!#.])[A-Za-zd$@$!%*?&.]{8,64}/';
-
-const password = Joi.string()
-  .regex(RegExp(pattern)) // you have to put it in this way and it will work :)
-  .required()
-  .min(8)
-  .max(64); */
-
+const strongPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,64}$/;
 const password = Joi.string().trim()
+  .regex(strongPasswordRegex)
   .min(8)
   .max(64)
   .required();
