@@ -1,5 +1,7 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
 
+const caseReportExportAudit = require('../../hooks/case-report-export-audit');
+
 module.exports = {
   before: {
     all: [
@@ -15,7 +17,7 @@ module.exports = {
 
   after: {
     all: [],
-    find: [],
+    find: [caseReportExportAudit()],
     get: [],
     create: [],
     update: [],

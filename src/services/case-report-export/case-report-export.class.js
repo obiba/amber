@@ -12,11 +12,18 @@ exports.CaseReportExport = class CaseReportExport {
     const formRevisionService = this.app.service('form-revision');
     const formService = this.app.service('form');
     const result = await caseReportService.find(params);
-    const crResult = {};
+    const crResult = {
+      export: {},
+      audit: {
+        entityIds: [],
+        caseReportIds: []
+      }
+    };
     const formRevisions = {};
     const forms = {};
     if (result.total > 0) {
       for (const cr of result.data) {
+        // flatten data
         const key = `${cr.form}-${cr.revision}`;
         if (!formRevisions[key]) {
           const q = {
@@ -39,13 +46,17 @@ exports.CaseReportExport = class CaseReportExport {
             formRevisions[key] = forms[cr.form];
           }
         }
-        if (!crResult[key]) {
-          crResult[key] = { data: [], fields: [], formRevision: formRevisions[key] };
+        if (!crResult.export[key]) {
+          crResult.export[key] = { data: [], fields: [], formRevision: formRevisions[key] };
         }
         const flattenData = this.flattenByItems(formRevisions[key].schema.items, cr.data);
-        const fields = crResult[key].fields.concat(Object.keys(flattenData));
-        crResult[key].fields = fields.filter((item, pos) => fields.indexOf(item) === pos);
-        crResult[key].data.push(flattenData);
+        const fields = crResult.export[key].fields.concat(Object.keys(flattenData));
+        crResult.export[key].fields = fields.filter((item, pos) => fields.indexOf(item) === pos);
+        crResult.export[key].data.push(flattenData);
+        if (!crResult.audit.entityIds.includes(cr.data._id)) {
+          crResult.audit.entityIds.push(cr.data._id);
+        }
+        crResult.audit.caseReportIds.push(cr._id);
       }
     }
     return crResult;

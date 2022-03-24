@@ -140,9 +140,9 @@ const makeTable = (formRevision) => {
 
 const doCsvResponse = (res) => {
   // extract only one form-version
-  const key = Object.keys(res.data).pop();
-  const tableName = makeTableName(res.data[key].formRevision);
-  const csv = toCSV(res.data[key].data, res.data[key].fields);
+  const key = Object.keys(res.data.export).pop();
+  const tableName = makeTableName(res.data.export[key].formRevision);
+  const csv = toCSV(res.data.export[key].data, res.data.export[key].fields);
   res.attachment(`${tableName}.csv`);
   res.type('csv');
   res.end(csv);
@@ -151,16 +151,16 @@ const doCsvResponse = (res) => {
 const doZipResponse = (res) => {
   const tmpDir = mkTmpDir();
   // write data
-  for (const key in res.data) {
-    const tableName = makeTableName(res.data[key].formRevision);
+  for (const key in res.data.export) {
+    const tableName = makeTableName(res.data.export[key].formRevision);
     if (!fs.existsSync(path.join(tmpDir, tableName))) {
       fs.mkdirSync(path.join(tmpDir, tableName));
     }
     // write data
-    const csv = toCSV(res.data[key].data, res.data[key].fields);
+    const csv = toCSV(res.data.export[key].data, res.data.export[key].fields);
     fs.writeFileSync(path.join(tmpDir, tableName, 'data.csv'), csv);
     // write variables
-    const table = makeTable(res.data[key].formRevision);
+    const table = makeTable(res.data.export[key].formRevision);
     fs.writeFileSync(path.join(tmpDir, tableName, 'variables.json'), JSON.stringify(table.variables));
   }
   const archive = archiver('zip');
@@ -184,11 +184,11 @@ const doZipResponse = (res) => {
 const doJsonResponse = (res) => {
   res.attachment('case-report-export.json');
   const data = {};
-  for (const key in res.data) {
-    const tableName = makeTableName(res.data[key].formRevision);
+  for (const key in res.data.export) {
+    const tableName = makeTableName(res.data.export[key].formRevision);
     data[tableName] = {
-      data: res.data[key].data,
-      variables: makeTable(res.data[key].formRevision).variables
+      data: res.data.export[key].data,
+      variables: makeTable(res.data.export[key].formRevision).variables
     };
   }
   res.json(data);
