@@ -130,18 +130,8 @@ const adminUpdateSchema = Joi.object().keys({
 
 const joiOptions = { convert: true, abortEarly: false };
 
-
-
-
 const userDeleteFromPermissions = require('../../hooks/user-delete-from-permissions');
-
-
-
-
 const userSignupNotifyAdmin = require('../../hooks/user-signup-notify-admin');
-
-
-
 
 module.exports = {
   before: {

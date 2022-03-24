@@ -5,6 +5,8 @@ const { defineAbilitiesFor } = require('./audit.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
 
+const auditCreateInternal = require('../../hooks/audit-create-internal');
+
 module.exports = {
   before: {
     all: [
@@ -13,7 +15,7 @@ module.exports = {
     ],
     find: [authorize({ adapter: 'feathers-mongoose' })],
     get: [authorize({ adapter: 'feathers-mongoose' })],
-    create: [authorize({ adapter: 'feathers-mongoose' })],
+    create: [authorize({ adapter: 'feathers-mongoose' }), auditCreateInternal()],
     update: [authorize({ adapter: 'feathers-mongoose' })],
     patch: [authorize({ adapter: 'feathers-mongoose' })],
     remove: [authorize({ adapter: 'feathers-mongoose' })]

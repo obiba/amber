@@ -18,7 +18,8 @@ const defineRulesFor = (user) => {
   if (user.role === 'administrator') {
     can('manage', 'all');
   } else if (user.role === 'manager') {
-    can('manage', 'audit');
+    can('create', 'audit');
+    can('read', 'audit');
   } else if (user.role === 'interviewer') {
     can('create', 'audit');
   }
