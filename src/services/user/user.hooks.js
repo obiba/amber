@@ -70,7 +70,7 @@ const email = Joi.string()
 const institution = Joi.string()
   .trim()
   .min(2)
-  .max(30);
+  .max(100);
 
 const city = Joi.string()
   .trim()
@@ -133,6 +133,8 @@ const joiOptions = { convert: true, abortEarly: false };
 const userDeleteFromPermissions = require('../../hooks/user-delete-from-permissions');
 const userSignupNotifyAdmin = require('../../hooks/user-signup-notify-admin');
 
+const userSanitize = require('../../hooks/user-sanitize');
+
 module.exports = {
   before: {
     all: [],
@@ -153,6 +155,7 @@ module.exports = {
       makeAbilities(defineAbilitiesFor),
       processRegister(),
       discard('token'),
+      userSanitize(),
       iff(
         isAnonymous(),
         validate.mongoose(schema, joiOptions))
@@ -166,6 +169,7 @@ module.exports = {
       authenticate('jwt'),
       makeAbilities(defineAbilitiesFor),
       checkUpdateUser(),
+      userSanitize(),
       iff(
         isProvider('external'),
         preventChanges(
@@ -190,6 +194,7 @@ module.exports = {
       authenticate('jwt'),
       makeAbilities(defineAbilitiesFor),
       checkUpdateUser(),
+      userSanitize(),
       iff(
         isProvider('external'),
         preventChanges(
