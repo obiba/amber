@@ -12,6 +12,7 @@ module.exports = function (app) {
     description: { type: String, required: false },
     copyright: { type: String, required: false },
     license: { type: String, required: false },
+    layout: { type: String, required: false },
     idLabel: { type: String, required: false },
     idDescription: { type: String, required: false },
     idMask: { type: String, required: false },
