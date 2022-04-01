@@ -93,7 +93,8 @@ const schema = Joi.object().keys({
   lastname: lastname,
   language: language,
   email: email,
-  password: password
+  password: password,
+  clientId: Joi.string().trim()
 });
 
 const adminCreateSchema = Joi.object().keys({

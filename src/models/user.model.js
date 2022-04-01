@@ -31,6 +31,7 @@ module.exports = function (app) {
     verifyChanges: { type: Object },
     resetToken: { type: String },
     resetExpires: { type: Date },
+    clientId: { type: String },
     
     googleId: { type: String },
     githubId: { type: String },

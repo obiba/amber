@@ -50,11 +50,11 @@
     "notifySignup": {
       "en": {
         "subject": "[Amber] New Signup",
-        "html": "<html><p>Dear {firstname} {lastname},</p> <p>A new user registered itself with email address {newUserEmail}. You can assign a role to this user.</p></html>"
+        "html": "<html><p>Dear {firstname} {lastname},</p> <p>A new user registered itself with email address {newUserEmail}. You can assign a role to this user or reject it.</p></html>"
       },
       "fr": {
         "subject": "[Amber] Nouvel enregistrement",
-        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Un nouvel utilisateur s'est enregistré avec l'adresse courriel {newUserEmail}. Vous pouvez lui assigner un rôle.</p></html>"
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Un nouvel utilisateur s'est enregistré avec l'adresse courriel {newUserEmail}. Vous pouvez lui assigner un rôle ou le supprimer.</p></html>"
       }
     },
     "resendVerifySignup": {

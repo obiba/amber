@@ -4,8 +4,14 @@ const logger = require('../../logger');
 
 module.exports = function (app) {
 
-  function getLink(type, hash) {
-    const url = (process.env.AMBER_STUDIO_URL || app.get('amber_studio_url')) + '/' + type + '?token=' + hash;
+  function getLink(type, user, hash) {
+    let baseUrl = (process.env.AMBER_STUDIO_URL || app.get('amber_studio_url'));
+    // either registered itself from collect app or user was added as an interviewer/guest
+    if (user.clientId === 'amber_collect' || (!user.clientId && ['interviewer', 'guest'].includes(user.role))) {
+      baseUrl = (process.env.AMBER_COLLECT_URL || app.get('amber_collect_url'));
+    }
+
+    const url = baseUrl + '/' + type + '?token=' + hash;
     return url;
   }
 
@@ -71,7 +77,7 @@ module.exports = function (app) {
           return sendEmail(email);
         case 'resendVerifySignup':
           //sending the user the verification email
-          context.tokenLink = getLink('verify', user.verifyToken);
+          context.tokenLink = getLink('verify', user, user.verifyToken);
           logger.debug('Email context', context);
           email = {
             from: FROM_EMAIL,
@@ -82,7 +88,6 @@ module.exports = function (app) {
           return sendEmail(email);
         case 'verifySignup':
           // confirming verification
-          context.tokenLink = getLink('verify', user.verifyToken);
           logger.debug('Email context', context);
           email = {
             from: FROM_EMAIL,
@@ -93,7 +98,7 @@ module.exports = function (app) {
           return sendEmail(email);
         case 'sendResetPwd':
           logger.debug('user', user);
-          context.tokenLink = getLink('reset-password', user.resetToken);
+          context.tokenLink = getLink('reset-password', user, user.resetToken);
           logger.debug('Email context', context);
           email = {
             from: FROM_EMAIL,
@@ -103,7 +108,6 @@ module.exports = function (app) {
           };
           return sendEmail(email);
         case 'resetPwd':
-          context.tokenLink = getLink('reset-password', user.resetToken);
           logger.debug('Email context', context);
           email = email = {
             from: FROM_EMAIL,
