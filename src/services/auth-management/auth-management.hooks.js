@@ -1,3 +1,4 @@
+const userPasswordCheck = require('../../hooks/user-password-check');
 //const auth = require('@feathersjs/authentication').hooks;
 //const { iff } = require('feathers-hooks-common');
 
@@ -8,7 +9,7 @@ module.exports = {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [userPasswordCheck()],
     update: [],
     patch: [],
     remove: [],
