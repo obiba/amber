@@ -43,9 +43,10 @@
     }
   },
   "mongodb": "mongodb://localhost:27017/amber",
-  "smtp_user": "update_to_aws_smtp_user",
-  "smtp_pw": "update_to_aws_smtp_pw",
-  "from_email": "no-reply@test.com",
+  "smtp_host": "some_smtp_host",
+  "smtp_user": "update_to_smtp_user",
+  "smtp_pw": "update_to_smtp_pw",
+  "from_email": "no-reply@example.org",
   "email_templates": {
     "notifySignup": {
       "en": {
@@ -112,6 +113,5 @@
   "amber_studio_url": "http://localhost:3080",
   "amber_collect_url": "http://localhost:3090",
   "api_url": "http://localhost:3030/",
-  "smtp_host": "aws_smtp_host",
   "recaptcha_secret_key": ""
 }

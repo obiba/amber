@@ -75,6 +75,7 @@ Amber uses [dotenv](https://github.com/motdotla/dotenv) for environment variable
 * `ENCRYPT_DATA`, whether the patient/participant data should be encrypted in the database
 * `GMAIL`, the Gmail user name for the notification service
 * `GMAIL_PASSWORD`, the Gmail user password for the notification service
+* `SENDINBLUE_API_KEY`, the [Sendinblue](https://www.sendinblue.com/) API key for the notification service
 * `GITHUB_KEY`, OAuth key for Github
 * `GITHUB_SECRET`, OAuth secret for Github
 * `GOOGLE_KEY`, OAuth key for Google

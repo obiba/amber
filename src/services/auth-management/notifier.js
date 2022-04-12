@@ -16,6 +16,12 @@ module.exports = function (app) {
   }
 
   function sendEmail(email) {
+    email.headers = {
+      'x-amber': `"${process.env.APP_NAME ? process.env.APP_NAME : '?'}"`
+    };
+    if (!Array.isArray(email.to)) {
+      email.to = [ email.to ];
+    }
     return app
       .service('email')
       .create(email)
