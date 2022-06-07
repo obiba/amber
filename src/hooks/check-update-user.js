@@ -16,6 +16,9 @@ module.exports = (options = {}) => {
       delete context.data.totp2faEnabled;
       context.data.totp2faSecret = null;
     }
+    if (context.data.totp2faRequired === false) {
+      context.data.totp2faSecret = null;
+    }
     return context;
   };
 };
