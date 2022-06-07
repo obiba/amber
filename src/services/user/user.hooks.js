@@ -121,6 +121,7 @@ const adminUpdateSchema = Joi.object().keys({
   phone: phone,
   permissions: permissions,
   role: role,
+  totp2faSecret: Joi.any()
 });
 
 const joiOptions = { convert: true, abortEarly: false };
@@ -129,6 +130,8 @@ const userDeleteFromPermissions = require('../../hooks/user-delete-from-permissi
 const userSignupNotifyAdmin = require('../../hooks/user-signup-notify-admin');
 
 const userSanitize = require('../../hooks/user-sanitize');
+
+const userTotp2Fa = require('../../hooks/user-totp2fa');
 
 module.exports = {
   before: {
@@ -219,9 +222,11 @@ module.exports = {
 
   after: {
     all: [
+      userTotp2Fa(),
       protect(
         'password',
         'verifyToken',
+        'totp2faSecret',
         'updatedAt',
         'createdAt',
         'verifyShortToken',
@@ -230,7 +235,7 @@ module.exports = {
         'resetExpires',
         'verifyChanges',
         '__v'
-      ),
+      )
     ],
     find: [
       authorize({ adapter: 'feathers-mongoose' })

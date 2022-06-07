@@ -1,6 +1,7 @@
 const { AuthenticationBaseStrategy, AuthenticationService, JWTStrategy } = require('@feathersjs/authentication');
 const { LocalStrategy } = require('@feathersjs/authentication-local');
 const { expressOauth } = require('@feathersjs/authentication-oauth');
+const { totp2fa } = require('feathers-totp-2fa').hooks;
 const authActivity = require('./hooks/auth-activity');
 
 class AnonymousStrategy extends AuthenticationBaseStrategy {
@@ -33,9 +34,13 @@ module.exports = app => {
   authentication.register('anonymous', new AnonymousStrategy());
 
   app.use('/authentication', authentication);
+  const authenticationConfig = app.get('authentication');
   app.service('authentication').hooks({
     after: {
-      create: [authActivity()]
+      create: [authActivity(), totp2fa({
+        usersService: 'user',
+        applicationName: authenticationConfig.jwtOptions.issuer
+      })]
     }
   });
   app.configure(expressOauth());

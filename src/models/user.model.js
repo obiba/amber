@@ -3,6 +3,7 @@
 // See http://mongoosejs.com/docs/models.html
 // for more of what you can do here.
 module.exports = function (app) {
+  const authenticationConfig = app.get('authentication');
   const modelName = 'user';
   const mongooseClient = app.get('mongooseClient');
   const schema = new mongooseClient.Schema({
@@ -32,6 +33,9 @@ module.exports = function (app) {
     resetToken: { type: String },
     resetExpires: { type: Date },
     clientId: { type: String },
+
+    totp2faSecret: { type: Object },
+    totp2faRequired: { type: Boolean, default: authenticationConfig.totp2faRequired },
     
     googleId: { type: String },
     githubId: { type: String },
