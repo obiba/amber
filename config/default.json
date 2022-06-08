@@ -15,6 +15,7 @@
       "jwt",
       "local"
     ],
+    "totp2faRequired": true,
     "activityTimeout": "5d",
     "jwtOptions": {
       "header": {
