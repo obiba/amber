@@ -93,21 +93,21 @@
     "resetPwd": {
       "en": {
         "subject": "[Amber] Successfully Reset Password",
-        "html": "<html><p>Dear {firstname} {lastname},</p> <p><b>Successfully reset password.</b></p></html>"
+        "html": "<html><p>Dear {firstname} {lastname},</p> <p>The password was reset successfully.</p></html>"
       },
       "fr": {
         "subject": "[Amber] Mot de passe réinitialisé",
-        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p><b>Le mot de passe a été mis à jour avec succès.</b></html>"
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Le mot de passe a été mis à jour avec succès.</html>"
       }
     },
     "passwordChange": {
       "en": {
         "subject": "[Amber] Password Changed",
-        "html": "<html><p>Dear {firstname} {lastname},</p> <p><b>Successfully updated password</b>. If this was not you, let us know.</p></html>"
+        "html": "<html><p>Dear {firstname} {lastname},</p> <p>Password successfully updated. If this was not you, let us know.</p></html>"
       },
       "fr": {
         "subject": "[Amber] Mot de passe modifié",
-        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p><b>Mot de passe mis à jour</b>. Si vous n'êtes pas l'auteur de ce changement, veuillez nous contacter.</p></html>"
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Le mot de passe a été mis à jour. Si vous n'êtes pas l'auteur de ce changement, veuillez nous contacter.</p></html>"
       }
     }
   },

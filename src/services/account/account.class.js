@@ -1,3 +1,5 @@
+const { BadRequest } = require('@feathersjs/errors');
+
 /* eslint-disable no-unused-vars */
 exports.Account = class Account {
   constructor(options, app) {
@@ -6,14 +8,11 @@ exports.Account = class Account {
   }
 
   async find(params) {
-    return [];
+    throw new BadRequest('Not implemented');
   }
 
   async get(id, params) {
-    return {
-      id,
-      text: `A new message with ID: ${id}!`,
-    };
+    throw new BadRequest('Not implemented');
   }
 
   async create(data, params) {
@@ -29,19 +28,16 @@ exports.Account = class Account {
   }
 
   async patch(id, data, params) {
-    console.log('id', id, data);
     let user = await this.app.service('user').find({
       query: {
         email: data.email,
       },
     });
-    let updatedUser = Object.assign({}, user, data.user);
     await this.app.service('user').patch(user.id, user);
-    console.log('user', user);
     return data;
   }
 
   async remove(id, params) {
-    return { id };
+    throw new BadRequest('Not implemented');
   }
 };

@@ -1,8 +1,6 @@
 const userPasswordCheck = require('../../hooks/user-password-check');
-//const auth = require('@feathersjs/authentication').hooks;
-//const { iff } = require('feathers-hooks-common');
 
-//const isAction = (...args) => (hook) => args.includes(hook.data.action);
+const userTotp2FaReset = require('../../hooks/user-totp2fa-reset');
 
 module.exports = {
   before: {
@@ -19,7 +17,7 @@ module.exports = {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [userTotp2FaReset()],
     update: [],
     patch: [],
     remove: [],
