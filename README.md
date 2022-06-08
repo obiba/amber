@@ -67,6 +67,7 @@ Amber uses [dotenv](https://github.com/motdotla/dotenv) for environment variable
 * `CLUSTER_COUNT`, node cluster count, defaults to all available CPU cores
 * `APP_NAME`, JWT issuer
 * `APP_SECRET_KEY`, encryption key
+* `APP_SECRET_IV`, secret string for the encryption's initial vector,
 * `APP_URL`, JWT audience
 * `CLIENT_URLS`, comma separated client urls, for the CORS policy
 * `AMBER_STUDIO_URL`, Amber Studio app url, to be included in the notification emails

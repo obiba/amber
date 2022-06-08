@@ -30,6 +30,9 @@ if (process.env.ENCRYPT_DATA &&
   (process.env.ENCRYPT_DATA === true || process.env.ENCRYPT_DATA === 'true' || process.env.ENCRYPT_DATA === 1 || process.env.ENCRYPT_DATA === '1')) {
   app.set('encrypt_data', true);
 }
+if (process.env.APP_SECRET_IV) {
+  app.set('encrypt_iv', process.env.APP_SECRET_IV);
+}
 
 // Authentication
 let authenticationConfig = app.get('authentication');

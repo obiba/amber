@@ -34,7 +34,7 @@ module.exports = function (app) {
     resetExpires: { type: Date },
     clientId: { type: String },
 
-    totp2faSecret: { type: Object },
+    totp2faSecret: { type: String },
     totp2faRequired: { type: Boolean, default: authenticationConfig.totp2faRequired },
     
     googleId: { type: String },

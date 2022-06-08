@@ -1,34 +1,31 @@
 const crypto = require('crypto');
 
 const algorithm = 'aes-256-ctr';
-const iv = crypto.randomBytes(16);
 
-const makeEncrypt = (secretKey) => {
+const makeEncrypt = (secretKey, secretIv) => {
   return (text) => {
-    const cipher = crypto.createCipheriv(algorithm, secretKey, iv);
+    const cipher = crypto.createCipheriv(algorithm, secretKey, secretIv);
     const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
 
-    return {
-      iv: iv.toString('hex'),
-      content: encrypted.toString('hex')
-    };
+    return encrypted.toString('hex');
   };
 };
 
-const makeDecrypt = (secretKey) => {
+const makeDecrypt = (secretKey, secretIv) => {
   return (hash) => {
-    const decipher = crypto.createDecipheriv(algorithm, secretKey, Buffer.from(hash.iv, 'hex'));
-    const decrpyted = Buffer.concat([decipher.update(Buffer.from(hash.content, 'hex')), decipher.final()]);
+    const decipher = crypto.createDecipheriv(algorithm, secretKey, secretIv);
+    const decrpyted = Buffer.concat([decipher.update(Buffer.from(hash, 'hex')), decipher.final()]);
 
     return decrpyted.toString();
   };
 };
 
 module.exports = function (app) {
-  const key = crypto.createHash('sha256').update(String(app.get('authentication').secret)).digest('base64').substr(0, 32);
+  const key = crypto.createHash('sha512').update(String(app.get('authentication').secret), 'utf-8').digest('hex').substring(0, 32);
+  const iv  = crypto.createHash('sha512').update(String(app.get('encrypt_iv')), 'utf-8').digest('hex').substring(0, 16);
   const cryptoConfig = {
-    encrypt: makeEncrypt(key),
-    decrypt: makeDecrypt(key)
+    encrypt: makeEncrypt(key, iv),
+    decrypt: makeDecrypt(key, iv)
   };
   app.set('crypto', cryptoConfig);
 };

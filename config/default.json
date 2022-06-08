@@ -7,6 +7,7 @@
     "max": 500
   },
   "encrypt_data": false,
+  "encrypt_iv": "z7xHTvFaiigqa8Fx3DPKTP",
   "authentication": {
     "entity": "user",
     "service": "user",
