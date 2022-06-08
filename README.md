@@ -76,6 +76,7 @@ Amber uses [dotenv](https://github.com/motdotla/dotenv) for environment variable
 * `GMAIL`, the Gmail user name for the notification service
 * `GMAIL_PASSWORD`, the Gmail user password for the notification service
 * `SENDINBLUE_API_KEY`, the [Sendinblue](https://www.sendinblue.com/) API key for the notification service
+* `FROM_EMAIL`, the automated sender email address,
 * `GITHUB_KEY`, OAuth key for Github
 * `GITHUB_SECRET`, OAuth secret for Github
 * `GOOGLE_KEY`, OAuth key for Google

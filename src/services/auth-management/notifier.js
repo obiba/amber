@@ -32,7 +32,7 @@ module.exports = function (app) {
         logger.error('Error sending email', err);
       });
   }
-  const FROM_EMAIL = app.get('from_email');
+  const FROM_EMAIL = process.env.FROM_EMAIL ? process.env.FROM_EMAIL : app.get('from_email');
 
   return {
     service: 'user',
