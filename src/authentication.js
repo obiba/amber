@@ -39,7 +39,8 @@ module.exports = app => {
     after: {
       create: [authActivity(), totp2fa({
         usersService: 'user',
-        applicationName: authenticationConfig.jwtOptions.issuer
+        applicationName: authenticationConfig.jwtOptions.issuer,
+        cryptoUtil: app.get('crypto')
       })]
     }
   });
