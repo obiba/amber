@@ -63,9 +63,9 @@ exports.CaseReportExport = class CaseReportExport {
   }
 
   flattenByItems (items, data, path) {
-    const rval = {
+    const rval = data ? {
       _id: data._id
-    };
+    } : {};
     if (data) {
       items.forEach(item => {
         if (item.items) {
