@@ -16,7 +16,6 @@ module.exports = function (app) {
     form: { type: Schema.Types.ObjectId, ref: 'form', required: true },
     revision: { type: Number, required: false },
     state: { type: String, enum: ['active', 'paused'], default: 'paused' },
-    private: { type: Boolean, default: false },
     permissions: { type: permissionsSchema }
   }, {
     timestamps: true

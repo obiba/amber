@@ -76,11 +76,24 @@ exports.CaseReportExport = class CaseReportExport {
             rval[npath.join('.') + '.' + key] = value;
           });
         } else {
-          rval[item.name] = data[item.name];
+          rval[item.name] = this.marshallValue(data[item.name]);
         }
       });
     }
     return rval;
+  }
+
+  marshallValue (value) {
+    if(typeof(value) === 'object') {
+      // simplify geojson value to its coordinates, the type of feature will be in the data dictionary
+      if (value.type && value.type === 'Feature' && value.geometry && value.geometry.coordinates) {
+        return JSON.stringify(value.geometry.coordinates);
+      }
+      if (Array.isArray(value)) {
+        return value.map(val => this.marshallValue(val));
+      }
+    }
+    return value;
   }
 
   async get (id, params) {
