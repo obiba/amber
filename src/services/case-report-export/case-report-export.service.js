@@ -191,7 +191,13 @@ const doJsonResponse = (res) => {
       variables: makeTable(res.data.export[key].formRevision).variables
     };
   }
-  res.json(data);
+  res.json({
+    total: res.data.total,
+    found: res.data.found,
+    skip: res.data.skip,
+    limit: res.data.limit,
+    data: data
+  });
 };
 
 module.exports = function (app) {

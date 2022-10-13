@@ -14,6 +14,10 @@ exports.CaseReportExport = class CaseReportExport {
     const result = await caseReportService.find(params);
     const crResult = {
       export: {},
+      total: 0,
+      found: 0,
+      skip: 0,
+      limit: 0,
       audit: {
         entityIds: [],
         caseReportIds: []
@@ -59,6 +63,11 @@ exports.CaseReportExport = class CaseReportExport {
         crResult.audit.caseReportIds.push(cr._id);
       }
     }
+    crResult.total = result.total;
+    crResult.found = result.data ? result.data.length : 0;
+    crResult.skip = result.skip;
+    crResult.limit = result.limit;
+
     return crResult;
   }
 
