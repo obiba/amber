@@ -9,6 +9,7 @@ exports.CaseReportExport = class CaseReportExport {
 
   async find (params) {
     const caseReportService = this.app.service('case-report');
+    const caseReportFormService = this.app.service('case-report-form');
     const formRevisionService = this.app.service('form-revision');
     const formService = this.app.service('form');
     const crResult = {
@@ -22,6 +23,7 @@ exports.CaseReportExport = class CaseReportExport {
         caseReportIds: []
       }
     };
+    const caseReportForms = {};
     const formRevisions = {};
     const forms = {};
 
@@ -58,7 +60,7 @@ exports.CaseReportExport = class CaseReportExport {
       if (result.data && result.data.length > 0) {
         for (const cr of result.data) {
           // flatten data
-          const key = `${cr.form}-${cr.revision}`;
+          const key = `${cr.caseReportForm}`;
           if (!formRevisions[key]) {
             const q = {
               $limit: 1,
@@ -80,8 +82,11 @@ exports.CaseReportExport = class CaseReportExport {
               formRevisions[key] = forms[cr.form];
             }
           }
+          if (!caseReportForms[key]) {
+            caseReportForms[key] = await caseReportFormService.get(cr.caseReportForm);
+          }
           if (!crResult.export[key]) {
-            crResult.export[key] = { data: [], fields: [], formRevision: formRevisions[key] };
+            crResult.export[key] = { data: [], fields: [], formRevision: formRevisions[key], caseReportForm: caseReportForms[key] };
           }
           const flattenData = this.flattenByItems(formRevisions[key].schema.items, cr.data);
           const fields = crResult.export[key].fields.concat(Object.keys(flattenData));

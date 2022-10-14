@@ -16,8 +16,8 @@ const mkTmpDir = () => {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'amber-'));
 };
 
-const makeTableName = (formRevision) => {
-  const tableName = formRevision.name + '-' + formRevision.revision;
+const makeTableName = (caseReportForm, formRevision) => {
+  const tableName = `${caseReportForm.name}-${formRevision.revision}`;
   return tableName;
 };
 
@@ -120,10 +120,10 @@ const makeVariables = (item, options) => {
   }
 };
 
-const makeTable = (formRevision) => {
+const makeTable = (caseReportForm, formRevision) => {
   const schema = formRevision.schema;
   const table = {
-    table: makeTableName(formRevision),
+    table: makeTableName(caseReportForm, formRevision),
     entityType: 'Participant',
     variables: []
   };
@@ -141,7 +141,7 @@ const makeTable = (formRevision) => {
 const doCsvResponse = (res) => {
   // extract only one form-version
   const key = Object.keys(res.data.export).pop();
-  const tableName = makeTableName(res.data.export[key].formRevision);
+  const tableName = makeTableName(res.data.export[key].caseReportForm, res.data.export[key].formRevision);
   const csv = toCSV(res.data.export[key].data, res.data.export[key].fields);
   res.attachment(`${tableName}.csv`);
   res.type('csv');
@@ -152,7 +152,7 @@ const doZipResponse = (res) => {
   const tmpDir = mkTmpDir();
   // write data
   for (const key in res.data.export) {
-    const tableName = makeTableName(res.data.export[key].formRevision);
+    const tableName = makeTableName(res.data.export[key].caseReportForm, res.data.export[key].formRevision);
     if (!fs.existsSync(path.join(tmpDir, tableName))) {
       fs.mkdirSync(path.join(tmpDir, tableName));
     }
@@ -160,7 +160,7 @@ const doZipResponse = (res) => {
     const csv = toCSV(res.data.export[key].data, res.data.export[key].fields);
     fs.writeFileSync(path.join(tmpDir, tableName, 'data.csv'), csv);
     // write variables
-    const table = makeTable(res.data.export[key].formRevision);
+    const table = makeTable(res.data.export[key].caseReportForm, res.data.export[key].formRevision);
     fs.writeFileSync(path.join(tmpDir, tableName, 'variables.json'), JSON.stringify(table.variables));
   }
   const archive = archiver('zip');
@@ -185,10 +185,10 @@ const doJsonResponse = (res) => {
   res.attachment('case-report-export.json');
   const data = {};
   for (const key in res.data.export) {
-    const tableName = makeTableName(res.data.export[key].formRevision);
+    const tableName = makeTableName(res.data.export[key].caseReportForm, res.data.export[key].formRevision);
     data[tableName] = {
       data: res.data.export[key].data,
-      variables: makeTable(res.data.export[key].formRevision).variables
+      variables: makeTable(res.data.export[key].caseReportForm, res.data.export[key].formRevision).variables
     };
   }
   res.json({

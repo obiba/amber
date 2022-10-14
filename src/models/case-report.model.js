@@ -13,6 +13,7 @@ module.exports = function (app) {
   });
   const schema = new Schema({
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
+    caseReportForm: { type: Schema.Types.ObjectId, ref: 'case-report-form', required: true },
     study: { type: Schema.Types.ObjectId, ref: 'study', required: true },
     form: { type: Schema.Types.ObjectId, ref: 'form', required: true },
     revision: { type: Number, required: true },

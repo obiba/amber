@@ -29,6 +29,8 @@ exports.Crfs = class Crfs {
       if (frResult.total > 0) {
         data.push({
           _id: crf._id,
+          name: crf.name,
+          description: crf.description,
           schema: frResult.data[0].schema,
           revision: frResult.data[0].revision
         });

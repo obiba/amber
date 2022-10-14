@@ -11,6 +11,8 @@ module.exports = function (app) {
     groups: [{ type: Schema.Types.ObjectId, ref: 'group' }]
   });
   const schema = new Schema({
+    name: { type: String, required: true, default: '.' },
+    description: { type: String, required: false },
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
     study: { type: Schema.Types.ObjectId, ref: 'study', required: true },
     form: { type: Schema.Types.ObjectId, ref: 'form', required: true },
