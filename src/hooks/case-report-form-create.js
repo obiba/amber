@@ -11,7 +11,7 @@ module.exports = (options = {}) => {
     await formService.get(context.data.form);
     // verify that form exists
     const formRevisionService = context.app.service('form-revision');
-    const q = {
+    let q = {
       $limit: 0,
       study: context.data.study,
       form: context.data.form
@@ -19,11 +19,20 @@ module.exports = (options = {}) => {
     if (context.data.revision) {
       q.revision = context.data.revision;
     }
-    const revisions = await formRevisionService.find({
-      query: q
-    });
-    if (revisions.total === 0) {
-      throw new BadRequest('No form revision');
+    let res = await formRevisionService.find({ query: q });
+    if (res.total === 0) {
+      throw new BadRequest('Bad form revision');
+    }
+    // verify name is unique in its study
+    const crfService = context.app.service('case-report-form');
+    q = {
+      $limit: 0,
+      name: context.data.name,
+      study: context.data.study
+    };
+    res = await crfService.find({ query: q });
+    if (res.total > 0) {
+      throw new BadRequest('Case report form name must be unique in the study');
     }
     // Set created by the logged in user
     context.data.createdBy = context.params.user._id;
