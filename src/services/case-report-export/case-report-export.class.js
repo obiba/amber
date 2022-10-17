@@ -59,8 +59,8 @@ exports.CaseReportExport = class CaseReportExport {
       crResult.found = crResult.found + (result.data ? result.data.length : 0);
       if (result.data && result.data.length > 0) {
         for (const cr of result.data) {
-          // flatten data
-          const key = `${cr.caseReportForm}`;
+          // group by crf id + form revision
+          const key = `${cr.caseReportForm ? cr.caseReportForm : cr.form}-${cr.revision}`;
           if (!formRevisions[key]) {
             const q = {
               $limit: 1,
@@ -82,12 +82,18 @@ exports.CaseReportExport = class CaseReportExport {
               formRevisions[key] = forms[cr.form];
             }
           }
-          if (!caseReportForms[key]) {
+          if (!caseReportForms[key] && cr.caseReportForm) {
             caseReportForms[key] = await caseReportFormService.get(cr.caseReportForm);
           }
           if (!crResult.export[key]) {
-            crResult.export[key] = { data: [], fields: [], formRevision: formRevisions[key], caseReportForm: caseReportForms[key] };
+            crResult.export[key] = { 
+              data: [], 
+              fields: [], 
+              formRevision: formRevisions[key],
+              caseReportForm: caseReportForms[key]
+            };
           }
+          // flatten data
           const flattenData = this.flattenByItems(formRevisions[key].schema.items, cr.data);
           const fields = crResult.export[key].fields.concat(Object.keys(flattenData));
           crResult.export[key].fields = fields.filter((item, pos) => fields.indexOf(item) === pos);
