@@ -18,7 +18,7 @@ const mkTmpDir = () => {
 
 const makeTableName = (caseReportForm, formRevision) => {
   // handle case report form is not defined (not supposed to happen)
-  const tableName = `${caseReportForm ? caseReportForm.name : 'undefined-' + formRevision.name}-${formRevision.revision}`;
+  const tableName = `${caseReportForm ? caseReportForm.name : formRevision.name}-${formRevision.revision}`;
   return tableName;
 };
 
