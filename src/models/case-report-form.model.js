@@ -18,6 +18,7 @@ module.exports = function (app) {
     form: { type: Schema.Types.ObjectId, ref: 'form', required: true },
     revision: { type: Number, required: false },
     state: { type: String, enum: ['active', 'paused'], default: 'paused' },
+    repeatPolicy: { type: String, enum: ['single_reject', 'single_update', 'multiple'], default: 'single_reject' },
     permissions: { type: permissionsSchema }
   }, {
     timestamps: true

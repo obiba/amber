@@ -47,6 +47,7 @@ const makeVariables = (item, options) => {
       const vars = makeVariables(it, {
         entityType: options.entityType,
         i18n: options.i18n,
+        repeated: options.repeated,
         prefix: item.name
       });
       if (Array.isArray(vars)) {
@@ -76,7 +77,7 @@ const makeVariables = (item, options) => {
     } else if (['map'].includes(item.type)) {
       variable.valueType = item.geometryType ? item.geometryType.toLowerCase() : 'point';
     }
-    if (item.multiple) {
+    if (options.repeated || item.multiple) {
       variable.isRepeatable = true;
     }
     variable.attributes = [];
@@ -129,7 +130,11 @@ const makeTable = (caseReportForm, formRevision) => {
     variables: []
   };
   schema.items.forEach(item => {
-    const variables = makeVariables(item, { entityType: table.entityType, i18n: schema.i18n });
+    const variables = makeVariables(item, {
+      entityType: table.entityType,
+      i18n: schema.i18n,
+      repeated: caseReportForm.repeatPolicy === 'multiple'
+    });
     if (Array.isArray(variables)) {
       variables.forEach(variable => table.variables.push(variable));
     } else {
