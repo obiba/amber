@@ -115,5 +115,9 @@
   "amber_studio_url": "http://localhost:3080",
   "amber_collect_url": "http://localhost:3090",
   "api_url": "http://localhost:3030/",
-  "recaptcha_secret_key": ""
+  "recaptcha_secret_key": "",
+  "export": {
+    "entity_type": "Participant",
+    "identifier_variable": "id"
+  }
 }

@@ -77,7 +77,7 @@ const makeVariables = (item, options) => {
     } else if (['map'].includes(item.type)) {
       variable.valueType = item.geometryType ? item.geometryType.toLowerCase() : 'point';
     }
-    if (options.repeated || item.multiple) {
+    if (item.multiple) {
       variable.isRepeatable = true;
     }
     variable.attributes = [];
@@ -122,13 +122,22 @@ const makeVariables = (item, options) => {
   }
 };
 
-const makeTable = (caseReportForm, formRevision) => {
+const makeTable = (caseReportForm, formRevision, exportSettings) => {
   const schema = formRevision.schema;
   const table = {
     table: makeTableName(caseReportForm, formRevision),
-    entityType: 'Participant',
+    entityType: caseReportForm.repeatPolicy === 'multiple' ? 'CaseReport' : exportSettings.entity_type,
     variables: []
   };
+  if (caseReportForm.repeatPolicy === 'multiple') {
+    table.variables.push({
+      name: 'id',
+      entityType: table.entityType,
+      valueType: 'text',
+      isRepeatable: true,
+      referencedEntityType: exportSettings.entity_type
+    });
+  }
   schema.items.forEach(item => {
     const variables = makeVariables(item, {
       entityType: table.entityType,
@@ -154,7 +163,7 @@ const doCsvResponse = (res) => {
   res.end(csv);
 };
 
-const doZipResponse = (res) => {
+const doZipResponse = (res, exportSettings) => {
   const tmpDir = mkTmpDir();
   // write data
   for (const key in res.data.export) {
@@ -166,7 +175,7 @@ const doZipResponse = (res) => {
     const csv = toCSV(res.data.export[key].data, res.data.export[key].fields);
     fs.writeFileSync(path.join(tmpDir, tableName, 'data.csv'), csv);
     // write variables
-    const table = makeTable(res.data.export[key].caseReportForm, res.data.export[key].formRevision);
+    const table = makeTable(res.data.export[key].caseReportForm, res.data.export[key].formRevision, exportSettings);
     fs.writeFileSync(path.join(tmpDir, tableName, 'variables.json'), JSON.stringify(table.variables));
   }
   const archive = archiver('zip');
@@ -187,14 +196,14 @@ const doZipResponse = (res) => {
   archive.finalize();
 };
 
-const doJsonResponse = (res) => {
+const doJsonResponse = (res, exportSettings) => {
   res.attachment('case-report-export.json');
   const data = {};
   for (const key in res.data.export) {
     const tableName = makeTableName(res.data.export[key].caseReportForm, res.data.export[key].formRevision);
     data[tableName] = {
       data: res.data.export[key].data,
-      variables: makeTable(res.data.export[key].caseReportForm, res.data.export[key].formRevision).variables
+      variables: makeTable(res.data.export[key].caseReportForm, res.data.export[key].formRevision, exportSettings).variables
     };
   }
   res.json({
@@ -214,12 +223,13 @@ module.exports = function (app) {
   // Initialize our service with any options it requires
   app.use('/case-report-export', new CaseReportExport(options, app), (req, res) => {
     const accept = req.get('Accept');
+    const exportSettings = app.get('export');
     if (accept === 'text/csv' || accept === 'text/plain') {
       doCsvResponse(res);
     } else if (accept === 'application/zip' || accept === 'application/octet-stream') {
-      doZipResponse(res);
+      doZipResponse(res, exportSettings);
     } else {
-      doJsonResponse(res);
+      doJsonResponse(res, exportSettings);
     }
   });
 

@@ -8,6 +8,7 @@ exports.CaseReportExport = class CaseReportExport {
   }
 
   async find (params) {
+    const idVariable = this.app.get('export').identifier_variable;
     const caseReportService = this.app.service('case-report');
     const caseReportFormService = this.app.service('case-report-form');
     const formRevisionService = this.app.service('form-revision');
@@ -95,6 +96,10 @@ exports.CaseReportExport = class CaseReportExport {
           }
           // flatten data
           const flattenData = this.flattenByItems(formRevisions[key].schema.items, cr.data);
+          if (caseReportForms[key].repeatPolicy === 'multiple') {
+            flattenData[idVariable] = flattenData['_id'];
+            flattenData['_id'] = cr._id.toString();
+          }
           const fields = crResult.export[key].fields.concat(Object.keys(flattenData));
           crResult.export[key].fields = fields.filter((item, pos) => fields.indexOf(item) === pos);
           crResult.export[key].data.push(flattenData);
