@@ -176,7 +176,53 @@ const doZipResponse = (res, exportSettings) => {
     fs.writeFileSync(path.join(tmpDir, tableName, 'data.csv'), csv);
     // write variables
     const table = makeTable(res.data.export[key].caseReportForm, res.data.export[key].formRevision, exportSettings);
-    fs.writeFileSync(path.join(tmpDir, tableName, 'variables.json'), JSON.stringify(table.variables));
+    const variables = [];
+    const categories = [];
+    let variableFields = [];
+    let categoryFields = [];
+    let index = 0;
+    table.variables.forEach(variable => {
+      const nvar = {
+        name: variable.name,
+        entityType: variable.entityType,
+        valueType: variable.valueType,
+        unit: variable.unit,
+        referencedEntityType: variable.referencedEntityType,
+        mimeType: variable.mimeType,
+        repeatable: variable.isRepeatable === true,
+        occurrenceGroup: variable.occurrenceGroup,
+        index: index++
+      };
+      if (variable.attributes) {
+        variable.attributes.forEach(attr => {
+          const key = (attr.namespace ? attr.namespace + '::' : '') + attr.name + (attr.locale ? ':' + attr.locale : '');
+          nvar[key] = attr.value;
+        });
+      }
+      variables.push(nvar);
+      const vFields = variableFields.concat(Object.keys(nvar));
+      variableFields = vFields.filter((item, pos) => vFields.indexOf(item) === pos);
+      if (variable.categories) {
+        variable.categories.forEach(category => {
+          const ncat = {
+            variable: nvar.name,
+            name: category.name,
+            missing: false
+          };
+          if (category.attributes) {
+            category.attributes.forEach(attr => {
+              const key = (attr.namespace ? attr.namespace + '::' : '') + attr.name + (attr.locale ? ':' + attr.locale : '');
+              ncat[key] = attr.value;
+            });
+          }
+          categories.push(ncat);
+          const cFields = categoryFields.concat(Object.keys(ncat));
+          categoryFields = cFields.filter((item, pos) => cFields.indexOf(item) === pos);
+        });
+      }
+    });
+    fs.writeFileSync(path.join(tmpDir, tableName, 'variables.csv'), toCSV(variables, variableFields));
+    fs.writeFileSync(path.join(tmpDir, tableName, 'categories.csv'), toCSV(categories, categoryFields));
   }
   const archive = archiver('zip');
   archive.on('error', (err) => {
