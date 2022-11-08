@@ -199,10 +199,8 @@ const doZipResponse = (res, exportSettings) => {
           nvar[key] = attr.value;
         });
       }
-      variables.push(nvar);
-      const vFields = variableFields.concat(Object.keys(nvar));
-      variableFields = vFields.filter((item, pos) => vFields.indexOf(item) === pos);
       if (variable.categories) {
+        const categoriesLabels = {};
         variable.categories.forEach(category => {
           const ncat = {
             variable: nvar.name,
@@ -213,16 +211,29 @@ const doZipResponse = (res, exportSettings) => {
             category.attributes.forEach(attr => {
               const key = (attr.namespace ? attr.namespace + '::' : '') + attr.name + (attr.locale ? ':' + attr.locale : '');
               ncat[key] = attr.value;
+              if (attr.name === 'label') {
+                const labelsKey = 'categories' + (attr.locale ? ':' + attr.locale : '');
+                if (!categoriesLabels[labelsKey]) {
+                  categoriesLabels[labelsKey] = [];
+                }
+                categoriesLabels[labelsKey].push(`${category.name}=${attr.value}`);
+              }
             });
           }
           categories.push(ncat);
           const cFields = categoryFields.concat(Object.keys(ncat));
           categoryFields = cFields.filter((item, pos) => cFields.indexOf(item) === pos);
         });
+        for (const labelsKey in categoriesLabels) {
+          nvar[labelsKey] = categoriesLabels[labelsKey].join(';');
+        }
       }
+      variables.push(nvar);
+      const vFields = variableFields.concat(Object.keys(nvar));
+      variableFields = vFields.filter((item, pos) => vFields.indexOf(item) === pos);
     });
     fs.writeFileSync(path.join(tmpDir, tableName, 'variables.csv'), toCSV(variables, variableFields));
-    fs.writeFileSync(path.join(tmpDir, tableName, 'categories.csv'), toCSV(categories, categoryFields));
+    //fs.writeFileSync(path.join(tmpDir, tableName, 'categories.csv'), toCSV(categories, categoryFields));
   }
   const archive = archiver('zip');
   archive.on('error', (err) => {

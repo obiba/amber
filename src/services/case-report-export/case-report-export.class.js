@@ -136,7 +136,7 @@ exports.CaseReportExport = class CaseReportExport {
   }
 
   flattenByItems (items, data, path) {
-    const rval = data ? {
+    const rval = data._id ? {
       _id: data._id
     } : {};
     if (data) {
