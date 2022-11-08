@@ -96,7 +96,7 @@ exports.CaseReportExport = class CaseReportExport {
           }
           // flatten data
           const flattenData = this.flattenByItems(formRevisions[key].schema.items, cr.data);
-          if (caseReportForms[key].repeatPolicy === 'multiple') {
+          if (!caseReportForms[key] || caseReportForms[key].repeatPolicy === 'multiple') {
             flattenData[idVariable] = flattenData['_id'];
             flattenData['_id'] = cr._id.toString();
           }
