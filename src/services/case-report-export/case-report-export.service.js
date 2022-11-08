@@ -127,10 +127,10 @@ const makeTable = (caseReportForm, formRevision, exportSettings) => {
   const schema = formRevision.schema;
   const table = {
     table: makeTableName(caseReportForm, formRevision),
-    entityType: caseReportForm.repeatPolicy === 'multiple' ? 'CaseReport' : exportSettings.entity_type,
+    entityType: !caseReportForm || caseReportForm.repeatPolicy === 'multiple' ? 'CaseReport' : exportSettings.entity_type,
     variables: []
   };
-  if (caseReportForm.repeatPolicy === 'multiple') {
+  if (!caseReportForm || caseReportForm.repeatPolicy === 'multiple') {
     table.variables.push({
       name: 'id',
       entityType: table.entityType,
@@ -143,7 +143,7 @@ const makeTable = (caseReportForm, formRevision, exportSettings) => {
     const variables = makeVariables(item, {
       entityType: table.entityType,
       i18n: schema.i18n,
-      repeated: caseReportForm.repeatPolicy === 'multiple'
+      repeated: !caseReportForm || caseReportForm.repeatPolicy === 'multiple'
     });
     if (Array.isArray(variables)) {
       variables.forEach(variable => table.variables.push(variable));
