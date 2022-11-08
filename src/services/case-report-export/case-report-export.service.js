@@ -2,6 +2,7 @@
 const { CaseReportExport } = require('./case-report-export.class');
 const hooks = require('./case-report-export.hooks');
 const { parse } = require('json2csv');
+const xlsx = require('xlsx');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -154,13 +155,42 @@ const makeTable = (caseReportForm, formRevision, exportSettings) => {
 };
 
 const doCsvResponse = (res) => {
-  // extract only one form-version
-  const key = Object.keys(res.data.export).pop();
-  const tableName = makeTableName(res.data.export[key].caseReportForm, res.data.export[key].formRevision);
-  const csv = toCSV(res.data.export[key].data, res.data.export[key].fields);
-  res.attachment(`${tableName}.csv`);
+  res.attachment('case-report-export.csv');
   res.type('csv');
-  res.end(csv);
+  for (const key in res.data.export) {
+    const tableName = makeTableName(res.data.export[key].caseReportForm, res.data.export[key].formRevision);
+    const tableCsv = toCSV(res.data.export[key].data, res.data.export[key].fields);
+    res.write(`## ${tableName}\n${tableCsv}\n\n`);  
+  }
+  res.end();
+};
+
+const doExcelResponse = (res) => {
+  const tmpDir = mkTmpDir();
+  const workbook = xlsx.utils.book_new();
+  for (const key in res.data.export) {
+    const tableName = makeTableName(res.data.export[key].caseReportForm, res.data.export[key].formRevision);
+    const ws = xlsx.utils.json_to_sheet(res.data.export[key].data);
+    xlsx.utils.book_append_sheet(workbook, ws, tableName);
+  }
+  // dump to a tmp file
+  const fname = 'case-report-export.xlsx';
+  const fpath = path.join(tmpDir, fname);
+  xlsx.writeFileXLSX(workbook, fpath);
+  // stream the tmp file
+  const xlsxStream = fs.createReadStream(fpath);
+  xlsxStream.on('error', (err) => {
+    fs.rmSync(tmpDir, { recursive: true });
+    throw new GeneralError(err.message);
+  });
+  //on stream closed we can end the request
+  xlsxStream.on('end', function() {
+    fs.rmSync(tmpDir, { recursive: true });
+  });
+  // pipe will end the response stream
+  res.attachment(fname);
+  res.type('application/vnd.ms-excel');
+  xlsxStream.pipe(res);
 };
 
 const doZipResponse = (res, exportSettings) => {
@@ -243,7 +273,6 @@ const doZipResponse = (res, exportSettings) => {
   //on stream closed we can end the request
   archive.on('end', function() {
     fs.rmSync(tmpDir, { recursive: true });
-    console.log('Archive wrote %d bytes', archive.pointer());
   });
   //set the archive name
   res.attachment('case-report-export.zip');
@@ -283,6 +312,8 @@ module.exports = function (app) {
     const exportSettings = app.get('export');
     if (accept === 'text/csv' || accept === 'text/plain') {
       doCsvResponse(res);
+    } else if (accept === 'application/vnd.openxmlformatsofficedocument.spreadsheetml.sheet' || accept === 'application/vnd.ms-excel') {
+      doExcelResponse(res);
     } else if (accept === 'application/zip' || accept === 'application/octet-stream') {
       doZipResponse(res, exportSettings);
     } else {
