@@ -165,13 +165,62 @@ const doCsvResponse = (res) => {
   res.end();
 };
 
-const doExcelResponse = (res) => {
+const doExcelResponse = (res, exportSettings) => {
   const tmpDir = mkTmpDir();
   const workbook = xlsx.utils.book_new();
+  const dataSheets = {};
+  const variables = [];
+  const categories = [];
   for (const key in res.data.export) {
     const tableName = makeTableName(res.data.export[key].caseReportForm, res.data.export[key].formRevision);
-    const ws = xlsx.utils.json_to_sheet(res.data.export[key].data);
-    xlsx.utils.book_append_sheet(workbook, ws, tableName);
+    const table = makeTable(res.data.export[key].caseReportForm, res.data.export[key].formRevision, exportSettings);
+    
+    let index = 0;
+    table.variables.forEach(variable => {
+      const nvar = {
+        table: tableName,
+        name: variable.name,
+        entityType: variable.entityType,
+        valueType: variable.valueType,
+        unit: variable.unit,
+        referencedEntityType: variable.referencedEntityType,
+        mimeType: variable.mimeType,
+        repeatable: variable.isRepeatable === true,
+        occurrenceGroup: variable.occurrenceGroup,
+        index: index++
+      };
+      if (variable.attributes) {
+        variable.attributes.forEach(attr => {
+          const key = (attr.namespace ? attr.namespace + '::' : '') + attr.name + (attr.locale ? ':' + attr.locale : '');
+          nvar[key] = attr.value;
+        });
+      }
+      if (variable.categories) {
+        variable.categories.forEach(category => {
+          const ncat = {
+            table: tableName,
+            variable: nvar.name,
+            name: category.name,
+            missing: false
+          };
+          if (category.attributes) {
+            category.attributes.forEach(attr => {
+              const key = (attr.namespace ? attr.namespace + '::' : '') + attr.name + (attr.locale ? ':' + attr.locale : '');
+              ncat[key] = attr.value;
+            });
+          }
+          categories.push(ncat);
+        });
+      }
+      variables.push(nvar);
+    });
+
+    dataSheets[tableName] = xlsx.utils.json_to_sheet(res.data.export[key].data);
+  }
+  xlsx.utils.book_append_sheet(workbook, xlsx.utils.json_to_sheet(variables), 'Variables');
+  xlsx.utils.book_append_sheet(workbook, xlsx.utils.json_to_sheet(categories), 'Categories');
+  for (const name in dataSheets) {
+    xlsx.utils.book_append_sheet(workbook, dataSheets[name], name);
   }
   // dump to a tmp file
   const fname = 'case-report-export.xlsx';
@@ -207,9 +256,7 @@ const doZipResponse = (res, exportSettings) => {
     // write variables
     const table = makeTable(res.data.export[key].caseReportForm, res.data.export[key].formRevision, exportSettings);
     const variables = [];
-    const categories = [];
     let variableFields = [];
-    let categoryFields = [];
     let index = 0;
     table.variables.forEach(variable => {
       const nvar = {
@@ -232,15 +279,8 @@ const doZipResponse = (res, exportSettings) => {
       if (variable.categories) {
         const categoriesLabels = {};
         variable.categories.forEach(category => {
-          const ncat = {
-            variable: nvar.name,
-            name: category.name,
-            missing: false
-          };
           if (category.attributes) {
             category.attributes.forEach(attr => {
-              const key = (attr.namespace ? attr.namespace + '::' : '') + attr.name + (attr.locale ? ':' + attr.locale : '');
-              ncat[key] = attr.value;
               if (attr.name === 'label') {
                 const labelsKey = 'categories' + (attr.locale ? ':' + attr.locale : '');
                 if (!categoriesLabels[labelsKey]) {
@@ -250,9 +290,6 @@ const doZipResponse = (res, exportSettings) => {
               }
             });
           }
-          categories.push(ncat);
-          const cFields = categoryFields.concat(Object.keys(ncat));
-          categoryFields = cFields.filter((item, pos) => cFields.indexOf(item) === pos);
         });
         for (const labelsKey in categoriesLabels) {
           nvar[labelsKey] = categoriesLabels[labelsKey].join(';');
@@ -313,7 +350,7 @@ module.exports = function (app) {
     if (accept === 'text/csv' || accept === 'text/plain') {
       doCsvResponse(res);
     } else if (accept === 'application/vnd.openxmlformatsofficedocument.spreadsheetml.sheet' || accept === 'application/vnd.ms-excel') {
-      doExcelResponse(res);
+      doExcelResponse(res, exportSettings);
     } else if (accept === 'application/zip' || accept === 'application/octet-stream') {
       doZipResponse(res, exportSettings);
     } else {
