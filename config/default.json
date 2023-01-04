@@ -52,61 +52,61 @@
   "email_templates": {
     "notifySignup": {
       "en": {
-        "subject": "[Amber] New Signup",
+        "subject": "[{app_name}] New Signup",
         "html": "<html><p>Dear {firstname} {lastname},</p> <p>A new user registered itself with email address {newUserEmail}. You can assign a role to this user or reject it.</p> <p>---<br/>This email was automatically sent, please do not reply.</p></html>"
       },
       "fr": {
-        "subject": "[Amber] Nouvel enregistrement",
+        "subject": "[{app_name}] Nouvel enregistrement",
         "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Un nouvel utilisateur s'est enregistré avec l'adresse courriel {newUserEmail}. Vous pouvez lui assigner un rôle ou le supprimer.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
       }
     },
     "resendVerifySignup": {
       "en": {
-        "subject": "[Amber] Verify Email",
+        "subject": "[{app_name}] Verify Email",
         "html": "<html><p>Dear {firstname} {lastname},</p> <p>Please follow this link <a href='{tokenLink}'>to enable us to verify your email address</a>.</p> <p>---<br/>This email was automatically sent, please do not reply.</p></html>"
       },
       "fr": {
-        "subject": "[Amber] Vérification du courriel",
+        "subject": "[{app_name}] Vérification du courriel",
         "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Veuillez suivre ce lien <a href='{tokenLink}'>afin de nous permettre de vérifier votre adresse courriel</a>.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
       }
     },
     "verifySignup": {
       "en": {
-        "subject": "[Amber] Email Verified",
+        "subject": "[{app_name}] Email Verified",
         "html": "<html><p>Dear {firstname} {lastname},</p> <p>Thanks for verifying your email address.</p> <p>---<br/>This email was automatically sent, please do not reply.</p></html>"
       },
       "fr": {
-        "subject": "[Amber] Courriel vérifié",
+        "subject": "[{app_name}] Courriel vérifié",
         "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Merci d'avoir vérifié votre adresse courriel.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
       }
     },
     "sendResetPwd": {
       "en": {
-        "subject": "[Amber] Reset Password",
+        "subject": "[{app_name}] Reset Password",
         "html": "<html><p>Dear {firstname} {lastname},</p> <p>Please follow this link <a href='{tokenLink}'>to reset your password</a>.</p> <p>---<br/>This email was automatically sent, please do not reply.</p></html>"
       },
       "fr": {
-        "subject": "[Amber] Réinitialisation du mot de passe",
+        "subject": "[{app_name}] Réinitialisation du mot de passe",
         "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Veuillez suivre ce lien <a href='{tokenLink}'>afin de réinitialiser votre mot de passe</a>.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
       }
     },
     "resetPwd": {
       "en": {
-        "subject": "[Amber] Successfully Reset Password",
+        "subject": "[{app_name}] Successfully Reset Password",
         "html": "<html><p>Dear {firstname} {lastname},</p> <p>The password was reset successfully.</p> <p>---<br/>This email was automatically sent, please do not reply.</p></html>"
       },
       "fr": {
-        "subject": "[Amber] Mot de passe réinitialisé",
+        "subject": "[{app_name}] Mot de passe réinitialisé",
         "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Le mot de passe a été mis à jour avec succès.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
       }
     },
     "passwordChange": {
       "en": {
-        "subject": "[Amber] Password Changed",
+        "subject": "[{app_name}] Password Changed",
         "html": "<html><p>Dear {firstname} {lastname},</p> <p>Password successfully updated. If this was not you, let us know.</p> <p>---<br/>This email was automatically sent, please do not reply.</p></html>"
       },
       "fr": {
-        "subject": "[Amber] Mot de passe modifié",
+        "subject": "[{app_name}] Mot de passe modifié",
         "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Le mot de passe a été mis à jour. Si vous n'êtes pas l'auteur de ce changement, veuillez nous contacter.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
       }
     }

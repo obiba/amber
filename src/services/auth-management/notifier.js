@@ -63,6 +63,7 @@ module.exports = function (app) {
           lastname: user.lastname,
           language: user.language,
           role: user.role,
+          app_name: (process.env.APP_NAME || 'Amber'),
           amber_studio_url: (process.env.AMBER_STUDIO_URL || app.get('amber_studio_url')),
           amber_collect_url: (process.env.AMBER_COLLECT_URL || app.get('amber_collect_url'))
         };
@@ -77,7 +78,7 @@ module.exports = function (app) {
           email = {
             from: FROM_EMAIL,
             to: user.email,
-            subject: subject,
+            subject: format(subject, context),
             html: format(html, context),
           };
           return sendEmail(email);
@@ -88,7 +89,7 @@ module.exports = function (app) {
           email = {
             from: FROM_EMAIL,
             to: user.email,
-            subject: subject,
+            subject: format(subject, context),
             html: format(html, context),
           };
           return sendEmail(email);
@@ -98,7 +99,7 @@ module.exports = function (app) {
           email = {
             from: FROM_EMAIL,
             to: user.email,
-            subject: subject,
+            subject: format(subject, context),
             html: format(html, context),
           };
           return sendEmail(email);
@@ -109,7 +110,7 @@ module.exports = function (app) {
           email = {
             from: FROM_EMAIL,
             to: user.email,
-            subject: subject,
+            subject: format(subject, context),
             html: format(html, context),
           };
           return sendEmail(email);
@@ -118,7 +119,7 @@ module.exports = function (app) {
           email = email = {
             from: FROM_EMAIL,
             to: user.email,
-            subject: subject,
+            subject: format(subject, context),
             html: format(html, context),
           };
           return sendEmail(email);
@@ -127,7 +128,7 @@ module.exports = function (app) {
           email = {
             from: FROM_EMAIL,
             to: user.email,
-            subject: subject,
+            subject: format(subject, context),
             html: format(html, context),
           };
           return sendEmail(email);
