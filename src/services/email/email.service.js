@@ -22,11 +22,15 @@ module.exports = function (app) {
     });
   } else {
     transport = smtpTransport({
-      host: app.get('smtp_host'),
-      secure: true,
+      host: process.env.SMTP_HOST ? process.env.SMTP_HOST : app.get('smtp_host'),
+      name: process.env.SMTP_NAME ? process.env.SMTP_NAME : "",
+      secure: process.env.SMTP_SECURE ? (process.env.SMTP_SECURE === true || process.env.SMTP_SECURE === 'true') : true,
+      requireTLS: process.env.SMTP_REQUIRE_TLS ? (process.env.SMTP_REQUIRE_TLS === true || process.env.REQUIRE_TLS === 'true') : false,
+      logger: process.env.SMTP_LOGGER ? (process.env.SMTP_LOGGER === true || process.env.LOGGER === 'true') : false,
+      debug: process.env.SMTP_DEBUG ? (process.env.SMTP_DEBUG === true || process.env.DEBUG === 'true') : false,
       auth: {
-        user: app.get('smtp_user'),
-        pass: app.get('smtp_pw'),
+        user: process.env.SMTP_USER ? process.env.SMTP_USER : app.get('smtp_user'),
+        pass: process.env.SMTP_PASSWORD ? process.env.SMTP_PASSWORD : app.get('smtp_pw'),
       }
     });
   }
