@@ -21,16 +21,17 @@ module.exports = function (app) {
       apiUrl: 'https://api.sendinblue.com/v3/smtp'
     });
   } else {
+    const smtpOpts = app.get('smtp');
     transport = smtpTransport({
-      host: process.env.SMTP_HOST ? process.env.SMTP_HOST : app.get('smtp_host'),
-      name: process.env.SMTP_NAME ? process.env.SMTP_NAME : "",
-      secure: process.env.SMTP_SECURE ? (process.env.SMTP_SECURE === true || process.env.SMTP_SECURE === 'true') : true,
-      requireTLS: process.env.SMTP_REQUIRE_TLS ? (process.env.SMTP_REQUIRE_TLS === true || process.env.REQUIRE_TLS === 'true') : false,
-      logger: process.env.SMTP_LOGGER ? (process.env.SMTP_LOGGER === true || process.env.LOGGER === 'true') : false,
-      debug: process.env.SMTP_DEBUG ? (process.env.SMTP_DEBUG === true || process.env.DEBUG === 'true') : false,
+      host: process.env.SMTP_HOST ? process.env.SMTP_HOST : smtpOpts.host,
+      name: process.env.SMTP_NAME ? process.env.SMTP_NAME : smtpOpts.name,
+      secure: process.env.SMTP_SECURE !== undefined ? (process.env.SMTP_SECURE === true || process.env.SMTP_SECURE === 'true') : smtpOpts.secure,
+      requireTLS: process.env.SMTP_REQUIRE_TLS !== undefined ? (process.env.SMTP_REQUIRE_TLS === true || process.env.SMTP_REQUIRE_TLS === 'true') : smtpOpts.require_tls,
+      logger: process.env.SMTP_LOGGER !== undefined ? (process.env.SMTP_LOGGER === true || process.env.SMTP_LOGGER === 'true') : smtpOpts.logger,
+      debug: process.env.SMTP_DEBUG !== undefined ? (process.env.SMTP_DEBUG === true || process.env.SMTP_DEBUG === 'true') : smtpOpts.debug,
       auth: {
-        user: process.env.SMTP_USER ? process.env.SMTP_USER : app.get('smtp_user'),
-        pass: process.env.SMTP_PASSWORD ? process.env.SMTP_PASSWORD : app.get('smtp_pw'),
+        user: process.env.SMTP_USER ? process.env.SMTP_USER : smtpOpts.user,
+        pass: process.env.SMTP_PASSWORD ? process.env.SMTP_PASSWORD : smtpOpts.pw,
       }
     });
   }
