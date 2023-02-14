@@ -13,16 +13,14 @@ Functionalities:
   * multiple data types: text, numeric, logical, image, video, file etc.
   * questionnaire builder
   * extensible question types
-  * questionnaires grouped by project/study
-  * questionnaires flow (interview)
-  * questions with conditions
+  * questionnaires grouped by study
+  * questions with skip conditions
   * questionnaires with pages
-  * self-reported or interview-driven data collection
+  * self-reported data collection
 * participants
-  * walk-in patients or registered participants
-  * participants partitionning with invitation/reminder mailing
+  * walk-in patients
 * users
-  * user roles: admin, manager, interviewer, participant
+  * user roles: administrator, manager, interviewer, guest
   * user/group permissions
   * user signup
   * user management
@@ -35,7 +33,7 @@ Technical features:
 * scalable
 * offline-first design, with auto sync
 * multiple clients: web, mobile, desktop, script
-* auth with local and openid connect credentials
+* auth with local credentials
 * docker
 * mailer
 * configurable
