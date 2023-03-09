@@ -72,6 +72,7 @@ Amber uses [dotenv](https://github.com/motdotla/dotenv) for environment variable
 * `AMBER_COLLECT_URL`, Amber Collect app url, to be included in the notification emails
 * `MONGODB_URL`, the MongoDB connection string
 * `ENCRYPT_DATA`, whether the patient/participant data should be encrypted in the database
+* `RECAPTCHA_SECRET_KEY`, the [reCAPTCHA v3](https://developers.google.com/recaptcha/docs/v3) secret key.
 * `GMAIL`, the Gmail user name for the notification service
 * `GMAIL_PASSWORD`, the Gmail user password for the notification service
 * `SENDINBLUE_API_KEY`, the [Sendinblue](https://www.sendinblue.com/) API key for the notification service
