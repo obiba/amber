@@ -1,7 +1,7 @@
 {
   "name": "amber",
   "description": "Electronic Data Capture system",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "homepage": "",
   "private": true,
   "main": "src",
