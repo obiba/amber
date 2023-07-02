@@ -8,7 +8,6 @@ const start = async () => {
 
   const app = require('./app');
   const port = app.get('port');
-  const server = app.listen(port);
   
   // in case there is no administrator user and seeding env variables are provided
   // seed an administrator user
@@ -42,8 +41,8 @@ const start = async () => {
   process.on('unhandledRejection', (reason, p) =>
     logger.error('Unhandled Rejection at: Promise ', p, reason)
   );
-  
-  server.on('listening', () =>
+
+  app.listen(port).then(() =>
     logger.info('Feathers application started on http://%s:%d', app.get('host'), port)
   );
   

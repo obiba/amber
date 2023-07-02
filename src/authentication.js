@@ -1,6 +1,5 @@
 const { AuthenticationBaseStrategy, AuthenticationService, JWTStrategy } = require('@feathersjs/authentication');
 const { LocalStrategy } = require('@feathersjs/authentication-local');
-const { expressOauth } = require('@feathersjs/authentication-oauth');
 const { totp2fa } = require('feathers-totp-2fa').hooks;
 const authActivity = require('./hooks/auth-activity');
 
@@ -44,5 +43,4 @@ module.exports = app => {
       })]
     }
   });
-  app.configure(expressOauth());
 };

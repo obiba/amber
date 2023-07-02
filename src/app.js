@@ -5,7 +5,7 @@ const cors = require('cors');
 const compress = require('compression');
 const logger = require('./logger');
 
-const feathers = require('@feathersjs/feathers');
+const { feathers } = require('@feathersjs/feathers');
 const configuration = require('@feathersjs/configuration');
 const express = require('@feathersjs/express');
 const casl = require('feathers-casl');
