@@ -1,14 +1,10 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
 const { authorize } = require('feathers-casl').hooks;
-const { defineAbilitiesFor } = require('./form.abilities');
+const { defineAbilitiesFor } = require('./invitation.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
-const formCreate = require('../../hooks/form-create');
+const invitationCreate = require('../../hooks/invitation-create');
 const searchQuery = require('../../hooks/search-query');
-const formAddToStudy = require('../../hooks/form-add-to-study');
-const formRemoveFromStudy = require('../../hooks/form-remove-from-study');
-const formRemoveRevisions = require('../../hooks/form-remove-revisions');
-const formRemoveCaseReportForms = require('../../hooks/form-remove-case-report-forms');
 
 module.exports = {
   before: {
@@ -24,7 +20,7 @@ module.exports = {
       authorize({ adapter: 'feathers-mongoose' })
     ],
     create: [
-      formCreate(),
+      invitationCreate(),
       authorize({ adapter: 'feathers-mongoose' })
     ],
     update: [
@@ -34,9 +30,7 @@ module.exports = {
       authorize({ adapter: 'feathers-mongoose' })
     ],
     remove: [
-      authorize({ adapter: 'feathers-mongoose' }),
-      formRemoveRevisions(),
-      formRemoveCaseReportForms()
+      authorize({ adapter: 'feathers-mongoose' })
     ]
   },
 
@@ -46,14 +40,10 @@ module.exports = {
     ],
     find: [],
     get: [],
-    create: [
-      formAddToStudy()
-    ],
+    create: [],
     update: [],
     patch: [],
-    remove: [
-      formRemoveFromStudy()
-    ]
+    remove: []
   },
 
   error: {
