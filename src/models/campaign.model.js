@@ -11,6 +11,7 @@ module.exports = function (app) {
     description: { type: String, required: false },
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
     study: { type: Schema.Types.ObjectId, ref: 'study' },
+    interviewer: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
   }, {
     timestamps: true
   });
