@@ -38,7 +38,7 @@ const toRows = (res) => {
 };
 
 const doCsvResponse = (res) => {
-  res.attachment('form-i18n-export.csv');
+  res.attachment(`${res.data.name}-i18n-export.csv`);
   res.type('csv');
   const parsed = toRows(res);
   res.write(parse(parsed.rows, { fields: parsed.header }));
@@ -52,7 +52,7 @@ const doExcelResponse = (res) => {
   xlsx.utils.book_append_sheet(workbook, xlsx.utils.json_to_sheet(parsed.rows), res.data.name);
   
   // dump to a tmp file
-  const fname = 'form-i18n-export.xlsx';
+  const fname = `${res.data.name}-i18n-export.xlsx`;
   const fpath = path.join(tmpDir, fname);
   xlsx.writeFileXLSX(workbook, fpath);
   // stream the tmp file
@@ -72,7 +72,7 @@ const doExcelResponse = (res) => {
 };
 
 const doJsonResponse = (res) => {
-  res.attachment('form-i18n-export.json');
+  res.attachment(`${res.data.name}-i18n-export.json`);
   res.type('application/vnd.ms-excel');
   res.json(res.data.schema.i18n);
 };
