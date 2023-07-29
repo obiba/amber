@@ -1,11 +1,11 @@
-// Initializes the `form-i18n-export` service on path `/form-i18n-export`
-const { FormI18nExport } = require('./form-i18n-export.class');
+// Initializes the `form-i18n` service on path `/form-i18n`
+const { FormI18nExport } = require('./form-i18n.class');
 const { parse } = require('json2csv');
 const xlsx = require('xlsx');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const hooks = require('./form-i18n-export.hooks');
+const hooks = require('./form-i18n.hooks');
 const { GeneralError } = require('@feathersjs/errors');
 
 const mkTmpDir = () => {
@@ -83,19 +83,22 @@ module.exports = function (app) {
   };
 
   // Initialize our service with any options it requires
-  app.use('/form-i18n-export', new FormI18nExport(options, app), (req, res) => {
-    const accept = req.get('Accept');
-    if (accept === 'text/csv' || accept === 'text/plain') {
-      doCsvResponse(res);
-    } else if (accept === 'application/vnd.openxmlformatsofficedocument.spreadsheetml.sheet' || accept === 'application/vnd.ms-excel') {
-      doExcelResponse(res);
-    } else {
-      doJsonResponse(res);
+  app.use('/form-i18n', new FormI18nExport(options, app), (req, res) => {
+    if (req.method === 'GET') {
+      // this is an export
+      const accept = req.get('Accept');
+      if (accept === 'text/csv' || accept === 'text/plain') {
+        doCsvResponse(res);
+      } else if (accept === 'application/vnd.openxmlformatsofficedocument.spreadsheetml.sheet' || accept === 'application/vnd.ms-excel') {
+        doExcelResponse(res);
+      } else {
+        doJsonResponse(res);
+      }
     }
   });
 
   // Get our initialized service so that we can register hooks
-  const service = app.service('form-i18n-export');
+  const service = app.service('form-i18n');
 
   service.hooks(hooks);
 };
