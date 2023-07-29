@@ -1,38 +1,33 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
 const { authorize } = require('feathers-casl').hooks;
-const { defineAbilitiesFor } = require('./case-report.abilities');
+const { defineAbilitiesFor } = require('./interview-forms.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
-const caseReportCreate = require('../../hooks/case-report-create');
-const searchQuery = require('../../hooks/search-query');
-const caseReportEncrypt = require('../../hooks/case-report-encrypt');
-const caseReportDecrypt = require('../../hooks/case-report-decrypt');
+const interviewFormsCreate = require('../../hooks/interview-forms-create');
+const addUserGroupsToContext = require('../../hooks/user-add-groups-to-context');
 
 module.exports = {
   before: {
     all: [
       authenticate('jwt'),
+      addUserGroupsToContext(),
       makeAbilities(defineAbilitiesFor)
     ],
     find: [
-      searchQuery(),
       authorize({ adapter: 'feathers-mongoose' })
     ],
     get: [
       authorize({ adapter: 'feathers-mongoose' })
     ],
     create: [
-      caseReportCreate(),
       authorize({ adapter: 'feathers-mongoose' }),
-      caseReportEncrypt()
+      interviewFormsCreate()
     ],
     update: [
-      authorize({ adapter: 'feathers-mongoose' }),
-      caseReportEncrypt()
+      authorize({ adapter: 'feathers-mongoose' })
     ],
     patch: [
-      authorize({ adapter: 'feathers-mongoose' }),
-      caseReportEncrypt()
+      authorize({ adapter: 'feathers-mongoose' })
     ],
     remove: [
       authorize({ adapter: 'feathers-mongoose' })
@@ -43,8 +38,8 @@ module.exports = {
     all: [
       authorize({ adapter: 'feathers-mongoose' })
     ],
-    find: [caseReportDecrypt()],
-    get: [caseReportDecrypt()],
+    find: [],
+    get: [],
     create: [],
     update: [],
     patch: [],
