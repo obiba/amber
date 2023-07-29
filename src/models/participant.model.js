@@ -7,8 +7,14 @@ module.exports = function (app) {
   const mongooseClient = app.get('mongooseClient');
   const { Schema } = mongooseClient;
   const schema = new Schema({
-    code: { type: String, required: true },
-    password: { type: String },
+    code: { type: String, required: true }, // personal invitation code
+    password: { type: String },   // personal secret
+    identifier: { type: String }, // id of the participant in the context of the study, optional
+    validFrom: { type: Date },    // participant is enabled from provided date, optional
+    validUntil: { type: Date },   // participant is enabled until provided date, optional
+    lastSeen: { type: Date },
+    activated: { type: Boolean, default: true }, // can be (de)activated temporarily
+    data: { type: Object, required: true, default: {} }, // personal data
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
     study: { type: Schema.Types.ObjectId, ref: 'study', required: true },
     campaign: { type: Schema.Types.ObjectId, ref: 'campaign', required: true }

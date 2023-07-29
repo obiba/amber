@@ -42,11 +42,17 @@ class APIKeyStrategy extends AuthenticationBaseStrategy {
     if (res.total === 0) {
       throw new NotAuthenticated('Not a valid participant code');
     } else {
-      const entity = res.data[0];
+      const participant = res.data[0];
+      const now = new Date().getTime();
+      if (!participant.activated 
+        || (participant.validFrom && now < participant.validFrom.getTime()) 
+        || (participant.validUntil && now > participant.validUntil.getTime())) {
+        throw new NotAuthenticated('Not a valid participant code');
+      }
       // TODO hash and set password (if missing) or compare password hash (if defined)
       return {
         type: 'participant',
-        entity: entity
+        entity: participant
       };
     }
   }
@@ -64,11 +70,15 @@ module.exports = app => {
   const authenticationConfig = app.get('authentication');
   app.service('authentication').hooks({
     after: {
-      create: [authActivity(), totp2fa({
-        usersService: 'user',
-        applicationName: authenticationConfig.jwtOptions.issuer,
-        cryptoUtil: app.get('crypto')
-      })]
+      create: [
+        authActivity(),
+        // TODO case authenticated entity is a participant
+        totp2fa({
+          usersService: 'user',
+          applicationName: authenticationConfig.jwtOptions.issuer,
+          cryptoUtil: app.get('crypto')
+        })
+      ]
     }
   });
   app.configure(expressOauth());
