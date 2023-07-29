@@ -5,7 +5,7 @@ const { defineAbilitiesFor } = require('./campaign.abilities');
 const makeAbilities = require('../../hooks/make-abilities');
 const campaignCreate = require('../../hooks/campaign-create');
 const searchQuery = require('../../hooks/search-query');
-const campaignRemoveInvitations = require('../../hooks/campaign-remove-invitations');
+const campaignRemoveParticipants = require('../../hooks/campaign-remove-participants');
 
 module.exports = {
   before: {
@@ -32,7 +32,7 @@ module.exports = {
     ],
     remove: [
       authorize({ adapter: 'feathers-mongoose' }),
-      campaignRemoveInvitations()
+      campaignRemoveParticipants()
     ]
   },
 

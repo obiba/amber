@@ -1,9 +1,9 @@
-// invitation-model.js - A mongoose model
+// participant-model.js - A mongoose model
 // 
 // See http://mongoosejs.com/docs/models.html
 // for more of what you can do here.
 module.exports = function (app) {
-  const modelName = 'invitation';
+  const modelName = 'participant';
   const mongooseClient = app.get('mongooseClient');
   const { Schema } = mongooseClient;
   const schema = new Schema({

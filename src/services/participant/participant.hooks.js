@@ -1,9 +1,9 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
 const { authorize } = require('feathers-casl').hooks;
-const { defineAbilitiesFor } = require('./invitation.abilities');
+const { defineAbilitiesFor } = require('./participant.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
-const invitationCreate = require('../../hooks/invitation-create');
+const participantCreate = require('../../hooks/participant-create');
 const searchQuery = require('../../hooks/search-query');
 
 module.exports = {
@@ -20,7 +20,7 @@ module.exports = {
       authorize({ adapter: 'feathers-mongoose' })
     ],
     create: [
-      invitationCreate(),
+      participantCreate(),
       authorize({ adapter: 'feathers-mongoose' })
     ],
     update: [

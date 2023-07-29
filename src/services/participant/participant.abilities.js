@@ -19,9 +19,9 @@ const defineRulesFor = (user) => {
     // administrator can do evil
     can('manage', 'all');
   } else if (user.role === 'manager') { 
-    can('manage', 'invitation');
+    can('manage', 'participant');
   } else if (user.role === 'interviewer') {
-    can('read', 'invitation');
+    can('read', 'participant');
   }
 
   logger.debug('  rules: ' + JSON.stringify(rules, null, '  '));

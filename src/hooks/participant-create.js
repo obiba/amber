@@ -8,7 +8,7 @@ module.exports = (options = {}) => {
     const campaignService = context.app.service('campaign');
     await campaignService.get(context.data.campaign);
     // generate a code, unique in all app
-    const invitationService = context.app.service('invitation');
+    const participantService = context.app.service('participant');
     const generateCode = () => (Math.random() + 1).toString(36).substring(2, 5).toUpperCase();
     let codeTmp = generateCode();
     let unique = false;
@@ -17,7 +17,7 @@ module.exports = (options = {}) => {
         $limit: 0,
         code: codeTmp
       };
-      const res = await invitationService.find({ query: q });
+      const res = await participantService.find({ query: q });
       if (res.total === 0) {
         unique = true;
       } else {

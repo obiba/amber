@@ -30,22 +30,22 @@ class ActiveLocalStrategy extends LocalStrategy {
 class APIKeyStrategy extends AuthenticationBaseStrategy {
   // eslint-disable-next-line no-unused-vars
   async authenticate(data, params) {
-    // find an invitation by the provided code
-    // if no such invitation code is found throw a NotAuthenticated exception
-    // else attach the invitation to the returned result
-    const invitationService = context.app.service('invitation');
+    // find an participant by the provided code
+    // if no such participant code is found throw a NotAuthenticated exception
+    // else attach the participant to the returned result
+    const participantService = context.app.service('participant');
     const q = {
       $limit: 1,
       code: data.code
     };
-    const res = await invitationService.find({ query: q });
+    const res = await participantService.find({ query: q });
     if (res.total === 0) {
-      throw new NotAuthenticated('Not a valid invitation code');
+      throw new NotAuthenticated('Not a valid participant code');
     } else {
       const entity = res.data[0];
       // TODO hash and set password (if missing) or compare password hash (if defined)
       return {
-        type: 'invitation',
+        type: 'participant',
         entity: entity
       };
     }
