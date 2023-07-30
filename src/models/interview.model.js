@@ -19,9 +19,10 @@ module.exports = function (app) {
     data: { type: Object, required: true, default: {} }
   });
   const schema = new Schema({
+    code: { type: String, required: true }, // participant invitation code
     participant: { type: mongooseClient.Schema.Types.ObjectId, ref: 'participant', required: true },
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
-    interviewForms: { type: Schema.Types.ObjectId, ref: 'interview-forms', required: true },
+    interviewDesign: { type: Schema.Types.ObjectId, ref: 'interview-design', required: true },
     study: { type: Schema.Types.ObjectId, ref: 'study', required: true },
     steps: [{ type: stepSchema }]
   }, {

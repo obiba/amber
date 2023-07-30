@@ -18,16 +18,16 @@ const defineRulesFor = (user, groups) => {
   if (user.role === 'administrator') {
     can('manage', 'all');
   } else if (user.role === 'manager') {
-    can('manage', 'interview-forms');
+    can('manage', 'interview-design');
   } else if (user.role === 'interviewer') {
     // unrestricted access
-    can('read', 'interview-forms', { permissions: { $exists: false } });
-    can('read', 'interview-forms', { permissions: { $eq: null } });
+    can('read', 'interview-design', { permissions: { $exists: false } });
+    can('read', 'interview-design', { permissions: { $eq: null } });
     // restricted access to users and groups
     const hasPermissionsCriterion = { $exists: true, $ne: null };
-    can('read', 'interview-forms', { permissions: hasPermissionsCriterion, 'permissions.users': user._id });
+    can('read', 'interview-design', { permissions: hasPermissionsCriterion, 'permissions.users': user._id });
     if (groups) {
-      groups.forEach(group => can('read', 'interview-forms', { permissions: hasPermissionsCriterion, 'permissions.groups': group._id }));
+      groups.forEach(group => can('read', 'interview-design', { permissions: hasPermissionsCriterion, 'permissions.groups': group._id }));
     }
   }
   logger.debug('  rules: ' + JSON.stringify(rules, null, '  '));

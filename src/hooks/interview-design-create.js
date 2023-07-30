@@ -28,15 +28,15 @@ module.exports = (options = {}) => {
       }
     }
     // verify name is unique in its study
-    const ifsService = context.app.service('interview-forms');
+    const itwDesignService = context.app.service('interview-design');
     const q = {
       $limit: 0,
       name: context.data.name,
       study: context.data.study
     };
-    const res = await ifsService.find({ query: q });
+    const res = await itwDesignService.find({ query: q });
     if (res.total > 0) {
-      throw new BadRequest('Interview forms name must be unique in the study');
+      throw new BadRequest('Interview form name must be unique in the study');
     }
     // Set created by the logged in user
     context.data.createdBy = context.params.user._id;

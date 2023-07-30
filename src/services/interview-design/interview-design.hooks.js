@@ -1,9 +1,9 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
 const { authorize } = require('feathers-casl').hooks;
-const { defineAbilitiesFor } = require('./interview-forms.abilities');
+const { defineAbilitiesFor } = require('./interview-design.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
-const interviewFormsCreate = require('../../hooks/interview-forms-create');
+const interviewDesignCreate = require('../../hooks/interview-design-create');
 const addUserGroupsToContext = require('../../hooks/user-add-groups-to-context');
 
 module.exports = {
@@ -21,7 +21,7 @@ module.exports = {
     ],
     create: [
       authorize({ adapter: 'feathers-mongoose' }),
-      interviewFormsCreate()
+      interviewDesignCreate()
     ],
     update: [
       authorize({ adapter: 'feathers-mongoose' })

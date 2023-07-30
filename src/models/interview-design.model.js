@@ -1,9 +1,9 @@
-// interview-forms-model.js - A mongoose model
+// interview-design-model.js - A mongoose model
 // 
 // See http://mongoosejs.com/docs/models.html
 // for more of what you can do here.
 module.exports = function (app) {
-  const modelName = 'interviewForms';
+  const modelName = 'interviewDesign';
   const mongooseClient = app.get('mongooseClient');
   const { Schema } = mongooseClient;
   const permissionsSchema = new Schema({
