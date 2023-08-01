@@ -6,13 +6,11 @@ module.exports = (options = {}) => {
     // verify that study exists
     const studyService = context.app.service('study');
     await studyService.get(context.data.study);
-    // verify that form exists
-    const formService = context.app.service('form');
-    await formService.get(context.data.form);
-    // verify that forms exist
+    // verify that form (with revision) exist
     const formRevisionService = context.app.service('form-revision');
     if (context.data.steps) {
       for (const step of context.data.steps) {
+        // verify that form exists
         const q = {
           $limit: 0,
           study: context.data.study,
