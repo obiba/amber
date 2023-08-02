@@ -8,7 +8,7 @@ module.exports = function (app) {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: ['remove'],
-    whitelist: ['$nor', '$and', '$regex']
+    whitelist: ['$nor', '$or', '$regex', '$exists', '$eq']
   };
 
   // Initialize our service with any options it requires

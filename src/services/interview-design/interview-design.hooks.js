@@ -4,6 +4,7 @@ const { defineAbilitiesFor } = require('./interview-design.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
 const interviewDesignCreate = require('../../hooks/interview-design-create');
+const searchQuery = require('../../hooks/search-query');
 const addUserGroupsToContext = require('../../hooks/user-add-groups-to-context');
 
 module.exports = {
@@ -14,6 +15,7 @@ module.exports = {
       makeAbilities(defineAbilitiesFor)
     ],
     find: [
+      searchQuery(),
       authorize({ adapter: 'feathers-mongoose' })
     ],
     get: [
