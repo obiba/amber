@@ -1,15 +1,13 @@
 // eslint-disable-next-line no-unused-vars
 module.exports = (options = {}) => {
   return async context => {
-    // verify that study exists
-    const studyService = context.app.service('study');
-    await studyService.get(context.data.study);
     // verify that campaign exists
-    const campaignService = context.app.service('campaign');
-    await campaignService.get(context.data.campaign);
+    const campaign = await context.app.service('campaign').get(context.data.campaign);
+    const itwDesign = await context.app.service('interview-design').get(campaign.interviewDesign);
+    context.data.study = itwDesign.study;
     // generate a code, unique in all app
     const participantService = context.app.service('participant');
-    const generateCode = () => (Math.random() + 1).toString(36).substring(2, 5).toUpperCase();
+    const generateCode = () => (Math.random() + 1).toString(36).substring(2, 8).toUpperCase();
     let codeTmp = generateCode();
     let unique = false;
     while (!unique) {
