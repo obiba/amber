@@ -1,11 +1,11 @@
-// Initializes the `form-i18n` service on path `/form-i18n`
-const { FormI18nExport } = require('./form-i18n.class');
+// Initializes the `participant-export` service on path `/participant-export`
 const { parse } = require('json2csv');
 const xlsx = require('xlsx');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const hooks = require('./form-i18n.hooks');
+const { ParticipantExport } = require('./participant-export.class');
+const hooks = require('./participant-export.hooks');
 const { GeneralError } = require('@feathersjs/errors');
 
 const mkTmpDir = () => {
@@ -14,31 +14,28 @@ const mkTmpDir = () => {
 
 const toRows = (res) => {
   const rval = {
-    header: [],
+    header: ['code', 'identifier', 'validFrom', 'validUntil', 'activated'],
     rows: [],
   };
-  const i18n = res.data.schema.i18n;
-  if (i18n) {
-    const locales = Object.keys(i18n);
-    if (locales.length > 0) {
-      rval.header = ['key', ...locales];
-      const keys = locales.map(locale => Object.keys(i18n[locale])).flat().filter((value, index, array) => array.indexOf(value) === index);
-      const rows = [];
-      keys.forEach(key => {
-        const row = {
-          key: key
-        };
-        locales.forEach(locale => row[locale] = i18n[locale][key]);
-        rows.push(row);
-      });
-      rval.rows = rows;
-    }
+  const data = res.data;
+  if (data) {
+    const keys = data
+      .filter(participant => participant.data)
+      .flatMap(participant => Object.keys(participant.data))
+      .filter((value, index, array) => array.indexOf(value) === index);
+    rval.header.push(keys);
+    rval.header = rval.header.flat();
+    rval.rows = data.map(datum => {
+      const value = { ...datum, ...datum.data };
+      delete value.data;
+      return value;
+    });
   }
   return rval;
 };
 
 const doCsvResponse = (res) => {
-  res.attachment(`${res.data.name}-i18n-export.csv`);
+  res.attachment('participants-export.csv');
   res.type('csv');
   const parsed = toRows(res);
   res.write(parse(parsed.rows, { fields: parsed.header }));
@@ -52,7 +49,7 @@ const doExcelResponse = (res) => {
   xlsx.utils.book_append_sheet(workbook, xlsx.utils.json_to_sheet(parsed.rows), res.data.name);
   
   // dump to a tmp file
-  const fname = `${res.data.name}-i18n-export.xlsx`;
+  const fname = 'participants-export.xlsx';
   const fpath = path.join(tmpDir, fname);
   xlsx.writeFileXLSX(workbook, fpath);
   // stream the tmp file
@@ -72,9 +69,9 @@ const doExcelResponse = (res) => {
 };
 
 const doJsonResponse = (res) => {
-  res.attachment(`${res.data.name}-i18n-export.json`);
+  res.attachment('participants-export.json');
   res.type('application/json');
-  res.json(res.data.schema.i18n);
+  res.json(res.data);
 };
 
 module.exports = function (app) {
@@ -83,22 +80,20 @@ module.exports = function (app) {
   };
 
   // Initialize our service with any options it requires
-  app.use('/form-i18n', new FormI18nExport(options, app), (req, res) => {
-    if (req.method === 'GET') {
-      // this is an export
-      const accept = req.get('Accept');
-      if (accept === 'text/csv' || accept === 'text/plain') {
-        doCsvResponse(res);
-      } else if (accept === 'application/vnd.openxmlformatsofficedocument.spreadsheetml.sheet' || accept === 'application/vnd.ms-excel') {
-        doExcelResponse(res);
-      } else {
-        doJsonResponse(res);
-      }
+  app.use('/participant-export', new ParticipantExport(options, app), (req, res) => {
+    // this is an export
+    const accept = req.get('Accept');
+    if (accept === 'text/csv' || accept === 'text/plain') {
+      doCsvResponse(res);
+    } else if (accept === 'application/vnd.openxmlformatsofficedocument.spreadsheetml.sheet' || accept === 'application/vnd.ms-excel') {
+      doExcelResponse(res);
+    } else {
+      doJsonResponse(res);
     }
   });
 
   // Get our initialized service so that we can register hooks
-  const service = app.service('form-i18n');
+  const service = app.service('participant-export');
 
   service.hooks(hooks);
 };

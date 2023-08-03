@@ -19,6 +19,7 @@ const campaign = require('./campaign/campaign.service.js');
 const formI18n = require('./form-i18n/form-i18n.service.js');
 const interviewDesign = require('./interview-design/interview-design.service.js');
 const interview = require('./interview/interview.service.js');
+const participantExport = require('./participant-export/participant-export.service.js');
 // eslint-disable-next-line no-unused-vars
 module.exports = function (app) {
   app.configure(user);
@@ -42,4 +43,5 @@ module.exports = function (app) {
   app.configure(formI18n);
   app.configure(interviewDesign);
   app.configure(interview);
+  app.configure(participantExport);
 };
