@@ -4,7 +4,7 @@
   "public": "../public/",
   "paginate": {
     "default": 10,
-    "max": 500
+    "max": 10000
   },
   "encrypt_data": false,
   "encrypt_iv": "z7xHTvFaiigqa8Fx3DPKTP",
