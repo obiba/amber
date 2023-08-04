@@ -33,7 +33,7 @@ class APIKeyStrategy extends AuthenticationBaseStrategy {
     // find an participant by the provided code
     // if no such participant code is found throw a NotAuthenticated exception
     // else attach the participant to the returned result
-    const participantService = context.app.service('participant');
+    const participantService = this.app.service('participant');
     const q = {
       $limit: 1,
       code: data.code
@@ -51,8 +51,7 @@ class APIKeyStrategy extends AuthenticationBaseStrategy {
       }
       // TODO hash and set password (if missing) or compare password hash (if defined)
       return {
-        type: 'participant',
-        entity: participant
+        participant
       };
     }
   }

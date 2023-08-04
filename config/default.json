@@ -14,7 +14,8 @@
     "secret": "drBmsN2NP2XbLmnllle3UmnJPIw=",
     "authStrategies": [
       "jwt",
-      "local"
+      "local",
+      "api-key"
     ],
     "totp2faRequired": true,
     "activityTimeout": "5d",
