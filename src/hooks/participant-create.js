@@ -4,6 +4,7 @@ module.exports = (options = {}) => {
     async function decorateData (pdata) {
       // verify that campaign exists
       const campaign = await context.app.service('campaign').get(pdata.campaign);
+      pdata.interviewDesign = campaign.interviewDesign;
       const itwDesign = await context.app.service('interview-design').get(campaign.interviewDesign);
       pdata.study = itwDesign.study;
       // generate a code, unique in all app

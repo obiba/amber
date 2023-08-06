@@ -17,6 +17,7 @@ module.exports = function (app) {
     data: { type: Object, required: true, default: {} }, // personal data
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
     study: { type: Schema.Types.ObjectId, ref: 'study', required: true },
+    interviewDesign: { type: Schema.Types.ObjectId, ref: 'interview-design', required: true },
     campaign: { type: Schema.Types.ObjectId, ref: 'campaign', required: true }
   }, {
     timestamps: true
