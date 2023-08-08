@@ -73,6 +73,7 @@ exports.Itws = class Itws {
         name: itwd.name,
         description: itwd.description,
         steps: [],
+        i18n: itwd.i18n,
         participant: participantData,
         investigators: investigators
       };
