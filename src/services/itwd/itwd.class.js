@@ -27,7 +27,6 @@ exports.Itws = class Itws {
           || (participant.validUntil && now > participant.validUntil.getTime())) {
           throw new BadRequest('Not a valid participant code');
         }
-        delete params.query.code;
       } else  {
         throw new BadRequest('Participant code is missing');
       }
@@ -63,6 +62,7 @@ exports.Itws = class Itws {
     // request is for a participant, then list only its associated interview design
     params.query._id = participant.interviewDesign;
     params.query.state = 'active';
+    delete params.query.code;
     result = await this.app.service('interview-design').find(params);
     
     const formRevisionService = this.app.service('form-revision');
