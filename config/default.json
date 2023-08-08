@@ -15,7 +15,7 @@
     "authStrategies": [
       "jwt",
       "local",
-      "api-key"
+      "participant"
     ],
     "totp2faRequired": true,
     "activityTimeout": "5d",
@@ -32,17 +32,9 @@
       "usernameField": "email",
       "passwordField": "password"
     },
-    "oauth": {
-      "redirect": "/",
-      "github": {
-        "key": "<github oauth key>",
-        "secret": "<github oauth secret>"
-      },
-      "google": {
-        "key": "<google oauth key>",
-        "secret": "<google oauth secret>",
-        "scope": ["email", "profile", "openid"]
-      }
+    "participant": {
+      "service": "participant",
+      "withPassword": false
     }
   },
   "mongodb": "mongodb://localhost:27017/amber",

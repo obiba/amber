@@ -1,6 +1,6 @@
-// Initializes the `itws` service on path `/itws`
-const { Itws } = require('./itws.class');
-const hooks = require('./itws.hooks');
+// Initializes the `itwd` service on path `/itwd`
+const { Itws } = require('./itwd.class');
+const hooks = require('./itwd.hooks');
 
 module.exports = function (app) {
   const options = {
@@ -8,10 +8,10 @@ module.exports = function (app) {
   };
 
   // Initialize our service with any options it requires
-  app.use('/itws', new Itws(options, app));
+  app.use('/itwd', new Itws(options, app));
 
   // Get our initialized service so that we can register hooks
-  const service = app.service('itws');
+  const service = app.service('itwd');
 
   service.hooks(hooks);
 };

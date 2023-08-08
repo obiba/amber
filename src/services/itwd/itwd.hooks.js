@@ -1,8 +1,9 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
+const allowParticipant = require('../../hooks/allow-participant');
 
 module.exports = {
   before: {
-    all: [ authenticate('jwt') ],
+    all: [ allowParticipant(), authenticate('jwt', 'participant') ],
     find: [],
     get: [],
     create: [],
