@@ -71,6 +71,7 @@ exports.Itws = class Itws {
       const itwdata = {
         _id: itwd._id,
         name: itwd.name,
+        label: itwd.label,
         description: itwd.description,
         steps: [],
         i18n: itwd.i18n,
