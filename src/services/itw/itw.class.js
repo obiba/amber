@@ -9,7 +9,7 @@ const { ItwBase } = require('../itwd/itwd.utils');
 exports.Itw = class Itw extends ItwBase {
 
   async find (params) {
-    const interview = await this.getOrCreateInterview(params);
+    const { interview } = await this.getOrCreateInterview(params);
     return {
       limit: 1,
       skip: 0,
@@ -31,13 +31,10 @@ exports.Itw = class Itw extends ItwBase {
   }
 
   async patch (id, data, params) {
-    const interview = await this.getOrCreateInterview(params);
+    const { interview, interviewDesign } = await this.getOrCreateInterview(params);
     const itwService = this.app.service('interview');
 
     const patched = {};
-    if (data.state) {
-      patched.state = data.state;
-    }
     if (data.steps) {
       patched.steps = interview.steps;
       for (const step of data.steps) {
@@ -63,6 +60,25 @@ exports.Itw = class Itw extends ItwBase {
           patched.steps.splice(idx, 1, step);
         }
       }
+    }
+
+    if (data.state) {
+      // interview state is forced
+      patched.state = data.state;
+    } else {
+      // check step states for setting the interview state
+      let states = {};
+      if (patched.steps) {
+        patched.steps.forEach((step) => states[step.name] = step.state);
+      }
+      if (interview.steps) {
+        interview.steps.forEach((step) => {
+          if (!states[step.name]) {
+            states[step.name] = step.state;
+          }
+        });
+      }
+      patched.state = Object.values(states).length < interviewDesign.steps.length || Object.values(states).includes('in_progress') ? 'in_progress' : 'completed';
     }
 
     params.query = {};
@@ -100,7 +116,7 @@ exports.Itw = class Itw extends ItwBase {
       interview = result.data[0];
     }
 
-    return interview;
+    return { interview, interviewDesign };
   }
 
   digestInterview(interview) {
