@@ -27,7 +27,8 @@ module.exports = function (app) {
     interviewDesign: { type: Schema.Types.ObjectId, ref: 'interview-design', required: true },
     study: { type: Schema.Types.ObjectId, ref: 'study', required: true },
     steps: [{ type: stepSchema }],
-    state: { type: String, enum: ['in_progress', 'completed'], default: 'in_progress' }
+    state: { type: String, enum: ['in_progress', 'completed'], default: 'in_progress' },
+    data: { type: Object, required: true, default: {} } // participant data
   }, {
     timestamps: true
   });

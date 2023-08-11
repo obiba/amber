@@ -124,6 +124,7 @@ exports.Itw = class Itw extends ItwBase {
       _id: interview._id,
       code: interview.code,
       identifier: interview.identifier,
+      data: interview.data,
       interviewDesign: interview.interviewDesign, // for consistency with itwd service
       state: interview.state,
       steps: interview.steps.map(step => {

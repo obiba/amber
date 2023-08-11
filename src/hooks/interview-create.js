@@ -26,6 +26,7 @@ module.exports = (options = {}) => {
     }
     const participant = participantFound.data[0];
     context.data.participant = participant._id;
+    context.data.data = participant.data;
 
     // Add or reject/replace this interview
     const policy = itwDesign.repeatPolicy ? itwDesign.repeatPolicy : 'multiple';
