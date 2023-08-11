@@ -22,6 +22,7 @@ const interview = require('./interview/interview.service.js');
 const participantExport = require('./participant-export/participant-export.service.js');
 const itwd = require('./itwd/itwd.service.js');
 const interviewDesignI18N = require('./interview-design-i18n/interview-design-i18n.service.js');
+const itw = require('./itw/itw.service.js');
 // eslint-disable-next-line no-unused-vars
 module.exports = function (app) {
   app.configure(user);
@@ -48,4 +49,5 @@ module.exports = function (app) {
   app.configure(participantExport);
   app.configure(itwd);
   app.configure(interviewDesignI18N);
+  app.configure(itw);
 };

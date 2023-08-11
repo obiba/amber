@@ -7,11 +7,12 @@ module.exports = function (app) {
   const mongooseClient = app.get('mongooseClient');
   const { Schema } = mongooseClient;
   const ActionSchema = new Schema({
-    type: { type: String, enum: ['init', 'pause', 'complete'], default: 'complete' },
+    type: { type: String, enum: ['init', 'pause', 'complete', 'invalid'], default: 'complete' },
     user: { type: String },
     timestamp: { type: Number }
   });
   const stepSchema = new Schema({
+    name: { type: String, required: true }, // the step name
     form: { type: Schema.Types.ObjectId, ref: 'form', required: true },
     revision: { type: Number, required: true },
     state: { type: String, enum: ['in_progress', 'completed'], default: 'completed' },
@@ -20,11 +21,13 @@ module.exports = function (app) {
   });
   const schema = new Schema({
     code: { type: String, required: true }, // participant invitation code
+    identifier: { type: String, required: false }, // participant study identifier
     participant: { type: mongooseClient.Schema.Types.ObjectId, ref: 'participant', required: true },
-    createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
+    createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: false },
     interviewDesign: { type: Schema.Types.ObjectId, ref: 'interview-design', required: true },
     study: { type: Schema.Types.ObjectId, ref: 'study', required: true },
-    steps: [{ type: stepSchema }]
+    steps: [{ type: stepSchema }],
+    state: { type: String, enum: ['in_progress', 'completed'], default: 'in_progress' }
   }, {
     timestamps: true
   });

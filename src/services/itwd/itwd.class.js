@@ -1,53 +1,24 @@
-const { BadRequest, Forbidden } = require('@feathersjs/errors');
+const { BadRequest } = require('@feathersjs/errors');
+const { ItwBase } = require('./itwd.utils');
 
+/**
+ * Get a digest of the interview design that applies to the requesting participant (either by the 
+ * the participant itself, or on behalf of an interviewer).
+ */
 /* eslint-disable no-unused-vars */
-exports.Itws = class Itws {
-  constructor (options, app) {
-    this.options = options || {};
-    this.app = app;
-  }
+exports.Itws = class Itws extends ItwBase {
 
   async find (params) {
-    if (params.user && !['interviewer', 'manager', 'administrator'].includes(params.user.role)) {
-      throw new Forbidden('You are not an interviewer');
-    }
-    // resolve participant
-    let participant = params.participant;
-    if (!participant) {
-      if (params.query.code) {
-        // get participant from the code in the query
-        const res = await this.app.service('participant').find({ query: { code: params.query.code } });
-        if (res.total === 0) {
-          throw new BadRequest('Participant not found');
-        }
-        participant = res.data[0];
-        const now = new Date().getTime();
-        if (!participant.activated 
-          || (participant.validFrom && now < participant.validFrom.getTime()) 
-          || (participant.validUntil && now > participant.validUntil.getTime())) {
-          throw new BadRequest('Not a valid participant code');
-        }
-      } else  {
-        throw new BadRequest('Participant code is missing');
-      }
-    } // else participant auth itself, so it is valid
+    const { participant, campaign, interviewDesign } = await this.extractInterviewInfo(params);
+
+    // prepare data
     const participantData = {
       _id: participant._id,
       code: participant.code,
       identifier: participant.identifier,
       data: participant.data
     };
-
-    // get associated campaign's investigators
-    let result = await this.app.service('campaign').find({ query: { _id: participant.campaign } });
-    const campaign = result.data[0];
-    // an interviewer must be one of the investigators
-    if (params.user) {
-      if (params.user.role === 'interviewer' && !campaign.investigators.map(id => id.toString()).includes(params.user._id.toString())) {
-        throw new Forbidden('Your not an investigator');
-      }
-    }
-    result = await this.app.service('user').find({ query: { _id: { $in: campaign.investigators } } });
+    let result = await this.app.service('user').find({ query: { _id: { $in: campaign.investigators } } });
     const investigators = result.data.map(user => {
       return {
         firstname: user.firstname,
@@ -59,52 +30,48 @@ exports.Itws = class Itws {
       };
     });
 
-    // request is for a participant, then list only its associated interview design
-    params.query._id = participant.interviewDesign;
-    params.query.state = 'active';
-    delete params.query.code;
-    result = await this.app.service('interview-design').find(params);
-    
     const formRevisionService = this.app.service('form-revision');
-    const data = [];
-    for (const itwd of result.data) {
-      const itwdata = {
-        _id: itwd._id,
-        name: itwd.name,
-        label: itwd.label,
-        description: itwd.description,
-        steps: [],
-        i18n: itwd.i18n,
-        participant: participantData,
-        investigators: investigators
+    const itwdata = {
+      _id: interviewDesign._id,
+      name: interviewDesign.name,
+      label: interviewDesign.label,
+      description: interviewDesign.description,
+      steps: [],
+      i18n: interviewDesign.i18n,
+      participant: participantData,
+      investigators: investigators
+    };
+    for (const step of interviewDesign.steps) {
+      const q = {
+        $limit: 1,
+        $sort: { revision: -1 },
+        form: step.form
       };
-      for (const step of itwd.steps) {
-        const q = {
-          $limit: 1,
-          $sort: { revision: -1 },
-          form: step.form
-        };
-        if (step.revision) {
-          q.revision = step.revision;
-        }
-        const frResult = await formRevisionService.find({
-          query: q
-        });
-        if (frResult.total > 0) {
-          itwdata.steps.push({
-            _id: step._id,
-            name: step.name,
-            label: step.label,
-            description: step.description,
-            schema: frResult.data[0].schema,
-            revision: frResult.data[0].revision
-          });
-        }
+      if (step.revision) {
+        q.revision = step.revision;
       }
-      data.push(itwdata);
+      const frResult = await formRevisionService.find({
+        query: q
+      });
+      if (frResult.total > 0) {
+        itwdata.steps.push({
+          _id: step._id,
+          name: step.name,
+          label: step.label,
+          description: step.description,
+          schema: frResult.data[0].schema,
+          form: frResult.data[0].form,
+          revision: frResult.data[0].revision
+        });
+      }
     }
-    result.data = data;
-    return result;
+    
+    return {
+      limit: 1,
+      skip: 0,
+      total: 1,
+      data: [itwdata]
+    };
   }
 
   async get (id, params) {

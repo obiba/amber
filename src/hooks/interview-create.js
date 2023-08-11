@@ -48,7 +48,9 @@ module.exports = (options = {}) => {
     }
 
     // Set created by the logged in user
-    context.data.createdBy = context.params.user._id;
+    if (context.params.user) {
+      context.data.createdBy = context.params.user._id;  
+    }
     return context;
   };
 };
