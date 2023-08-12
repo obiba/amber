@@ -12,7 +12,8 @@ module.exports = function (app) {
     identifier: { type: String }, // id of the participant in the context of the study, optional
     validFrom: { type: Date },    // participant is enabled from provided date, optional
     validUntil: { type: Date },   // participant is enabled until provided date, optional
-    lastSeen: { type: Date },
+    initialContact: { type: Date },
+    reminders: [{ type: Date }],
     activated: { type: Boolean, default: true }, // can be (de)activated temporarily
     data: { type: Object, required: true, default: {} }, // personal data
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },

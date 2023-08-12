@@ -9,9 +9,14 @@ module.exports = function (app) {
   const schema = new Schema({
     name: { type: String, required: true },
     description: { type: String, required: false },
+    investigators: [{ type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true }],
+    validFrom: { type: Date },    // notifications and participants are enabled from provided date, optional
+    validUntil: { type: Date },   // notifications and participants are enabled until provided date, optional
+    weeksBetweenReminders: { type: Number, default: 2 },  // number of weeks to wait between invitation reminders
+    numberOfReminders: { type: Number, default: 2 },
+    weeksToDeactivate: { type: Number, default: 18 },     // number of weeks from initial contact after which a participant is deactivated
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
     interviewDesign: { type: Schema.Types.ObjectId, ref: 'interview-design', required: true },
-    investigators: [{ type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true }],
   }, {
     timestamps: true
   });
