@@ -16,6 +16,8 @@ module.exports = function (app) {
     description: { type: String, required: false },
     form: { type: Schema.Types.ObjectId, ref: 'form', required: true },
     revision: { type: Number, required: false },
+    condition: { type: String, required: false }, // js expression, visibility condition
+    disable: { type: String, required: false },   // js expression, when visible disable/enable
   });
   const schema = new Schema({
     name: { type: String, required: true },
@@ -24,7 +26,7 @@ module.exports = function (app) {
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
     study: { type: Schema.Types.ObjectId, ref: 'study', required: true },
     steps: [{ type: stepSchema }],
-    i18n: { type: Object, default: {} },     // the translation keys, by language
+    i18n: { type: Object, default: {} }, // the translation keys, by language
     state: { type: String, enum: ['active', 'paused'], default: 'paused' },
     repeatPolicy: { type: String, enum: ['single_reject', 'single_update', 'multiple'], default: 'single_reject' },
     permissions: { type: permissionsSchema }

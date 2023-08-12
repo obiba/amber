@@ -59,6 +59,8 @@ exports.Itws = class Itws extends ItwBase {
           name: step.name,
           label: step.label,
           description: step.description,
+          condition: step.condition,
+          disable: step.disable,
           schema: frResult.data[0].schema,
           form: frResult.data[0].form,
           revision: frResult.data[0].revision
