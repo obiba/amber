@@ -2,6 +2,8 @@ const { authenticate } = require('@feathersjs/authentication').hooks;
 const { authorize } = require('feathers-casl').hooks;
 const { defineAbilitiesFor } = require('./participant.abilities');
 
+
+const { protect } = require('@feathersjs/authentication-local').hooks;
 const makeAbilities = require('../../hooks/make-abilities');
 const participantCreate = require('../../hooks/participant-create');
 const searchQuery = require('../../hooks/search-query');
@@ -36,7 +38,13 @@ module.exports = {
 
   after: {
     all: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'feathers-mongoose' }),
+      protect(
+        'password',
+        'updatedAt',
+        'createdAt',
+        '__v'
+      )
     ],
     find: [],
     get: [],

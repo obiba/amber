@@ -78,6 +78,8 @@ class ParticipantStrategy extends AuthenticationBaseStrategy {
           }
         }
       }
+      // track last activity
+      entityService.patch(participant._id, { lastSeen: new Date() });
       return {
         participant
       };
