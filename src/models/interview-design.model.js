@@ -14,6 +14,7 @@ module.exports = function (app) {
     name: { type: String, required: true },
     label: { type: String, required: true, default: 'step_title' },
     description: { type: String, required: false },
+    time_estimate: { type: Number, required: false }, // time estimate for completing the step, in minutes
     form: { type: Schema.Types.ObjectId, ref: 'form', required: true },
     revision: { type: Number, required: false },
     condition: { type: String, required: false }, // js expression, visibility condition
@@ -23,6 +24,8 @@ module.exports = function (app) {
     name: { type: String, required: true },
     label: { type: String, required: true },
     description: { type: String, required: false },
+    interviewer_instructions: { type: String, required: false },
+    participant_instructions: { type: String, required: false },
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
     study: { type: Schema.Types.ObjectId, ref: 'study', required: true },
     steps: [{ type: stepSchema }],
