@@ -33,8 +33,7 @@
       "passwordField": "password"
     },
     "participant": {
-      "service": "participant",
-      "withPassword": false
+      "service": "participant"
     }
   },
   "mongodb": "mongodb://localhost:27017/amber",

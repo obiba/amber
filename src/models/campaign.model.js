@@ -15,6 +15,7 @@ module.exports = function (app) {
     weeksBetweenReminders: { type: Number, default: 2 },  // number of weeks to wait between invitation reminders
     numberOfReminders: { type: Number, default: 2 },
     weeksToDeactivate: { type: Number, default: 18 },     // number of weeks from initial contact after which a participant is deactivated
+    withPassword: { type: Boolean, default: false }, // whether participants are asked to set a password at first connection
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
     interviewDesign: { type: Schema.Types.ObjectId, ref: 'interview-design', required: true },
   }, {

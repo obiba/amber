@@ -48,14 +48,19 @@ class ParticipantStrategy extends AuthenticationBaseStrategy {
     } else {
       const participant = res.data[0];
       const now = new Date().getTime();
-      if (!participant.activated 
-        || (participant.validFrom && now < participant.validFrom.getTime()) 
+      if (!participant.activated
+        || (participant.validFrom && now < participant.validFrom.getTime())
         || (participant.validUntil && now > participant.validUntil.getTime())) {
+        throw new NotAuthenticated('Not a valid participant code');
+      }
+      const campaign = await this.app.service('campaign').get(participant.campaign);
+      if ((campaign.validFrom && now < campaign.validFrom.getTime())
+        || (campaign.validUntil && now > campaign.validUntil.getTime())) {
         throw new NotAuthenticated('Not a valid participant code');
       }
       // Password check
       // FIXME should it be configured at the campaign definition level?
-      if (this.configuration.withPassword) {
+      if (campaign.withPassword) {
         if (!data.password) {
           throw new NotAuthenticated('A participant password is required');
         } else {
