@@ -23,137 +23,6 @@ const makeTableName = (caseReportForm, formRevision) => {
   return tableName;
 };
 
-const makeAttributes = (key, i18n) => {
-  if (i18n) {
-    return Object.keys(i18n).map(locale => { 
-      return {
-        value: i18n[locale][key] ? i18n[locale][key] : key,
-        locale: locale
-      };
-    });
-  } else {
-    return [
-      {
-        value: key
-      }
-    ];
-  }
-};
-
-const makeVariables = (item, options) => {
-  const prefix = options.prefix ? options.prefix + '.' : '';
-  if (item.items) {
-    const variables = [];
-    item.items.filter(it => it.type !== 'section').forEach(it => {
-      const vars = makeVariables(it, {
-        entityType: options.entityType,
-        i18n: options.i18n,
-        repeated: options.repeated,
-        prefix: item.name
-      });
-      if (Array.isArray(vars)) {
-        vars.forEach(v => variables.push(v));
-      } else {
-        variables.push(vars);
-      }
-    });
-    return variables;
-  } else if (item.type !== 'section') {
-    const variable = {
-      name: prefix + item.name,
-      valueType: 'text',
-      entityType: options.entityType
-    };
-    // TODO get valueType from schema
-    if (item.type === 'toggle') {
-      variable.valueType = 'boolean';
-    } else if (['number', 'slider', 'rating'].includes(item.type)) {
-      variable.valueType = 'integer';
-    } else if (['date'].includes(item.type)) {
-      variable.valueType = 'date';
-    } else if (['datetime'].includes(item.type)) {
-      variable.valueType = 'datetime';
-    } else if (['toggle'].includes(item.type)) {
-      variable.valueType = 'boolean';
-    } else if (['map'].includes(item.type)) {
-      variable.valueType = item.geometryType ? item.geometryType.toLowerCase() : 'point';
-    }
-    if (item.multiple) {
-      variable.isRepeatable = true;
-    }
-    variable.attributes = [];
-    ['label', 'description'].forEach(key => {
-      if (item[key]) {
-        makeAttributes(item[key], options.i18n).forEach(attr => {
-          const attribute = {
-            name: key,
-            value: attr.value
-          };
-          if (attr.locale) {
-            attribute.locale = attr.locale;
-          }
-          variable.attributes.push(attribute);
-        });
-      }
-    });
-    if (item.options) {
-      variable.categories = [];
-      item.options.forEach(opt => {
-        const category = {
-          name: opt.value
-        };
-        if (opt.label) {
-          category.attributes = makeAttributes(opt.label, options.i18n).map(attr => { 
-            const attribute = {
-              name: 'label',
-              value: attr.value
-            };
-            if (attr.locale) {
-              attribute.locale = attr.locale;
-            }
-            return attribute;
-          });
-        }
-        variable.categories.push(category);
-      });
-    }
-    return variable;
-  } else {
-    return [];
-  }
-};
-
-const makeTable = (caseReportForm, formRevision, exportSettings) => {
-  const schema = formRevision.schema;
-  const table = {
-    table: makeTableName(caseReportForm, formRevision),
-    entityType: !caseReportForm || caseReportForm.repeatPolicy === 'multiple' ? 'CaseReport' : exportSettings.entity_type,
-    variables: []
-  };
-  if (!caseReportForm || caseReportForm.repeatPolicy === 'multiple') {
-    table.variables.push({
-      name: 'id',
-      entityType: table.entityType,
-      valueType: 'text',
-      isRepeatable: true,
-      referencedEntityType: exportSettings.entity_type
-    });
-  }
-  schema.items.forEach(item => {
-    const variables = makeVariables(item, {
-      entityType: table.entityType,
-      i18n: schema.i18n,
-      repeated: !caseReportForm || caseReportForm.repeatPolicy === 'multiple'
-    });
-    if (Array.isArray(variables)) {
-      variables.forEach(variable => table.variables.push(variable));
-    } else {
-      table.variables.push(variables);
-    }
-  });
-  return table;
-};
-
 const doCsvResponse = (res) => {
   res.attachment('case-report-export.csv');
   res.type('csv');
@@ -165,7 +34,7 @@ const doCsvResponse = (res) => {
   res.end();
 };
 
-const doExcelResponse = (res, exportSettings) => {
+const doExcelResponse = (res) => {
   const tmpDir = mkTmpDir();
   const workbook = xlsx.utils.book_new();
   const dataSheets = {};
@@ -173,10 +42,9 @@ const doExcelResponse = (res, exportSettings) => {
   const categories = [];
   for (const key in res.data.export) {
     const tableName = makeTableName(res.data.export[key].caseReportForm, res.data.export[key].formRevision);
-    const table = makeTable(res.data.export[key].caseReportForm, res.data.export[key].formRevision, exportSettings);
     
     let index = 0;
-    table.variables.forEach(variable => {
+    res.data.export[key].variables.forEach(variable => {
       const nvar = {
         table: tableName,
         name: variable.name,
@@ -242,7 +110,7 @@ const doExcelResponse = (res, exportSettings) => {
   xlsxStream.pipe(res);
 };
 
-const doZipResponse = (res, exportSettings) => {
+const doZipResponse = (res) => {
   const tmpDir = mkTmpDir();
   // write data
   for (const key in res.data.export) {
@@ -254,11 +122,10 @@ const doZipResponse = (res, exportSettings) => {
     const csv = toCSV(res.data.export[key].data, res.data.export[key].fields);
     fs.writeFileSync(path.join(tmpDir, tableName, 'data.csv'), csv);
     // write variables
-    const table = makeTable(res.data.export[key].caseReportForm, res.data.export[key].formRevision, exportSettings);
     const variables = [];
     let variableFields = [];
     let index = 0;
-    table.variables.forEach(variable => {
+    res.data.export[key].variables.forEach(variable => {
       const nvar = {
         name: variable.name,
         entityType: variable.entityType,
@@ -319,14 +186,14 @@ const doZipResponse = (res, exportSettings) => {
   archive.finalize();
 };
 
-const doJsonResponse = (res, exportSettings) => {
+const doJsonResponse = (res) => {
   res.attachment('case-report-export.json');
   const data = {};
   for (const key in res.data.export) {
     const tableName = makeTableName(res.data.export[key].caseReportForm, res.data.export[key].formRevision);
     data[tableName] = {
       data: res.data.export[key].data,
-      variables: makeTable(res.data.export[key].caseReportForm, res.data.export[key].formRevision, exportSettings).variables
+      variables: res.data.export[key].variables
     };
   }
   res.json({
@@ -346,15 +213,14 @@ module.exports = function (app) {
   // Initialize our service with any options it requires
   app.use('/case-report-export', new CaseReportExport(options, app), (req, res) => {
     const accept = req.get('Accept');
-    const exportSettings = app.get('export');
     if (accept === 'text/csv' || accept === 'text/plain') {
       doCsvResponse(res);
     } else if (accept === 'application/vnd.openxmlformatsofficedocument.spreadsheetml.sheet' || accept === 'application/vnd.ms-excel') {
-      doExcelResponse(res, exportSettings);
+      doExcelResponse(res);
     } else if (accept === 'application/zip' || accept === 'application/octet-stream') {
-      doZipResponse(res, exportSettings);
+      doZipResponse(res);
     } else {
-      doJsonResponse(res, exportSettings);
+      doJsonResponse(res);
     }
   });
 

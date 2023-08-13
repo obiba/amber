@@ -1,5 +1,5 @@
 const { BadRequest } = require('@feathersjs/errors');
-const { ItwBase } = require('./itwd.utils');
+const { ItwBase } = require('../../utils/itw');
 
 /**
  * Get a digest of the interview design that applies to the requesting participant (either by the 

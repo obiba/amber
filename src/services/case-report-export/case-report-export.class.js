@@ -1,33 +1,22 @@
 /* eslint-disable no-unused-vars */
 const { BadRequest } = require('@feathersjs/errors');
-
-exports.CaseReportExport = class CaseReportExport {
+const { FormDataExport } = require('../../utils/form-export');
+exports.CaseReportExport = class CaseReportExport extends FormDataExport {
   constructor (options, app) {
-    this.options = options || {};
-    this.app = app;
+    super(options, app);
+    this.caseReportForms = {};
   }
 
   async find (params) {
-    const idVariable = this.app.get('export').identifier_variable;
     const caseReportService = this.app.service('case-report');
-    const caseReportFormService = this.app.service('case-report-form');
-    const formRevisionService = this.app.service('form-revision');
-    const formService = this.app.service('form');
     const crResult = {
       export: {},
       total: 0,
       found: 0,
       skip: this.parseInteger(params.query['$skip']),
       limit: this.parseInteger(params.query['$limit']), // targetted limit, might be lower than database extraction allows
-      audit: {
-        entityIds: [],
-        caseReportIds: []
-      }
     };
-    const caseReportForms = {};
-    const formRevisions = {};
-    const forms = {};
-
+    
     // init the params (needed to support exponent notation like 1e+06)
     params.query['$skip'] = crResult.skip;
     params.query['$limit'] = crResult.limit;
@@ -51,6 +40,7 @@ exports.CaseReportExport = class CaseReportExport {
       limits.push(crResult.limit);
     }
 
+    this.initExport();
     for (const limit of limits) {
       params.query['$limit'] = limit;
       let result = await caseReportService.find(params);
@@ -62,51 +52,22 @@ exports.CaseReportExport = class CaseReportExport {
         for (const cr of result.data) {
           // group by crf id + form revision
           const key = `${cr.caseReportForm ? cr.caseReportForm : cr.form}-${cr.revision}`;
-          if (!formRevisions[key]) {
-            const q = {
-              $limit: 1,
-              study: cr.study,
-              form: cr.form,
-              revision: cr.revision
-            };
-            const revisions = await formRevisionService.find({
-              query: q
-            });
-            formRevisions[key] = revisions.data.pop();
-            if (!forms[cr.form]) {
-              forms[cr.form] = await formService.get(cr.form);
-            }
-            if (formRevisions[key]) {
-              formRevisions[key].name = forms[cr.form].name;
-            } else {
-              // case the form revision was removed, fallback to the current form
-              formRevisions[key] = forms[cr.form];
-            }
-          }
-          if (!caseReportForms[key] && cr.caseReportForm) {
-            caseReportForms[key] = await caseReportFormService.get(cr.caseReportForm);
-          }
-          if (!crResult.export[key]) {
-            crResult.export[key] = { 
-              data: [], 
-              fields: [], 
-              formRevision: formRevisions[key],
-              caseReportForm: caseReportForms[key]
-            };
-          }
-          // flatten data
-          const flattenData = this.flattenByItems(formRevisions[key].schema.items, cr.data);
-          if (!caseReportForms[key] || caseReportForms[key].repeatPolicy === 'multiple') {
-            flattenData[idVariable] = flattenData['_id'];
-            flattenData['_id'] = cr._id.toString();
-          }
-          const fields = crResult.export[key].fields.concat(Object.keys(flattenData));
-          crResult.export[key].fields = fields.filter((item, pos) => fields.indexOf(item) === pos);
-          crResult.export[key].data.push(flattenData);
-          if (!crResult.audit.entityIds.includes(cr.data._id)) {
-            crResult.audit.entityIds.push(cr.data._id);
-          }
-          crResult.audit.caseReportIds.push(cr._id);
+          
+          const caseReportForm = await this.getCaseReportForm(cr.caseReportForm);
+
+          await this.appendExportData(
+            key,
+            cr.form,
+            cr.revision,
+            cr.data,
+            {
+              multiple: caseReportForm.repeatPolicy === 'multiple',
+              entityType: 'CaseReport'
+            },
+            cr._id.toString()
+          );
+
+          this.exportResults[key].caseReportForm = caseReportForm;
         }
       } else {
         // no more results, then break loop
@@ -116,57 +77,16 @@ exports.CaseReportExport = class CaseReportExport {
       params.query['$skip'] = params.query['$skip'] + limit;
     }
 
+    crResult.export = this.exportResults;
     return crResult;
   }
 
-  parseInteger (value) {
-    if (typeof value === 'string') {
-      const chars = value.toLowerCase().split('e');
-      if (chars.length>1) {
-        const op1 = parseFloat(chars[0]);
-        const op2 = parseInt(chars[1]);
-        if (isNaN(op1) || isNaN(op2))
-          return NaN;
-        return parseInt(op1 * Math.pow(10, op2));
-      } else {
-        return parseInt(value);
-      }
+  async getCaseReportForm (id) {
+    if (!this.caseReportForms[id]) {
+      const caseReportFormService = this.app.service('case-report-form');
+      this.caseReportForms[id] = await caseReportFormService.get(id);
     }
-    return parseInt(value);
-  }
-
-  flattenByItems (items, data, path) {
-    const rval = data && data._id ? {
-      _id: data._id
-    } : {};
-    if (data) {
-      items.forEach(item => {
-        if (item.items) {
-          const npath = path ? [...path] : [];
-          npath.push(item.name);
-          const rval2 = this.flattenByItems(item.items, data[item.name], npath);
-          Object.entries(rval2).forEach(([key, value]) => {
-            rval[npath.join('.') + '.' + key] = value;
-          });
-        } else {
-          rval[item.name] = this.marshallValue(data[item.name]);
-        }
-      });
-    }
-    return rval;
-  }
-
-  marshallValue (value) {
-    if(typeof(value) === 'object') {
-      // simplify geojson value to its coordinates, the type of feature will be in the data dictionary
-      if (value.type && value.type === 'Feature' && value.geometry && value.geometry.coordinates) {
-        return JSON.stringify(value.geometry.coordinates);
-      }
-      if (Array.isArray(value)) {
-        return value.map(val => this.marshallValue(val));
-      }
-    }
-    return value;
+    return this.caseReportForms[id];
   }
 
   async get (id, params) {
