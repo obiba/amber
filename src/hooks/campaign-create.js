@@ -5,7 +5,8 @@ module.exports = (options = {}) => {
   return async context => {
     // verify that study exists
     const itwDesignService = context.app.service('interview-design');
-    await itwDesignService.get(context.data.interviewDesign);
+    const interviewDesign = await itwDesignService.get(context.data.interviewDesign);
+    context.data.study = interviewDesign.study;
     // verify name is unique in its study
     const campaignService = context.app.service('campaign');
     const q = {

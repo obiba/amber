@@ -18,6 +18,7 @@ module.exports = function (app) {
     withPassword: { type: Boolean, default: false }, // whether participants are asked to set a password at first connection
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
     interviewDesign: { type: Schema.Types.ObjectId, ref: 'interview-design', required: true },
+    study: { type: Schema.Types.ObjectId, ref: 'study', required: true },
   }, {
     timestamps: true
   });

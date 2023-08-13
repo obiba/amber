@@ -24,6 +24,7 @@ module.exports = function (app) {
     identifier: { type: String, required: false }, // participant study identifier
     participant: { type: mongooseClient.Schema.Types.ObjectId, ref: 'participant', required: true },
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: false },
+    campaign: { type: Schema.Types.ObjectId, ref: 'campaign', required: true },
     interviewDesign: { type: Schema.Types.ObjectId, ref: 'interview-design', required: true },
     study: { type: Schema.Types.ObjectId, ref: 'study', required: true },
     steps: [{ type: stepSchema }],

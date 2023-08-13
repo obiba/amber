@@ -107,6 +107,7 @@ exports.Itw = class Itw extends ItwBase {
         code: participant.code,
         identifier: participant.identifier,
         participant: participant._id,
+        campaign: campaign._id,
         interviewDesign: interviewDesign._id,
         study: interviewDesign.study,
         state: 'in_progress',
