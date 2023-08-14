@@ -78,6 +78,8 @@ exports.Itw = class Itw extends ItwBase {
           }
         });
       }
+      // note: does not cover the cases where dependent states are not to be filled-in
+      // so it is up to the client that evaluated the step activity to specify the global interview state
       patched.state = Object.values(states).length < interviewDesign.steps.length || Object.values(states).includes('in_progress') ? 'in_progress' : 'completed';
     }
 
