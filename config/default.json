@@ -113,6 +113,7 @@
   "client_urls": "*",
   "amber_studio_url": "http://localhost:3080",
   "amber_collect_url": "http://localhost:3090",
+  "amber_visit_url": "http://localhost:3070",
   "api_url": "http://localhost:3030/",
   "recaptcha_secret_key": "",
   "export": {

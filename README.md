@@ -70,6 +70,7 @@ Amber uses [dotenv](https://github.com/motdotla/dotenv) for environment variable
 * `CLIENT_URLS`, comma separated client urls, for the CORS policy
 * `AMBER_STUDIO_URL`, Amber Studio app url, to be included in the notification emails
 * `AMBER_COLLECT_URL`, Amber Collect app url, to be included in the notification emails
+* `AMBER_VISIT_URL`, Amber Visit app url, to be included in the notification emails
 * `MONGODB_URL`, the MongoDB connection string
 * `ENCRYPT_DATA`, whether the patient/participant data should be encrypted in the database
 * `RECAPTCHA_SECRET_KEY`, the [reCAPTCHA v3](https://developers.google.com/recaptcha/docs/v3) secret key.

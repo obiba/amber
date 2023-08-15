@@ -10,6 +10,9 @@ module.exports = function (app) {
     if (user.clientId === 'amber_collect' || (!user.clientId && ['interviewer', 'guest'].includes(user.role))) {
       baseUrl = (process.env.AMBER_COLLECT_URL || app.get('amber_collect_url'));
     }
+    if (user.clientId === 'amber_visit') {
+      baseUrl = (process.env.AMBER_VISIT_URL || app.get('amber_visit_url'));
+    }
 
     const url = baseUrl + '/' + type + '?token=' + hash;
     return url;
@@ -65,7 +68,8 @@ module.exports = function (app) {
           role: user.role,
           app_name: (process.env.APP_NAME || 'Amber'),
           amber_studio_url: (process.env.AMBER_STUDIO_URL || app.get('amber_studio_url')),
-          amber_collect_url: (process.env.AMBER_COLLECT_URL || app.get('amber_collect_url'))
+          amber_collect_url: (process.env.AMBER_COLLECT_URL || app.get('amber_collect_url')),
+          amber_visit_url: (process.env.AMBER_VISIT_URL || app.get('amber_visit_url'))
         };
 
         let email;
