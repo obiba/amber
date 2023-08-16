@@ -6,6 +6,8 @@ const makeAbilities = require('../../hooks/make-abilities');
 const searchQuery = require('../../hooks/search-query');
 const interviewCreate = require('../../hooks/interview-create');
 
+const interviewCompleted = require('../../hooks/interview-completed');
+
 module.exports = {
   before: {
     all: [
@@ -39,8 +41,8 @@ module.exports = {
     find: [],
     get: [],
     create: [],
-    update: [],
-    patch: [],
+    update: [interviewCompleted()],
+    patch: [interviewCompleted()],
     remove: []
   },
 
