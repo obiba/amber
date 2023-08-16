@@ -5,8 +5,9 @@ const { defineAbilitiesFor } = require('./interview.abilities');
 const makeAbilities = require('../../hooks/make-abilities');
 const searchQuery = require('../../hooks/search-query');
 const interviewCreate = require('../../hooks/interview-create');
-
 const interviewCompleted = require('../../hooks/interview-completed');
+const interviewEncrypt = require('../../hooks/interview-encrypt');
+const interviewDecrypt = require('../../hooks/interview-decrypt');
 
 module.exports = {
   before: {
@@ -23,13 +24,16 @@ module.exports = {
     ],
     create: [
       authorize({ adapter: 'feathers-mongoose' }),
-      interviewCreate()
+      interviewCreate(),
+      interviewEncrypt()
     ],
     update: [
       authorize({ adapter: 'feathers-mongoose' }),
+      interviewEncrypt()
     ],
     patch: [
       authorize({ adapter: 'feathers-mongoose' }),
+      interviewEncrypt()
     ],
     remove: [
       authorize({ adapter: 'feathers-mongoose' })
@@ -38,11 +42,17 @@ module.exports = {
 
   after: {
     all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [interviewCompleted()],
-    patch: [interviewCompleted()],
+    find: [interviewDecrypt()],
+    get: [interviewDecrypt()],
+    create: [interviewDecrypt()],
+    update: [
+      interviewDecrypt(),
+      interviewCompleted()
+    ],
+    patch: [
+      interviewDecrypt(),
+      interviewCompleted()
+    ],
     remove: []
   },
 

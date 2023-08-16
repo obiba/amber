@@ -5,8 +5,10 @@ const { defineAbilitiesFor } = require('./participant.abilities');
 
 const { protect } = require('@feathersjs/authentication-local').hooks;
 const makeAbilities = require('../../hooks/make-abilities');
-const participantCreate = require('../../hooks/participant-create');
 const searchQuery = require('../../hooks/search-query');
+const participantCreate = require('../../hooks/participant-create');
+const participantEncrypt = require('../../hooks/participant-encrypt');
+const participantDecrypt = require('../../hooks/participant-decrypt');
 
 module.exports = {
   before: {
@@ -23,13 +25,16 @@ module.exports = {
     ],
     create: [
       participantCreate(),
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'feathers-mongoose' }),
+      participantEncrypt()
     ],
     update: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'feathers-mongoose' }),
+      participantEncrypt()
     ],
     patch: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'feathers-mongoose' }),
+      participantEncrypt()
     ],
     remove: [
       authorize({ adapter: 'feathers-mongoose' })
@@ -46,11 +51,11 @@ module.exports = {
         '__v'
       )
     ],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
+    find: [participantDecrypt()],
+    get: [participantDecrypt()],
+    create: [participantDecrypt()],
+    update: [participantDecrypt()],
+    patch: [participantDecrypt()],
     remove: []
   },
 
