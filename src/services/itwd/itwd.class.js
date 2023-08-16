@@ -6,7 +6,7 @@ const { ItwBase } = require('../../utils/itw');
  * the participant itself, or on behalf of an interviewer).
  */
 /* eslint-disable no-unused-vars */
-exports.Itws = class Itws extends ItwBase {
+exports.Itwd = class Itwd extends ItwBase {
 
   async find (params) {
     const { participant, campaign, interviewDesign } = await this.extractInterviewInfo(params);

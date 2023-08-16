@@ -5,28 +5,24 @@ exports.FormDataExport = class FormDataExport {
   constructor (options, app) {
     this.options = options || {};
     this.app = app;
-    this.forms = {};
-    this.formRevisions = {};
     this.exportSettings = app.get('export');
-    this.collectingId = '?';
-    this.entityIdField = '_id';
-    this.exportResults = {};
   }
 
   /**
    * Initiate the data collection export.
-   * 
-   * @param {string} collectingId the id of the collecting entity, ex. a case report form or an interview step
-   * @param {string} entityIdField the field that is used to store the patient/participant identifier, optional, default to _id
+   * @returns an export data object
    */
-  initExport(collectingId, entityIdField) {
-    this.collectingId = collectingId;
-    this.entityIdField = entityIdField || '_id';
-    this.exportResults = {};
+  initExport() {
+    return {
+      exportResults: {},
+      forms: {},
+      formRevisions: {}
+    };
   }
 
   /**
    * Append a row of export data.
+   * @param {Object} exportData The current export data 
    * @param {string} key The export key (ex. a string that uniquely identifies a case report form + its form revision)
    * @param {string} form The form identifier
    * @param {string} revision The form revision number
@@ -34,9 +30,9 @@ exports.FormDataExport = class FormDataExport {
    * @param {Object} multipleOptions Whether to transfer row id to the group id
    * @param {string} groupId When multiple, the id to group by
    */
-  async appendExportData(key, form, revision, data, multipleOptions, groupId) {
-    if (!this.exportResults[key]) {
-      const formRevision = await this.getFormRevision(form, revision);
+  async appendExportData(exportData, key, form, revision, data, multipleOptions, groupId) {
+    if (!exportData.exportResults[key]) {
+      const formRevision = await this.getFormRevision(exportData, form, revision);
       const schema = formRevision.schema;
       const variables = [];
       const entityType = multipleOptions.multiple ? multipleOptions.entityType : this.exportSettings.entity_type;
@@ -65,7 +61,7 @@ exports.FormDataExport = class FormDataExport {
         }
       });
 
-      this.exportResults[key] = { 
+      exportData.exportResults[key] = { 
         data: [], 
         fields: [],
         formRevision: formRevision,
@@ -73,32 +69,33 @@ exports.FormDataExport = class FormDataExport {
       };
     }
 
-    const exportResult = await this.getExportData(form, revision, data, multipleOptions.multiple, groupId);
+    const exportResult = await this.extractExportData(exportData, form, revision, data, multipleOptions.multiple, groupId);
 
-    const fields = this.exportResults[key].fields.concat(exportResult.fields);
+    const fields = exportData.exportResults[key].fields.concat(exportResult.fields);
     // unique field names
-    this.exportResults[key].fields = fields.filter((item, pos) => fields.indexOf(item) === pos);
-    this.exportResults[key].data.push(exportResult.data);
+    exportData.exportResults[key].fields = fields.filter((item, pos) => fields.indexOf(item) === pos);
+    exportData.exportResults[key].data.push(exportResult.data);
   }
 
-  async getExportData(form, revision, data, multiple, groupId) {
-    const flattenData = await this.flattenData(form, revision, data, multiple, groupId);
+  async extractExportData(exportData, form, revision, data, multiple, groupId) {
+    const flattenData = await this.flattenData(exportData, form, revision, data, multiple, groupId);
     return { 
       data: flattenData, 
       fields: Object.keys(flattenData),
-      formRevision: await this.getFormRevision(form, revision)
+      formRevision: await this.getFormRevision(exportData, form, revision)
     };
   }
 
   /**
    * Get the form object (with specific revision) that was used to collect data.
+   * @param {Object} exportData The current export data
    * @param {string} form 
    * @param {string} revision 
    * @returns 
    */
-  async getFormRevision(form, revision) {
+  async getFormRevision(exportData, form, revision) {
     const key = `${form}-${revision}`;
-    if (!this.formRevisions[key]) {
+    if (!exportData.formRevisions[key]) {
       const formRevisionService = this.app.service('form-revision');
       const result = await formRevisionService.find({
         query: {
@@ -108,30 +105,32 @@ exports.FormDataExport = class FormDataExport {
         }
       });
       if (result.total === 1) {
-        this.formRevisions[key] = result.data.pop();
+        exportData.formRevisions[key] = result.data.pop();
       } else {
         // form revision not found, fallback to current form
-        this.formRevisions[key] = await this.getForm(form);
+        exportData.formRevisions[key] = await this.getForm(exportData, form);
       }
     }
-    return this.formRevisions[key];
+    return exportData.formRevisions[key];
   }
 
   /**
    * Get a form from its id.
+   * @param {Object} exportData The current export data
    * @param {string} id 
    * @returns 
    */
-  async getForm(id) {
-    if (!this.forms[id]) {
+  async getForm(exportData, id) {
+    if (!exportData.forms[id]) {
       const formService = this.app.service('form');
-      this.forms[id] = await formService.get(id);
+      exportData.forms[id] = await formService.get(id);
     }
-    return this.forms[id];
+    return exportData.forms[id];
   }
 
   /**
    * Flatten collected data (makes a row).
+   * @param {Object} exportData The current export data
    * @param {string} form The form identifier
    * @param {string} revision The form revision number
    * @param {Object} data The collected data
@@ -139,8 +138,8 @@ exports.FormDataExport = class FormDataExport {
    * @param {string} groupId When multiple, the id to group by 
    * @returns 
    */
-  async flattenData (form, revision, data, multiple, groupId) {
-    const formRevision = await this.getFormRevision(form, revision);
+  async flattenData (exportData, form, revision, data, multiple, groupId) {
+    const formRevision = await this.getFormRevision(exportData, form, revision);
     const flattenData = this.flattenByItems(formRevision.schema.items, data);
     if (multiple) {
       flattenData[this.exportSettings.identifier_variable] = flattenData['_id'];

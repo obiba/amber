@@ -40,7 +40,7 @@ exports.CaseReportExport = class CaseReportExport extends FormDataExport {
       limits.push(crResult.limit);
     }
 
-    this.initExport();
+    const exportData = this.initExport();
     for (const limit of limits) {
       params.query['$limit'] = limit;
       let result = await caseReportService.find(params);
@@ -56,6 +56,7 @@ exports.CaseReportExport = class CaseReportExport extends FormDataExport {
           const caseReportForm = await this.getCaseReportForm(cr.caseReportForm);
 
           await this.appendExportData(
+            exportData,
             key,
             cr.form,
             cr.revision,
@@ -67,7 +68,7 @@ exports.CaseReportExport = class CaseReportExport extends FormDataExport {
             cr._id.toString()
           );
 
-          this.exportResults[key].caseReportForm = caseReportForm;
+          exportData.exportResults[key].caseReportForm = caseReportForm;
         }
       } else {
         // no more results, then break loop
@@ -77,7 +78,7 @@ exports.CaseReportExport = class CaseReportExport extends FormDataExport {
       params.query['$skip'] = params.query['$skip'] + limit;
     }
 
-    crResult.export = this.exportResults;
+    crResult.export = exportData.exportResults;
     return crResult;
   }
 
