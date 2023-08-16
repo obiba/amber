@@ -6,7 +6,9 @@ const hooks = require('./interview.hooks');
 module.exports = function (app) {
   const options = {
     Model: createModel(app),
-    paginate: app.get('paginate')
+    paginate: app.get('paginate'),
+    multi: ['remove'],
+    whitelist: ['$nor', '$and', '$regex']
   };
 
   // Initialize our service with any options it requires

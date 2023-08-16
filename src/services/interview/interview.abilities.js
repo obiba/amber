@@ -21,6 +21,7 @@ const defineRulesFor = (user) => {
     can('manage', 'interview');
   } else if (user.role === 'interviewer') {
     can('create', 'interview');
+    can('patch', 'interview');
     can('read', 'interview');
   }
 
