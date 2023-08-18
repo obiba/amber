@@ -49,7 +49,8 @@ const start = async () => {
   
 };
 
-const clusterWorkerSize = process.env.CLUSTER_COUNT || os.cpus().length;
+const max_cpus = os.cpus().length - 1;
+const clusterWorkerSize = process.env.CLUSTER_COUNT ? Math.min(process.env.CLUSTER_COUNT, max_cpus) : max_cpus;
 
 if (clusterWorkerSize > 1) {
   if (cluster.isMaster) {
