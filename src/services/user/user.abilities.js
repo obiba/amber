@@ -21,7 +21,7 @@ const defineRulesFor = (user) => {
     // no self removal
     cannot('delete', 'user', { _id: user._id });
   } else {
-    if (user.role === 'manager') {
+    if (user.role === 'manager' || user.role === 'interviewer') {
       // can list all users
       can('read', 'user');
     } else {
