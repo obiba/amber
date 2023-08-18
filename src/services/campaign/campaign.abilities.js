@@ -21,7 +21,8 @@ const defineRulesFor = (user) => {
   } else if (user.role === 'manager') { 
     can('manage', 'campaign');
   } else if (user.role === 'interviewer') {
-    can('read', 'campaign');
+    // can read only campaigns for which s/he is an investigator
+    can('read', 'campaign', { investigators: user._id });
   }
 
   logger.debug('  rules: ' + JSON.stringify(rules, null, '  '));
