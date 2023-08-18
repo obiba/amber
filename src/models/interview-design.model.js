@@ -31,7 +31,6 @@ module.exports = function (app) {
     steps: [{ type: stepSchema }],
     i18n: { type: Object, default: {} }, // the translation keys, by language
     state: { type: String, enum: ['active', 'paused'], default: 'paused' },
-    repeatPolicy: { type: String, enum: ['single_reject', 'single_update', 'multiple'], default: 'single_reject' },
     permissions: { type: permissionsSchema }
   }, {
     timestamps: true
