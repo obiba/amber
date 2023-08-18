@@ -9,6 +9,7 @@ const searchQuery = require('../../hooks/search-query');
 const participantCreate = require('../../hooks/participant-create');
 const participantEncrypt = require('../../hooks/participant-encrypt');
 const participantDecrypt = require('../../hooks/participant-decrypt');
+const participantInterviewerAuthz = require('../../hooks/participant-interviewer-authz');
 
 module.exports = {
   before: {
@@ -44,6 +45,7 @@ module.exports = {
   after: {
     all: [
       authorize({ adapter: 'feathers-mongoose' }),
+      participantInterviewerAuthz(),
       protect(
         'password',
         'updatedAt',

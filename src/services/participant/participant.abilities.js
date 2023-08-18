@@ -22,7 +22,8 @@ const defineRulesFor = (user) => {
     can('manage', 'participant');
   } else if (user.role === 'interviewer') {
     can('read', 'participant');
-  }
+    can('patch', 'participant'); // allowed but limited to the participants belonging to accessible campaigns
+  } 
 
   logger.debug('  rules: ' + JSON.stringify(rules, null, '  '));
 
