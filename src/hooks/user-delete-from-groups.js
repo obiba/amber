@@ -11,7 +11,7 @@ module.exports = (options = {}) => {
       const userId = user._id;
       groupService.find({
         query: {
-          $limit: 1000,
+          $limit: context.app.get('paginate').max,
           users: {
             $in: [userId]
           }

@@ -10,7 +10,7 @@ module.exports = (options = {}) => {
       const notifierService = accountService(context.app);
       context.app.service('user').find({
         query: {
-          $limit: 100,
+          $limit: context.app.get('paginate').max,
           role: 'administrator'
         }
       })

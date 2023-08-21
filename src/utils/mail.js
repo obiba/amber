@@ -61,7 +61,7 @@ exports.MailBuilder = class MailBuilder {
     }
   }
 
-  sendEmail(type, user, context) {
+  sendEmail(type, user, context, dryRun) {
     const email = this.buildEmail(type, user, context);
     if (!email) return;
     
@@ -69,14 +69,19 @@ exports.MailBuilder = class MailBuilder {
     email.headers = {
       'x-amber': `${process.env.APP_NAME ? process.env.APP_NAME : '?'}`
     };
-    return this.app
-      .service('email')
-      .create(email)
-      .then(function (result) {
-        logger.debug('Sent email', result);
-      })
-      .catch((err) => {
-        logger.error('Error sending email', err);
-      });
+    if (dryRun) {
+      logger.debug(JSON.stringify(email));
+    } else {
+      this.app
+        .service('email')
+        .create(email)
+        .then(function (result) {
+          logger.debug('Sent email', result);
+        })
+        .catch((err) => {
+          logger.error('Error sending email', err);
+        });
+    }
+    
   }
 };

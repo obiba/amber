@@ -9,7 +9,7 @@ module.exports = (options = {}) => {
       const userId = user._id;
       service.find({
         query: {
-          $limit: 1000,
+          $limit: context.app.get('paginate').max,
           'permissions.users': userId
         }
       })

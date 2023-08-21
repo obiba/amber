@@ -9,7 +9,7 @@ module.exports = (options = {}) => {
       const groupId = group._id;
       service.find({
         query: {
-          $limit: 1000,
+          $limit: context.app.get('paginate').max,
           'permissions.groups': groupId
         }
       })

@@ -108,6 +108,16 @@
         "subject": "[{app_name}] Mot de passe modifié",
         "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Le mot de passe a été mis à jour. Si vous n'êtes pas l'auteur de ce changement, veuillez nous contacter.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
       }
+    },
+    "initParticipants": {
+      "en": {
+        "subject": "[{app_name}] New Participants",
+        "html": "<html><p>Dear {firstname} {lastname},</p> <p>Some new participants have been enrolled for the interview {interview} ({campaign}) of study {study}. Please contact them to give their access code and to inform them about the interview process.</p> <p>---<br/>This email was automatically sent, please do not reply.</p></html>"
+      },
+      "fr": {
+        "subject": "[{app_name}] Nouveaux participants",
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>De nouveaux participants ont été enrollés pour l'entrevue {interview} ({campaign}) de l'étude {study}. Veuillez communiquer avec eux pour donner leur code d'accès et les informer de la procédure d'entrevue.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
+      }
     }
   },
   "client_urls": "*",

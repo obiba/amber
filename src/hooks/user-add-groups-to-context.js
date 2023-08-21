@@ -7,7 +7,7 @@ module.exports = (options = {}) => {
     if (context.params.user) {
       const groupService = context.app.service('group');
       const result = await groupService.find({ query: { 
-        $limit: 1000,
+        $limit: context.app.get('paginate').max,
         users: context.params.user._id 
       }});
       if (result.total > 0) {

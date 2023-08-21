@@ -16,6 +16,7 @@ module.exports = function (app) {
     reminders: [{ type: Date }],
     activated: { type: Boolean, default: true }, // can be (de)activated temporarily
     lastSeen: { type: Date }, // last authentication by the participant (not on behalf of the interviewer)
+    initAt: { type: Date },   // last authentication by the participant (not on behalf of the interviewer)
     data: { type: Object, required: true, default: {} }, // personal data
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
     study: { type: Schema.Types.ObjectId, ref: 'study', required: true },
