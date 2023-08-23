@@ -1,6 +1,6 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
 
-const campaignTaskCreated = require('../../hooks/campaign-task-created');
+const participantsTaskCreated = require('../../hooks/participants-task-created');
 
 module.exports = {
   before: {
@@ -17,7 +17,7 @@ module.exports = {
     all: [],
     find: [],
     get: [],
-    create: [campaignTaskCreated()],
+    create: [participantsTaskCreated()],
     update: [],
     patch: [],
     remove: []

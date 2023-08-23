@@ -63,7 +63,7 @@
     "helmet": "^4.6.0",
     "mongodb-core": "^3.2.7",
     "mongoose": "^5.13.9",
-    "nodemailer-sendinblue-v3-transport": "^1.0.1",
+    "nodemailer-sendinblue-transport": "^2.0.1",
     "nodemailer-smtp-transport": "^2.4.2",
     "serve-favicon": "^2.5.0",
     "string-template": "^1.0.0",

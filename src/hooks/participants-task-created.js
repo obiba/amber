@@ -1,9 +1,10 @@
 // Use this hook to manipulate incoming or outgoing data.
 // For more information on hooks see: http://docs.feathersjs.com/api/hooks.html
 const logger = require('../logger');
+const { Parser } = require('@json2csv/plainjs');
 const { MailBuilder } = require('../utils/mail');
 
-class ParticipantNotifications {
+class ParticipantsNotifications {
   constructor(app) {
     this.app = app;
   }
@@ -57,25 +58,64 @@ class ParticipantNotifications {
           $limit: this.app.get('paginate').max,
           activated: true,
           campaign: campaign._id.toString(),
-          initDate: { $exists: false }
+          initAt: { $exists: false }
         }
       });
     if (participantsResult.total > 0) {
+      // participants list as a csv file
       const participants = participantsResult.data.filter(this.isParticipantValid);
+      const csv = this.toParticipantsCSV(participants);
+      // send mail to each investigator
       const builder = new MailBuilder(this.app);
       for (const investigator of campaign.investigators) {
+        // recipient
         const user = await this.app.service('user').get(investigator);
         const context = { // TODO translate
           study: study.name,
           interview: interviewDesign.name,
-          campaign: campaign.name
+          campaign: campaign.name,
+          attachments: [
+            {
+              filename: 'participants.csv',
+              contentType: 'text/plain',
+              content: csv
+            }
+          ]
         };
-        builder.sendEmail('initParticipants', user, context, true);
+        builder.sendEmail('initParticipants', user, context);
       }
-      for (const participant of participants) {
-        logger.debug(`Participant ${participant.code} ${initDate}`);
-      }
+      // set participants init date
+      const ids = participants.map((participant) => participant._id);
+      await this.app.service('participant')
+        .patch(null, { initAt: initDate }, { query: { _id: { $in: ids }}});
     }
+  }
+
+  /**
+   * Make a CSV string from a participants array.
+   * @param {Array} participants 
+   * @returns 
+   */
+  toParticipantsCSV(participants) {
+    const headerRows = {
+      header: ['code', 'identifier'],
+      rows: [],
+    };
+    if (participants) {
+      const keys = participants
+        .filter(participant => participant.data)
+        .flatMap(participant => Object.keys(participant.data))
+        .filter((value, index, array) => array.indexOf(value) === index);
+      headerRows.header.push(keys);
+      headerRows.header = headerRows.header.flat();
+      headerRows.rows = participants.map(datum => {
+        const value = { ...datum, ...datum.data };
+        delete value.data;
+        return value;
+      });
+    }
+    const csv = new Parser({ fields: headerRows.header }).parse(headerRows.rows);
+    return csv;
   }
 
   /**
@@ -105,7 +145,7 @@ class ParticipantNotifications {
 // eslint-disable-next-line no-unused-vars
 module.exports = (options = {}) => {
   return async context => {
-    if (context.result.type === 'campaign-init') {
+    if (context.result.type === 'participants-init') {
       const result = await context.app.service('task').find({
         query: {
           $limit: 1,
@@ -116,11 +156,11 @@ module.exports = (options = {}) => {
       });
       if (result.total > 0) {
         context.app.service('task').patch(context.result._id.toString(), {
-          error: 'Another campaign init task is in progress',
+          error: 'Another participants init task is in progress',
           state: 'aborted'
         });
       } else {
-        const notifications = new ParticipantNotifications(context.app);
+        const notifications = new ParticipantsNotifications(context.app);
         notifications.sendInit(context.result);
       }
     }

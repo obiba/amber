@@ -116,7 +116,7 @@
       },
       "fr": {
         "subject": "[{app_name}] Nouveaux participants",
-        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>De nouveaux participants ont été enrollés pour l'entrevue {interview} ({campaign}) de l'étude {study}. Veuillez communiquer avec eux pour donner leur code d'accès et les informer de la procédure d'entrevue.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>De nouveaux participants ont été enrollés pour l'entrevue {interview} ({campaign}) de l'étude {study}. Veuillez communiquer avec eux pour leur transmettre le code d'accès et les informer de la procédure d'entrevue.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
       }
     }
   },

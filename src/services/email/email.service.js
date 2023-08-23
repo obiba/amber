@@ -2,7 +2,7 @@
 const mailer = require('feathers-mailer');
 const hooks = require('./email.hooks');
 const smtpTransport = require('nodemailer-smtp-transport');
-const sibTransport = require('nodemailer-sendinblue-v3-transport');
+const Transport = require('nodemailer-sendinblue-transport');
 
 module.exports = function (app) {
   // Initialize our service with any options it requires
@@ -16,9 +16,8 @@ module.exports = function (app) {
       }
     });
   } else if (process.env.SENDINBLUE_API_KEY) {
-    transport = sibTransport({
-      apiKey: process.env.SENDINBLUE_API_KEY,
-      apiUrl: 'https://api.sendinblue.com/v3/smtp'
+    transport = new Transport({
+      apiKey: process.env.SENDINBLUE_API_KEY
     });
   } else {
     const smtpOpts = app.get('smtp');

@@ -55,6 +55,7 @@ exports.MailBuilder = class MailBuilder {
         from: FROM_EMAIL,
         subject: format(subject, ctx),
         html: format(html, ctx),
+        attachments: ctx.attachments || []
       };
     } else {
       logger.error(`Email template is not defined for type: ${type}`);
