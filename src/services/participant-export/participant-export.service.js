@@ -38,7 +38,7 @@ const doCsvResponse = (res) => {
   res.attachment('participants-export.csv');
   res.type('csv');
   const parsed = toRows(res);
-  res.write(new Parser().parse(parsed.rows, { fields: parsed.header }));
+  res.write(new Parser({ fields: parsed.header }).parse(parsed.rows));
   res.end();
 };
 

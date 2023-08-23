@@ -10,8 +10,7 @@ var archiver = require('archiver');
 const { GeneralError } = require('@feathersjs/errors');
 
 const toCSV = (data, fields) => {
-  const parser = new Parser();
-  return parser.parse(data, { fields: fields });
+  return new Parser({ fields: fields }).parse(data);
 };
 
 const mkTmpDir = () => {
