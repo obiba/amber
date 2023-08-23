@@ -1,6 +1,6 @@
 // Initializes the `form-i18n` service on path `/form-i18n`
 const { FormI18nExport } = require('./form-i18n.class');
-const { parse } = require('json2csv');
+const { Parser } = require('@json2csv/plainjs');
 const xlsx = require('xlsx');
 const fs = require('fs');
 const os = require('os');
@@ -41,7 +41,7 @@ const doCsvResponse = (res) => {
   res.attachment(`${res.data.name}-i18n-export.csv`);
   res.type('csv');
   const parsed = toRows(res);
-  res.write(parse(parsed.rows, { fields: parsed.header }));
+  res.write(new Parser().parse(parsed.rows, { fields: parsed.header }));
   res.end();
 };
 

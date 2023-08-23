@@ -1,5 +1,5 @@
 // Initializes the `participant-export` service on path `/participant-export`
-const { parse } = require('json2csv');
+const { Parser } = require('@json2csv/plainjs');
 const xlsx = require('xlsx');
 const fs = require('fs');
 const os = require('os');
@@ -38,7 +38,7 @@ const doCsvResponse = (res) => {
   res.attachment('participants-export.csv');
   res.type('csv');
   const parsed = toRows(res);
-  res.write(parse(parsed.rows, { fields: parsed.header }));
+  res.write(new Parser().parse(parsed.rows, { fields: parsed.header }));
   res.end();
 };
 

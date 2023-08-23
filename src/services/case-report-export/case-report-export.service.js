@@ -1,7 +1,7 @@
 // Initializes the `case-report-export` service on path `/case-report-export`
 const { CaseReportExport } = require('./case-report-export.class');
 const hooks = require('./case-report-export.hooks');
-const { parse } = require('json2csv');
+const { Parser } = require('@json2csv/plainjs');
 const xlsx = require('xlsx');
 const fs = require('fs');
 const os = require('os');
@@ -10,7 +10,8 @@ var archiver = require('archiver');
 const { GeneralError } = require('@feathersjs/errors');
 
 const toCSV = (data, fields) => {
-  return parse(data, { fields: fields });
+  const parser = new Parser();
+  return parser.parse(data, { fields: fields });
 };
 
 const mkTmpDir = () => {
