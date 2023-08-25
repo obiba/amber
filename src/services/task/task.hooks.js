@@ -4,6 +4,7 @@ const { defineAbilitiesFor } = require('./task.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
 const allowApiKey = require('../../hooks/allow-api-key');
+const searchQuery = require('../../hooks/search-query');
 const participantsTaskCreated = require('../../hooks/participants-task-created');
 
 module.exports = {
@@ -13,7 +14,10 @@ module.exports = {
       authenticate('jwt', 'apiKey'),
       makeAbilities(defineAbilitiesFor)
     ],
-    find: [authorize({ adapter: 'feathers-mongoose' })],
+    find: [
+      searchQuery(),
+      authorize({ adapter: 'feathers-mongoose' })
+    ],
     get: [authorize({ adapter: 'feathers-mongoose' })],
     create: [authorize({ adapter: 'feathers-mongoose' })],
     update: [authorize({ adapter: 'feathers-mongoose' })],
