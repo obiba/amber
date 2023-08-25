@@ -9,7 +9,8 @@ module.exports = function (app) {
   const schema = new Schema({
     type: { type: String, enum: ['participants-init', 'participants-reminder'], required: true },
     state: { type: String, enum: ['in_progress', 'completed', 'aborted'], required: true, default: 'in_progress' },
-    error: { type: String }
+    error: { type: String },
+    message: { type: String }
   }, {
     timestamps: true
   });

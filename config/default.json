@@ -15,7 +15,8 @@
     "authStrategies": [
       "jwt",
       "local",
-      "participant"
+      "participant",
+      "apiKey"
     ],
     "totp2faRequired": true,
     "activityTimeout": "5d",
@@ -34,6 +35,10 @@
     },
     "participant": {
       "service": "participant"
+    },
+    "apiKey": {
+      "allowedKeys": [ "CHANGEME" ],
+      "header": "x-access-token"
     }
   },
   "mongodb": "mongodb://localhost:27017/amber",

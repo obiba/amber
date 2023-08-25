@@ -1,10 +1,14 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
 
+const allowApiKey = require('../../hooks/allow-api-key');
 const participantsTaskCreated = require('../../hooks/participants-task-created');
 
 module.exports = {
   before: {
-    all: [ authenticate('jwt') ],
+    all: [
+      allowApiKey(),
+      authenticate('jwt', 'apiKey')
+    ],
     find: [],
     get: [],
     create: [],

@@ -25,6 +25,21 @@ class ActiveLocalStrategy extends LocalStrategy {
   }
 }
 
+class ApiKeyStrategy extends AuthenticationBaseStrategy {
+  async authenticate(authentication) {
+    const { token } = authentication;
+  
+    const config = this.authentication.configuration[this.name];
+
+    const match = config.allowedKeys.includes(token);
+    if (!match) throw new NotAuthenticated('Incorrect API Key');
+  
+    return {
+      apiKey: true
+    };
+  }
+}
+
 class ParticipantStrategy extends AuthenticationBaseStrategy {
   
   async hashPassword (password) {
@@ -87,4 +102,4 @@ class ParticipantStrategy extends AuthenticationBaseStrategy {
   }
 }
 
-module.exports = { AnonymousStrategy, ActiveLocalStrategy, ParticipantStrategy };
+module.exports = { AnonymousStrategy, ActiveLocalStrategy, ApiKeyStrategy, ParticipantStrategy };
