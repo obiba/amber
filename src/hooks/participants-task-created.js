@@ -1,57 +1,88 @@
 // Use this hook to manipulate incoming or outgoing data.
 // For more information on hooks see: http://docs.feathersjs.com/api/hooks.html
+// eslint-disable-next-line no-unused-vars
 const logger = require('../logger');
 const { Parser } = require('@json2csv/plainjs');
 const { MailBuilder } = require('../utils/mail');
 
-class ParticipantsNotifications {
+class ParticipantsTasksHandler {
   constructor(app) {
     this.app = app;
   }
 
-  async sendInit(task) {
+  async process(task) {
     try {
-      const itwdResult = await this.app.service('interview-design')
-        .find({
-          query: {
-            $limit: this.app.get('paginate').max,
-            state: 'active'
-          }
-        });
-      if (itwdResult.total > 0) {
-        for (const itwd of itwdResult.data) {
-          const study = await this.app.service('study').get(itwd.study);
-          await this.scanCampaignsForParticipantInit(study, itwd);
-        }
+      if (task.type === 'participants-init') {
+        await this.sendInit(task);
+      } else if (task.type === 'participants-reminder') {
+        await this.sendReminders(task);
+      } else if (task.type === 'participants-expired') {
+        await this.deactivate(task);
       }
-      this.app.service('task').patch(task._id, {
-        state: 'completed'
-      });
     } catch(err) {
       this.app.service('task').patch(task._id, {
         error: err.message,
-        state: 'completed'
+        state: 'aborted'
       });
     }
   }
+
+  async sendInit(task) {
+    const itwds = await this.findActiveInterviewDesigns(task);
+    for (const itwd of itwds) {
+      const study = await this.app.service('study').get(itwd.study);
+      await this.scanCampaignsForParticipantInit(study, itwd);
+    }
+    this.app.service('task').patch(task._id, {
+      state: 'completed'
+    });
+  }
+
+  async sendReminders(task) {
+    const itwds = await this.findActiveInterviewDesigns(task);
+    for (const itwd of itwds) {
+      const study = await this.app.service('study').get(itwd.study);
+      await this.scanCampaignsForParticipantReminders(study, itwd);
+    }
+    this.app.service('task').patch(task._id, {
+      state: 'completed'
+    });
+  }
+
+  async deactivate(task) {
+    const itwds = await this.findActiveInterviewDesigns(task);
+    for (const itwd of itwds) {
+      const study = await this.app.service('study').get(itwd.study);
+      await this.scanCampaignsForParticipantDeactivation(study, itwd);
+    }
+    this.app.service('task').patch(task._id, {
+      state: 'completed'
+    });
+  }
   
   async scanCampaignsForParticipantInit(study, interviewDesign) {
-    const campaignsResult = await this.app.service('campaign')
-      .find({
-        query: {
-          $limit: this.app.get('paginate').max,
-          interviewDesign: interviewDesign._id.toString()
-        }
-      });
-    if (campaignsResult.total > 0) {
-      for (const campaign of campaignsResult.data.filter(this.isCampaignValid)) {
-        await this.scanParticipantsForInit(study, interviewDesign, campaign);
-      }
+    const campaigns = await this.findValidCampaigns(interviewDesign);
+    for (const campaign of campaigns) {
+      await this.scanParticipantsForInit(study, interviewDesign, campaign);
+    }
+  }
+
+  async scanCampaignsForParticipantReminders(study, interviewDesign) {
+    const campaigns = await this.findValidCampaigns(interviewDesign);
+    for (const campaign of campaigns) {
+      await this.scanParticipantsForReminders(study, interviewDesign, campaign);
+    }
+  }
+  
+  async scanCampaignsForParticipantDeactivation(study, interviewDesign) {
+    const campaigns = await this.findValidCampaigns(interviewDesign);
+    for (const campaign of campaigns) {
+      await this.scanParticipantsForDeactivation(study, interviewDesign, campaign);
     }
   }
 
   async scanParticipantsForInit(study, interviewDesign, campaign) {
-    const initDate = new Date();
+    const now = new Date();
     const participantsResult = await this.app.service('participant')
       .find({
         query: {
@@ -61,9 +92,9 @@ class ParticipantsNotifications {
           initAt: { $exists: false }
         }
       });
-    if (participantsResult.total > 0) {
+    const participants = participantsResult.data.filter(this.isParticipantValid);
+    if (participants.length > 0) {
       // participants list as a csv file
-      const participants = participantsResult.data.filter(this.isParticipantValid);
       const csv = this.toParticipantsCSV(participants);
       // send mail to each investigator
       const builder = new MailBuilder(this.app);
@@ -87,8 +118,127 @@ class ParticipantsNotifications {
       // set participants init date
       const ids = participants.map((participant) => participant._id);
       await this.app.service('participant')
-        .patch(null, { initAt: initDate }, { query: { _id: { $in: ids }}});
+        .patch(null, { initAt: now }, { query: { _id: { $in: ids }}});
+      logger.info(`Initialized participants: ${participants.map(p => p.code).join(', ')}`);
     }
+  }
+
+  async scanParticipantsForReminders(study, interviewDesign, campaign) {
+    const now = new Date();
+    const participantsResult = await this.app.service('participant')
+      .find({
+        query: {
+          $limit: this.app.get('paginate').max,
+          activated: true, // if the interview was completed, the participant is inactive
+          campaign: campaign._id.toString(),
+          initAt: { $exists: true }
+        }
+      });
+    const participants = participantsResult.data
+      .filter(this.isParticipantValid)
+      .filter((p) => this.isTimeToRemind(p, campaign, now));
+    if (participants.length > 0) {
+      // notify by reminder occurrences
+      for (let i = 0; i < campaign.numberOfReminders; i++) {
+        // filter by reminders count and send
+        const participantsToRemind = participants
+          .filter((p) => p.reminders.length === i);
+        if (participantsToRemind.length > 0) {
+          // participants list as a csv file
+          const csv = this.toParticipantsCSV(participantsToRemind);
+          // send mail to each investigator
+          const builder = new MailBuilder(this.app);
+          for (const investigator of campaign.investigators) {
+            // recipient
+            const user = await this.app.service('user').get(investigator);
+            const context = { // TODO translate
+              study: study.name,
+              interview: interviewDesign.name,
+              campaign: campaign.name,
+              reminder: i + 1,
+              attachments: [
+                {
+                  filename: 'participants.csv',
+                  contentType: 'text/plain',
+                  content: csv
+                }
+              ]
+            };
+            builder.sendEmail('remindParticipants', user, context);
+          }
+          // set participants reminder date
+          for (const participant of participantsToRemind) {
+            const reminders = [...participant.reminders];
+            reminders.push(now);
+            await this.app.service('participant')
+              .patch(participant._id, { reminders: reminders });
+          }
+          logger.info(`Reminded participants: ${participantsToRemind.map(p => p.code).join(', ')}`);
+        }
+      }
+    }
+  }
+
+  async scanParticipantsForDeactivation(study, interviewDesign, campaign) {
+    const now = new Date();
+    const participantsResult = await this.app.service('participant')
+      .find({
+        query: {
+          $limit: this.app.get('paginate').max,
+          activated: true,
+          campaign: campaign._id.toString(),
+          initAt: { $exists: true }
+        }
+      });
+    const participants = participantsResult.data
+      .filter((p) => this.isTimeToExpire(p, campaign, now));
+    if (participants.length > 0) {
+      // set participants inactive
+      const ids = participants.map((participant) => participant._id);
+      await this.app.service('participant')
+        .patch(null, { activated: false }, { query: { _id: { $in: ids }}});
+      logger.info(`Deactivated participants: ${participants.map(p => p.code).join(', ')}`);
+    }
+  }
+
+  // eslint-disable-next-line no-unused-vars
+  async findActiveInterviewDesigns(task) {
+    const itwdResult = await this.app.service('interview-design')
+      .find({
+        query: {
+          $limit: this.app.get('paginate').max,
+          state: 'active'
+        }
+      });
+    return itwdResult.data;
+  }
+
+  async findValidCampaigns(interviewDesign) {
+    const campaignsResult = await this.app.service('campaign')
+      .find({
+        query: {
+          $limit: this.app.get('paginate').max,
+          interviewDesign: interviewDesign._id.toString()
+        }
+      });
+    return campaignsResult.data.filter(this.isCampaignValid);
+  }
+
+  isTimeToRemind(participant, campaign, now) {
+    // time between last reminder or from init date
+    const delayMillis = campaign.weeksBetweenReminders * 7 * 24 * 60 * 60 * 1000;
+    if (participant.reminders.length === 0) {
+      return now.getTime() > participant.initAt.getTime() + delayMillis;
+    } else {
+      const lastRemind = participant.reminders[participant.reminders.length - 1];
+      return now.getTime() > lastRemind.getTime() + delayMillis;
+    }
+  }
+
+  isTimeToExpire(participant, campaign, now) {
+    // time between last reminder or from init date
+    const delayMillis = campaign.weeksToDeactivate * 7 * 24 * 60 * 60 * 1000;
+    return now.getTime() > participant.initAt.getTime() + delayMillis;
   }
 
   /**
@@ -145,25 +295,26 @@ class ParticipantsNotifications {
 // eslint-disable-next-line no-unused-vars
 module.exports = (options = {}) => {
   return async context => {
-    if (context.result.type === 'participants-init') {
-      const result = await context.app.service('task').find({
-        query: {
-          $limit: 1,
-          type: context.result.type,
-          state: 'in_progress',
-          _id: { $ne: context.result._id } // do not find itself!
-        }
-      });
-      if (result.total > 0) {
-        context.app.service('task').patch(context.result._id.toString(), {
-          error: 'Another participants init task is in progress',
-          state: 'aborted'
-        });
-      } else {
-        const notifications = new ParticipantsNotifications(context.app);
-        notifications.sendInit(context.result);
+    const task = context.result;
+    // make sure there is only one task of same type that is in progress
+    const result = await context.app.service('task').find({
+      query: {
+        $limit: 1,
+        type: task.type,
+        state: 'in_progress',
+        _id: { $ne: task._id } // do not find itself!
       }
+    });
+    if (result.total > 0) {
+      context.app.service('task').patch(task._id, {
+        error: `Another "${task.type}" task is in progress`,
+        state: 'aborted'
+      });
+    } else {
+      const handler = new ParticipantsTasksHandler(context.app);
+      handler.process(task);
     }
+    
     return context;
   };
 };

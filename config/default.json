@@ -123,6 +123,16 @@
         "subject": "[{app_name}] Nouveaux participants",
         "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>De nouveaux participants ont été enrollés pour l'entrevue {interview} ({campaign}) de l'étude {study}. Veuillez communiquer avec eux pour leur transmettre le code d'accès et les informer de la procédure d'entrevue.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
       }
+    },
+    "remindParticipants": {
+      "en": {
+        "subject": "[{app_name}] Participants Reminder #{reminder}",
+        "html": "<html><p>Dear {firstname} {lastname},</p> <p>Some participants have not completed their interview {interview} ({campaign}) of study {study}. Please remind them their access code and the interview process.</p> <p>---<br/>This email was automatically sent, please do not reply.</p></html>"
+      },
+      "fr": {
+        "subject": "[{app_name}] Rappels de participants #{reminder}",
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Des participants n'ont pas complété leur entrevue {interview} ({campaign}) de l'étude {study}. Veuillez communiquer avec eux pour leur rappeler le code d'accès et la procédure d'entrevue.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
+      }
     }
   },
   "client_urls": "*",

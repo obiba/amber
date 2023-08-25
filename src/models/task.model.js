@@ -7,7 +7,7 @@ module.exports = function (app) {
   const mongooseClient = app.get('mongooseClient');
   const { Schema } = mongooseClient;
   const schema = new Schema({
-    type: { type: String, enum: ['participants-init', 'participants-reminder'], required: true },
+    type: { type: String, enum: ['participants-init', 'participants-reminder', 'participants-expired'], required: true },
     state: { type: String, enum: ['in_progress', 'completed', 'aborted'], required: true, default: 'in_progress' },
     error: { type: String },
     message: { type: String }
