@@ -18,6 +18,8 @@ class ParticipantsTasksHandler {
         await this.sendReminders(task);
       } else if (task.type === 'participants-expired') {
         await this.deactivate(task);
+      } else if (task.type === 'participants-summary') {
+        await this.summary(task);
       }
     } catch(err) {
       this.app.service('task').patch(task._id, {
@@ -60,6 +62,17 @@ class ParticipantsTasksHandler {
     });
   }
   
+  async summary(task) {
+    const itwds = await this.findActiveInterviewDesigns(task);
+    for (const itwd of itwds) {
+      const study = await this.app.service('study').get(itwd.study);
+      await this.scanCampaignsForParticipantSummary(study, itwd);
+    }
+    this.app.service('task').patch(task._id, {
+      state: 'completed'
+    });
+  }
+
   async scanCampaignsForParticipantInit(study, interviewDesign) {
     const campaigns = await this.findValidCampaigns(interviewDesign);
     for (const campaign of campaigns) {
@@ -78,6 +91,13 @@ class ParticipantsTasksHandler {
     const campaigns = await this.findValidCampaigns(interviewDesign);
     for (const campaign of campaigns) {
       await this.scanParticipantsForDeactivation(study, interviewDesign, campaign);
+    }
+  }
+
+  async scanCampaignsForParticipantSummary(study, interviewDesign) {
+    const campaigns = await this.findValidCampaigns(interviewDesign);
+    for (const campaign of campaigns) {
+      await this.scanParticipantsForSummary(study, interviewDesign, campaign);
     }
   }
 
@@ -201,6 +221,54 @@ class ParticipantsTasksHandler {
     }
   }
 
+  async scanParticipantsForSummary(study, interviewDesign, campaign) {
+    // get completed interviews
+    const interviewsResult = await this.app.service('interview')
+      .find({
+        query: { // TODO additional query params, e.g. filter by updatedAt for recent changes
+          $limit: this.app.get('paginate').max,
+          campaign: campaign._id.toString()
+        }
+      });
+    const interviews = interviewsResult.data;
+    if (interviews.length > 0) {
+      const attachments = [];
+      const itwInProgress = interviews.filter((itw) => itw.state === 'in_progress');
+      if (itwInProgress.length > 0) {
+        const csvInProgress = this.toInterviewsCSV(itwInProgress);
+        attachments.push({
+          filename: 'interviews_in_progress.csv',
+          contentType: 'text/plain',
+          content: csvInProgress
+        });
+      }
+      const itwCompleted = interviews.filter((itw) => itw.state === 'completed');
+      if (itwCompleted.length > 0) {
+        const csvCompleted = this.toInterviewsCSV(itwCompleted);
+        attachments.push({
+          filename: 'interviews_completed.csv',
+          contentType: 'text/plain',
+          content: csvCompleted
+        });
+      }
+      // send mail to each investigator
+      const builder = new MailBuilder(this.app);
+      for (const investigator of campaign.investigators) {
+        // recipient
+        const user = await this.app.service('user').get(investigator);
+        const context = { // TODO translate
+          study: study.name,
+          interview: interviewDesign.name,
+          campaign: campaign.name,
+          inProgress: itwInProgress.length,
+          completed: itwCompleted.length,
+          attachments: attachments
+        };
+        builder.sendEmail('summaryParticipants', user, context);
+      }
+    }
+  }
+
   // eslint-disable-next-line no-unused-vars
   async findActiveInterviewDesigns(task) {
     const itwdResult = await this.app.service('interview-design')
@@ -244,7 +312,7 @@ class ParticipantsTasksHandler {
   /**
    * Make a CSV string from a participants array.
    * @param {Array} participants 
-   * @returns 
+   * @returns The csv string
    */
   toParticipantsCSV(participants) {
     const headerRows = {
@@ -266,6 +334,23 @@ class ParticipantsTasksHandler {
     }
     const csv = new Parser({ fields: headerRows.header }).parse(headerRows.rows);
     return csv;
+  }
+
+  /**
+     * Make a CSV string from an interviews array.
+     * @param {Array} interviews
+     * @returns The csv string
+     */
+  toInterviewsCSV(interviews) {
+    const headerRows = {
+      header: ['code', 'identifier', 'updatedAt'],
+      rows: [],
+    };
+    if (interviews.length > 0) {
+      const csv = new Parser({ fields: headerRows.header }).parse(interviews);
+      return csv;
+    }
+    return undefined;
   }
 
   /**
@@ -310,9 +395,14 @@ module.exports = (options = {}) => {
         error: `Another "${task.type}" task is in progress`,
         state: 'aborted'
       });
-    } else {
+    } else if (task.type.startsWith('participants-')) {
       const handler = new ParticipantsTasksHandler(context.app);
       handler.process(task);
+    } else {
+      context.app.service('task').patch(task._id, {
+        error: `No handler for task with type "${task.type}"`,
+        state: 'aborted'
+      });
     }
     
     return context;
