@@ -57,12 +57,18 @@ exports.InterviewExport = class InterviewExport extends FormDataExport {
             // group by form id + form revision
             const key = `${interviewDesign.name}-${step.name}-${step.form}-${step.revision}`;
 
+            const stepData = {
+              id: itw.identifier ? itw.identifier : itw.code,
+              _code: itw.code,
+              ...step.data,
+            };
+
             await this.appendExportData(
               exportData,
               key,
               step.form,
               step.revision,
-              step.data,
+              stepData,
               { multiple: false }
             );
 
