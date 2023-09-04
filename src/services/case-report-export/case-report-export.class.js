@@ -63,9 +63,9 @@ exports.CaseReportExport = class CaseReportExport extends FormDataExport {
             cr.data,
             {
               multiple: caseReportForm.repeatPolicy === 'multiple',
-              entityType: 'CaseReport'
+              entityType: 'CaseReport',
+              groupId: cr._id.toString()
             },
-            cr._id.toString()
           );
 
           exportData.exportResults[key].caseReportForm = caseReportForm;

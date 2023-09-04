@@ -28,9 +28,8 @@ exports.FormDataExport = class FormDataExport {
    * @param {string} revision The form revision number
    * @param {Object} data The collected data
    * @param {Object} multipleOptions Whether to transfer row id to the group id
-   * @param {string} groupId When multiple, the id to group by
    */
-  async appendExportData(exportData, key, form, revision, data, multipleOptions, groupId) {
+  async appendExportData(exportData, key, form, revision, data, multipleOptions) {
     if (!exportData.exportResults[key]) {
       const formRevision = await this.getFormRevision(exportData, form, revision);
       const schema = formRevision.schema;
@@ -69,7 +68,7 @@ exports.FormDataExport = class FormDataExport {
       };
     }
 
-    const exportResult = await this.extractExportData(exportData, form, revision, data, multipleOptions.multiple, groupId);
+    const exportResult = await this.extractExportData(exportData, form, revision, data, multipleOptions.multiple, multipleOptions.groupId);
 
     const fields = exportData.exportResults[key].fields.concat(exportResult.fields);
     // unique field names
