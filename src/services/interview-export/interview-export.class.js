@@ -58,8 +58,7 @@ exports.InterviewExport = class InterviewExport extends FormDataExport {
             const key = `${interviewDesign.name}-${step.name}-${step.form}-${step.revision}`;
 
             const stepData = {
-              id: itw.identifier ? itw.identifier : itw.code,
-              _code: itw.code,
+              _id: itw.identifier ? itw.identifier : itw.code,
               ...step.data,
             };
 
