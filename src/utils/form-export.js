@@ -173,8 +173,14 @@ exports.FormDataExport = class FormDataExport {
           const npath = path ? [...path] : [];
           npath.push(item.name);
           const rval2 = this.flattenByItems(item.items, data[item.name], npath);
+          const prefix = npath.join('.') + '.';
           Object.entries(rval2).forEach(([key, value]) => {
-            rval[npath.join('.') + '.' + key] = value;
+            if (key.startsWith(prefix)) {
+              // case of a sub group, items have already been flattened
+              rval[key] = value;
+            } else {
+              rval[prefix + key] = value;
+            }
           });
         } else {
           rval[item.name] = this.marshallValue(data[item.name]);
@@ -206,7 +212,7 @@ exports.FormDataExport = class FormDataExport {
           entityType: options.entityType,
           i18n: options.i18n,
           repeated: options.repeated,
-          prefix: item.name
+          prefix: prefix + item.name
         });
         if (Array.isArray(vars)) {
           vars.forEach(v => variables.push(v));
