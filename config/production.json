@@ -1,7 +1,14 @@
 {
-  "client_urls": "https://amber-studio.example.org,https://amber-collect.example.org",
-  "amber_studio_url": "https://amber-studio.example.org",
-  "amber_collect_url": "https://amber-collect.example.org",
-  "amber_visit_url": "https://amber-visit.example.org",
+  "client_urls": "https://wwww.example.org",
+  "api_url": "https://www.example.org/api",
+  "amber_studio_url": "https://www.example.org/studio",
+  "amber_collect_url": "https://www.example.org/collect",
+  "amber_visit_url": "https://www.example.org/visit",
+  "group_urls": {
+    "_example": {
+      "amber_collect_url": "https://www.example.org/collect_example",
+      "amber_visit_url": "https://www.example.org/visit_example"
+    }
+  },
   "encrypt_data": true
 }

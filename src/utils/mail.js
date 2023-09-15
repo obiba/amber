@@ -14,7 +14,7 @@ exports.MailBuilder = class MailBuilder {
    * @param {Object} context The data that can be injected in the email subject/body
    * @returns 
    */
-  buildEmail(type, user, context) {
+  async buildEmail(type, user, context) {
     logger.debug('type', type);
     const emailTemplates = this.app.get('email_templates');
     if (emailTemplates[type]) {
@@ -36,6 +36,8 @@ exports.MailBuilder = class MailBuilder {
         html = emailTemplates[type][user.language] ? emailTemplates[type][user.language].html : emailTemplates[type].en.html;
       }
 
+      const clientUrls = await this.getClientUrls(user);
+
       const ctx = {
         ...context,
         email: user.email,
@@ -44,9 +46,7 @@ exports.MailBuilder = class MailBuilder {
         language: user.language,
         role: user.role,
         app_name: (process.env.APP_NAME || 'Amber'),
-        amber_studio_url: (process.env.AMBER_STUDIO_URL || this.app.get('amber_studio_url')),
-        amber_collect_url: (process.env.AMBER_COLLECT_URL || this.app.get('amber_collect_url')),
-        amber_visit_url: (process.env.AMBER_VISIT_URL || this.app.get('amber_visit_url'))
+        ...clientUrls
       };
 
       logger.debug('Email context', ctx);
@@ -62,8 +62,8 @@ exports.MailBuilder = class MailBuilder {
     }
   }
 
-  sendEmail(type, user, context, dryRun) {
-    const email = this.buildEmail(type, user, context);
+  async sendEmail(type, user, context, dryRun) {
+    const email = await this.buildEmail(type, user, context);
     if (!email) return;
     
     email.to = [ user.email ];
@@ -83,6 +83,38 @@ exports.MailBuilder = class MailBuilder {
           logger.error('Error sending email', err);
         });
     }
-    
+  }
+
+  async getClientUrls(user) {
+    const rval = {
+      amber_studio_url: (process.env.AMBER_STUDIO_URL || this.app.get('amber_studio_url')),
+      amber_collect_url: (process.env.AMBER_COLLECT_URL || this.app.get('amber_collect_url')),
+      amber_visit_url: (process.env.AMBER_VISIT_URL || this.app.get('amber_visit_url'))
+    };
+
+    // look up for more specific client urls
+    const groupUrls = this.app.get('group_urls');
+    if (groupUrls) {
+      const groupService = this.app.service('group');
+      const result = await groupService.find({ query: { 
+        $limit: this.app.get('paginate').max,
+        users: user._id 
+      }});
+      const groups = result.data;
+      for (const group of groups) {
+        if (groupUrls[group.name]) {
+          if (groupUrls[group.name].amber_collect_url) {
+            rval.amber_collect_url = groupUrls[group.name].amber_collect_url;
+          }
+          if (groupUrls[group.name].amber_visit_url) {
+            rval.amber_visit_url = groupUrls[group.name].amber_visit_url;
+          }
+          // stop at first matching group
+          break;
+        }
+      }
+    }
+
+    return rval;
   }
 };
