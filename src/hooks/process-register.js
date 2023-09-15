@@ -36,18 +36,21 @@ module.exports = (options = {}) => {
       return str;
     };
 
-    const signupConfig = app.get('signup');
-    const domain = context.data.email.split('@')[1];
-    const whiteList = stringToArray(process.env.SIGNUP_WHITELIST) || signupConfig.whitelist;
-    if (whiteList && whiteList.length > 0) {
-      if (!whiteList.includes('*') && !whiteList.includes(domain)) {
-        throw new Forbidden('Signup is forbidden for this email domain');
+    if (params.authentication.strategy === 'anonymous') {
+      // this is a signup
+      const signupConfig = app.get('signup');
+      const domain = context.data.email.split('@')[1];
+      const whiteList = stringToArray(process.env.SIGNUP_WHITELIST) || signupConfig.whitelist;
+      if (whiteList && whiteList.length > 0) {
+        if (!whiteList.includes('*') && !whiteList.includes(domain)) {
+          throw new Forbidden('Signup is forbidden for this email domain');
+        }
       }
-    }
-    const blackList = stringToArray(process.env.SIGNUP_BLACKLIST) || signupConfig.blacklist;
-    if (blackList && blackList.length > 0) {
-      if (blackList.includes('*') || blackList.includes(domain)) {
-        throw new Forbidden('Signup is forbidden for this email domain');
+      const blackList = stringToArray(process.env.SIGNUP_BLACKLIST) || signupConfig.blacklist;
+      if (blackList && blackList.length > 0) {
+        if (blackList.includes('*') || blackList.includes(domain)) {
+          throw new Forbidden('Signup is forbidden for this email domain');
+        }
       }
     }
     
