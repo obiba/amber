@@ -37,7 +37,7 @@ module.exports = (options = {}) => {
     };
 
     if (params.authentication.strategy === 'anonymous') {
-      // this is a signup
+      // this is a signup, not a direct user creation
       const signupConfig = app.get('signup');
       const domain = context.data.email.split('@')[1];
       const whiteList = stringToArray(process.env.SIGNUP_WHITELIST) || signupConfig.whitelist;
