@@ -41,6 +41,10 @@
       "header": "x-access-token"
     }
   },
+  "signup": {
+    "whitelist": ["*"],
+    "blacklist": ["example.com", "example.org"]
+  },
   "mongodb": "mongodb://localhost:27017/amber",
   "smtp": {
     "host": "some_smtp_host",
