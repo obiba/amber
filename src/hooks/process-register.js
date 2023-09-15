@@ -29,15 +29,24 @@ module.exports = (options = {}) => {
       }
     }
 
+    const stringToArray = (str) => {
+      if (str) {
+        return str.split(',').map((s) => s.trim());
+      }
+      return str;
+    };
+
     const signupConfig = app.get('signup');
     const domain = context.data.email.split('@')[1];
-    if (signupConfig.whitelist) {
-      if (!signupConfig.whitelist.includes('*') && !signupConfig.whitelist.includes(domain)) {
+    const whiteList = stringToArray(process.env.SIGNUP_WHITELIST) || signupConfig.whitelist;
+    if (whiteList && whiteList.length > 0) {
+      if (!whiteList.includes('*') && !whiteList.includes(domain)) {
         throw new Forbidden('Signup is forbidden for this email domain');
       }
     }
-    if (signupConfig.blacklist && signupConfig.blacklist.length > 0) {
-      if (signupConfig.blacklist.includes(domain)) {
+    const blackList = stringToArray(process.env.SIGNUP_BLACKLIST) || signupConfig.blacklist;
+    if (blackList && blackList.length > 0) {
+      if (blackList.includes('*') || blackList.includes(domain)) {
         throw new Forbidden('Signup is forbidden for this email domain');
       }
     }

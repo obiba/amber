@@ -74,6 +74,8 @@ Amber uses [dotenv](https://github.com/motdotla/dotenv) for environment variable
 * `MONGODB_URL`, the MongoDB connection string
 * `ENCRYPT_DATA`, whether the patient/participant data should be encrypted in the database
 * `RECAPTCHA_SECRET_KEY`, the [reCAPTCHA v3](https://developers.google.com/recaptcha/docs/v3) secret key.
+* `SIGNUP_WHITELIST`, the list of email domains that are allowed to signup. Use '*' for wild card. Default is all.
+* `SIGNUP_BLACKLIST`, the list of email domains that are NOT allowed to signup. Use '*' for wild card. Default is none.
 * `GMAIL`, the Gmail user name for the notification service
 * `GMAIL_PASSWORD`, the Gmail user password for the notification service
 * `SENDINBLUE_API_KEY`, the [Sendinblue](https://www.sendinblue.com/) API key for the notification service
