@@ -41,10 +41,6 @@ class ApiKeyStrategy extends AuthenticationBaseStrategy {
 }
 
 class ParticipantStrategy extends AuthenticationBaseStrategy {
-  
-  async hashPassword (password) {
-    return bcrypt.hash(password, this.configuration.hashSize || 10);
-  }
 
   // eslint-disable-next-line no-unused-vars
   async authenticate(data) {
@@ -73,8 +69,7 @@ class ParticipantStrategy extends AuthenticationBaseStrategy {
         || (campaign.validUntil && now > campaign.validUntil.getTime())) {
         throw new NotAuthenticated('Not a valid participant code');
       }
-      // Password check
-      // FIXME should it be configured at the campaign definition level?
+      // Password check, requirement is configured at the campaign definition level?
       if (campaign.withPassword) {
         if (!data.password) {
           throw new NotAuthenticated('A participant password is required');
@@ -86,10 +81,8 @@ class ParticipantStrategy extends AuthenticationBaseStrategy {
               throw new NotAuthenticated('Wrong participant password');
             }
           } else {
-            // first visit: hash and set password
-            // FIXME set some password rules (at least min length)
-            const pwd = await this.hashPassword(data.password);
-            entityService.patch(participant._id, { password: pwd });
+            // first visit: set password (hash and checks will happen in a participant service hook)
+            await entityService.patch(participant._id, { password: data.password });
           }
         }
       }

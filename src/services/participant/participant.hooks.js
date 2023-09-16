@@ -11,6 +11,8 @@ const participantEncrypt = require('../../hooks/participant-encrypt');
 const participantDecrypt = require('../../hooks/participant-decrypt');
 const participantInterviewerAuthz = require('../../hooks/participant-interviewer-authz');
 
+const participantPasswordHash = require('../../hooks/participant-password-hash');
+
 module.exports = {
   before: {
     all: [
@@ -27,15 +29,18 @@ module.exports = {
     create: [
       participantCreate(),
       authorize({ adapter: 'feathers-mongoose' }),
-      participantEncrypt()
+      participantEncrypt(),
+      participantPasswordHash()
     ],
     update: [
       authorize({ adapter: 'feathers-mongoose' }),
-      participantEncrypt()
+      participantEncrypt(),
+      participantPasswordHash()
     ],
     patch: [
       authorize({ adapter: 'feathers-mongoose' }),
-      participantEncrypt()
+      participantEncrypt(),
+      participantPasswordHash()
     ],
     remove: [
       authorize({ adapter: 'feathers-mongoose' })

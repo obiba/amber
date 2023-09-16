@@ -5,7 +5,7 @@ const { defineAbilitiesFor } = require('./task.abilities');
 const makeAbilities = require('../../hooks/make-abilities');
 const allowApiKey = require('../../hooks/allow-api-key');
 const searchQuery = require('../../hooks/search-query');
-const participantsTaskCreated = require('../../hooks/participants-task-created');
+const taskCreated = require('../../hooks/task-created');
 
 module.exports = {
   before: {
@@ -29,7 +29,7 @@ module.exports = {
     all: [authorize({ adapter: 'feathers-mongoose' })],
     find: [],
     get: [],
-    create: [participantsTaskCreated()],
+    create: [taskCreated()],
     update: [],
     patch: [],
     remove: []

@@ -39,14 +39,14 @@ exports.MailBuilder = class MailBuilder {
       const clientUrls = await this.getClientUrls(user);
 
       const ctx = {
-        ...context,
+        ...clientUrls,
         email: user.email,
         firstname: user.firstname,
         lastname: user.lastname,
         language: user.language,
         role: user.role,
         app_name: (process.env.APP_NAME || 'Amber'),
-        ...clientUrls
+        ...context
       };
 
       logger.debug('Email context', ctx);

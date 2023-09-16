@@ -34,7 +34,9 @@
       "passwordField": "password"
     },
     "participant": {
-      "service": "participant"
+      "service": "participant",
+      "hashSize": 10,
+      "passwordLength": 8
     },
     "apiKey": {
       "allowedKeys": [ "CHANGEME" ],

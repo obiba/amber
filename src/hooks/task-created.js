@@ -103,6 +103,7 @@ class ParticipantsTasksHandler {
 
   async scanParticipantsForInit(study, interviewDesign, campaign) {
     const now = new Date();
+    const visitUrl = this.getAmberVisitUrl(campaign);
     const participantsResult = await this.app.service('participant')
       .find({
         query: {
@@ -115,7 +116,7 @@ class ParticipantsTasksHandler {
     const participants = participantsResult.data.filter(this.isParticipantValid);
     if (participants.length > 0) {
       // participants list as a csv file
-      const csv = this.toParticipantsCSV(participants);
+      const csv = this.toParticipantsCSV(participants, visitUrl);
       // send mail to each investigator
       const builder = new MailBuilder(this.app);
       for (const investigator of campaign.investigators) {
@@ -125,6 +126,7 @@ class ParticipantsTasksHandler {
           study: study.name,
           interview: interviewDesign.name,
           campaign: campaign.name,
+          amber_visit_url: visitUrl,
           attachments: [
             {
               filename: 'participants.csv',
@@ -145,6 +147,7 @@ class ParticipantsTasksHandler {
 
   async scanParticipantsForReminders(study, interviewDesign, campaign) {
     const now = new Date();
+    const visitUrl = this.getAmberVisitUrl(campaign);
     const participantsResult = await this.app.service('participant')
       .find({
         query: {
@@ -165,7 +168,7 @@ class ParticipantsTasksHandler {
           .filter((p) => p.reminders.length === i);
         if (participantsToRemind.length > 0) {
           // participants list as a csv file
-          const csv = this.toParticipantsCSV(participantsToRemind);
+          const csv = this.toParticipantsCSV(participantsToRemind, visitUrl);
           // send mail to each investigator
           const builder = new MailBuilder(this.app);
           for (const investigator of campaign.investigators) {
@@ -175,6 +178,7 @@ class ParticipantsTasksHandler {
               study: study.name,
               interview: interviewDesign.name,
               campaign: campaign.name,
+              amber_visit_url: visitUrl,
               reminder: i + 1,
               attachments: [
                 {
@@ -197,6 +201,14 @@ class ParticipantsTasksHandler {
         }
       }
     }
+  }
+
+  getAmberVisitUrl(campaign) {
+    let visitUrl = campaign.visitUrl || this.app.get('amber_visit_url');
+    if (!visitUrl.endsWith('/')) {
+      visitUrl += '/';
+    }
+    return visitUrl;
   }
 
   async scanParticipantsForDeactivation(study, interviewDesign, campaign) {
@@ -312,14 +324,18 @@ class ParticipantsTasksHandler {
   /**
    * Make a CSV string from a participants array.
    * @param {Array} participants 
+   * @param {string} visitUrl 
    * @returns The csv string
    */
-  toParticipantsCSV(participants) {
+  toParticipantsCSV(participants, visitUrl) {
     const headerRows = {
       header: ['code', 'identifier'],
       rows: [],
     };
     if (participants) {
+      if (visitUrl) {
+        headerRows.header.push('url');
+      }
       const keys = participants
         .filter(participant => participant.data)
         .flatMap(participant => Object.keys(participant.data))
@@ -329,6 +345,9 @@ class ParticipantsTasksHandler {
       headerRows.rows = participants.map(datum => {
         const value = { ...datum, ...datum.data };
         delete value.data;
+        if (visitUrl) {
+          value.url = `${visitUrl}login?code=${datum.code}`;
+        }
         return value;
       });
     }
