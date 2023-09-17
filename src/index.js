@@ -13,30 +13,29 @@ const start = async () => {
   // in case there is no administrator user and seeding env variables are provided
   // seed an administrator user
   if (process.env.ADMINISTRATOR_EMAIL && process.env.ADMINISTRATOR_PWD) {
-    const userInfo = {
-      email: process.env.ADMINISTRATOR_EMAIL,
-      password: process.env.ADMINISTRATOR_PWD,
-      firstname: 'Super',
-      lastname: 'User',
-      language: 'en',
-      role: 'administrator'
-    };
-    app.service('user').find({
+    const users = await app.service('user').find({
       query: {
         $limit: 0,
         role: 'administrator'
       }
-    })
-      .then(users => {
-        if (users.total === 0) {
-          logger.debug('Seeding with: %s', userInfo);
-          try {
-            app.service('user').create(userInfo);
-          } catch (error) {
-            // ignore
-          }
-        }
-      });
+    });
+    if (users.total === 0) {
+      const userInfo = {
+        email: process.env.ADMINISTRATOR_EMAIL,
+        password: process.env.ADMINISTRATOR_PWD,
+        firstname: 'Super',
+        lastname: 'User',
+        language: 'en',
+        role: 'administrator'
+      };
+      logger.debug('Seeding with: %s', userInfo);
+      try {
+        await app.service('user').create(userInfo);
+      } catch (error) {
+        // ignore
+        logger.error(error);
+      }
+    }
   }
   
   process.on('unhandledRejection', (reason, p) =>

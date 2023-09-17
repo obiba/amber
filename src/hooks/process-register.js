@@ -36,7 +36,7 @@ module.exports = (options = {}) => {
       return str;
     };
 
-    if (params.authentication.strategy === 'anonymous') {
+    if (params.provider && params.authentication.strategy === 'anonymous') {
       // this is a signup, not a direct user creation
       const signupConfig = app.get('signup');
       const domain = context.data.email.split('@')[1];
