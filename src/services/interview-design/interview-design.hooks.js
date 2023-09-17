@@ -7,6 +7,8 @@ const interviewDesignCreate = require('../../hooks/interview-design-create');
 const searchQuery = require('../../hooks/search-query');
 const addUserGroupsToContext = require('../../hooks/user-add-groups-to-context');
 
+const interviewDesignValidate = require('../../hooks/interview-design-validate');
+
 module.exports = {
   before: {
     all: [
@@ -23,13 +25,16 @@ module.exports = {
     ],
     create: [
       authorize({ adapter: 'feathers-mongoose' }),
-      interviewDesignCreate()
+      interviewDesignCreate(),
+      interviewDesignValidate()
     ],
     update: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'feathers-mongoose' }),
+      interviewDesignValidate()
     ],
     patch: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'feathers-mongoose' }),
+      interviewDesignValidate()
     ],
     remove: [
       authorize({ adapter: 'feathers-mongoose' })
