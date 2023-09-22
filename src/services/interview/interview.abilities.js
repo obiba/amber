@@ -23,6 +23,7 @@ const defineRulesFor = (user) => {
     can('create', 'interview');
     can('patch', 'interview');
     can('read', 'interview');
+    // see interview-authz hook for restriction to interviews for which user is an investigator
   }
 
   logger.debug('  rules: ' + JSON.stringify(rules, null, '  '));

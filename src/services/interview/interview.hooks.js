@@ -9,12 +9,11 @@ const interviewCompleted = require('../../hooks/interview-completed');
 const interviewEncrypt = require('../../hooks/interview-encrypt');
 const interviewDecrypt = require('../../hooks/interview-decrypt');
 
+const interviewAuthz = require('../../hooks/interview-authz');
+
 module.exports = {
   before: {
-    all: [
-      authenticate('jwt'),
-      makeAbilities(defineAbilitiesFor)
-    ],
+    all: [authenticate('jwt'), makeAbilities(defineAbilitiesFor), interviewAuthz()],
     find: [
       searchQuery(),
       authorize({ adapter: 'feathers-mongoose' })
