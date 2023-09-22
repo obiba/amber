@@ -9,7 +9,8 @@ module.exports = function (app) {
   const schema = new Schema({
     name: { type: String, required: true },
     description: { type: String, required: false },
-    investigators: [{ type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true }],
+    investigators: [{ type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true }], // principal investigators, will receive notifications
+    supporters: [{ type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true }], // support interviewers, will NOT receive notifications
     validFrom: { type: Date },    // notifications and participants are enabled from provided date, optional
     validUntil: { type: Date },   // notifications and participants are enabled until provided date, optional
     weeksBetweenReminders: { type: Number, default: 2 },  // number of weeks to wait between invitation reminders
