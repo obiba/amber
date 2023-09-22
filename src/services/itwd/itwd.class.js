@@ -18,8 +18,8 @@ exports.Itwd = class Itwd extends ItwBase {
       identifier: participant.identifier,
       data: participant.data
     };
-    let result = await this.app.service('user').find({ query: { _id: { $in: campaign.investigators } } });
-    const investigators = result.data.map(user => {
+    let result = await this.app.service('user').find({ query: { _id: { $in: campaign.supporters } } });
+    const supporters = result.data.map(user => {
       return {
         firstname: user.firstname,
         lastname: user.lastname,
@@ -41,7 +41,7 @@ exports.Itwd = class Itwd extends ItwBase {
       steps: [],
       i18n: interviewDesign.i18n,
       participant: participantData,
-      investigators: investigators
+      supporters: supporters
     };
     for (const step of interviewDesign.steps) {
       const q = {
