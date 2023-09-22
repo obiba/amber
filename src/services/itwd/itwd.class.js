@@ -62,6 +62,7 @@ exports.Itwd = class Itwd extends ItwBase {
           label: step.label,
           description: step.description,
           time_estimate: step.time_estimate,
+          time_estimate_max: step.time_estimate_max,
           condition: step.condition,
           disable: step.disable,
           schema: frResult.data[0].schema,
