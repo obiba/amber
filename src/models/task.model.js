@@ -10,7 +10,8 @@ module.exports = function (app) {
     type: { type: String, enum: ['participants-init', 'participants-reminder', 'participants-expired', 'participants-summary'], required: true },
     state: { type: String, enum: ['in_progress', 'completed', 'aborted'], required: true, default: 'in_progress' },
     error: { type: String },
-    message: { type: String }
+    message: { type: String },
+    arguments: { type: Object, required: false },
   }, {
     timestamps: true
   });

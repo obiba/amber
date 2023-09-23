@@ -33,7 +33,7 @@ class ParticipantsTasksHandler {
     const itwds = await this.findActiveInterviewDesigns(task);
     for (const itwd of itwds) {
       const study = await this.app.service('study').get(itwd.study);
-      await this.scanCampaignsForParticipantInit(study, itwd);
+      await this.scanCampaignsForParticipantInit(task, study, itwd);
     }
     this.app.service('task').patch(task._id, {
       state: 'completed'
@@ -44,7 +44,7 @@ class ParticipantsTasksHandler {
     const itwds = await this.findActiveInterviewDesigns(task);
     for (const itwd of itwds) {
       const study = await this.app.service('study').get(itwd.study);
-      await this.scanCampaignsForParticipantReminders(study, itwd);
+      await this.scanCampaignsForParticipantReminders(task, study, itwd);
     }
     this.app.service('task').patch(task._id, {
       state: 'completed'
@@ -55,7 +55,7 @@ class ParticipantsTasksHandler {
     const itwds = await this.findActiveInterviewDesigns(task);
     for (const itwd of itwds) {
       const study = await this.app.service('study').get(itwd.study);
-      await this.scanCampaignsForParticipantDeactivation(study, itwd);
+      await this.scanCampaignsForParticipantDeactivation(task, study, itwd);
     }
     this.app.service('task').patch(task._id, {
       state: 'completed'
@@ -66,42 +66,42 @@ class ParticipantsTasksHandler {
     const itwds = await this.findActiveInterviewDesigns(task);
     for (const itwd of itwds) {
       const study = await this.app.service('study').get(itwd.study);
-      await this.scanCampaignsForParticipantSummary(study, itwd);
+      await this.scanCampaignsForParticipantSummary(task, study, itwd);
     }
     this.app.service('task').patch(task._id, {
       state: 'completed'
     });
   }
 
-  async scanCampaignsForParticipantInit(study, interviewDesign) {
-    const campaigns = await this.findValidCampaigns(interviewDesign);
+  async scanCampaignsForParticipantInit(task, study, interviewDesign) {
+    const campaigns = await this.findValidCampaigns(task, interviewDesign);
     for (const campaign of campaigns) {
-      await this.scanParticipantsForInit(study, interviewDesign, campaign);
+      await this.scanParticipantsForInit(task, study, interviewDesign, campaign);
     }
   }
 
-  async scanCampaignsForParticipantReminders(study, interviewDesign) {
-    const campaigns = await this.findValidCampaigns(interviewDesign);
+  async scanCampaignsForParticipantReminders(task, study, interviewDesign) {
+    const campaigns = await this.findValidCampaigns(task, interviewDesign);
     for (const campaign of campaigns) {
-      await this.scanParticipantsForReminders(study, interviewDesign, campaign);
+      await this.scanParticipantsForReminders(task, study, interviewDesign, campaign);
     }
   }
   
-  async scanCampaignsForParticipantDeactivation(study, interviewDesign) {
-    const campaigns = await this.findValidCampaigns(interviewDesign);
+  async scanCampaignsForParticipantDeactivation(task, study, interviewDesign) {
+    const campaigns = await this.findValidCampaigns(task, interviewDesign);
     for (const campaign of campaigns) {
-      await this.scanParticipantsForDeactivation(study, interviewDesign, campaign);
+      await this.scanParticipantsForDeactivation(task, study, interviewDesign, campaign);
     }
   }
 
-  async scanCampaignsForParticipantSummary(study, interviewDesign) {
-    const campaigns = await this.findValidCampaigns(interviewDesign);
+  async scanCampaignsForParticipantSummary(task, study, interviewDesign) {
+    const campaigns = await this.findValidCampaigns(task, interviewDesign);
     for (const campaign of campaigns) {
-      await this.scanParticipantsForSummary(study, interviewDesign, campaign);
+      await this.scanParticipantsForSummary(task, study, interviewDesign, campaign);
     }
   }
 
-  async scanParticipantsForInit(study, interviewDesign, campaign) {
+  async scanParticipantsForInit(task, study, interviewDesign, campaign) {
     const now = new Date();
     const visitUrl = this.getAmberVisitUrl(campaign);
     const participantsResult = await this.app.service('participant')
@@ -233,7 +233,7 @@ class ParticipantsTasksHandler {
     }
   }
 
-  async scanParticipantsForSummary(study, interviewDesign, campaign) {
+  async scanParticipantsForSummary(task, study, interviewDesign, campaign) {
     // get completed interviews
     const interviewsResult = await this.app.service('interview')
       .find({
@@ -287,18 +287,20 @@ class ParticipantsTasksHandler {
       .find({
         query: {
           $limit: this.app.get('paginate').max,
-          state: 'active'
+          state: 'active',
+          ...task.arguments.interviewDesign
         }
       });
     return itwdResult.data;
   }
 
-  async findValidCampaigns(interviewDesign) {
+  async findValidCampaigns(task, interviewDesign) {
     const campaignsResult = await this.app.service('campaign')
       .find({
         query: {
           $limit: this.app.get('paginate').max,
-          interviewDesign: interviewDesign._id.toString()
+          interviewDesign: interviewDesign._id.toString(),
+          ...task.arguments.campaign
         }
       });
     return campaignsResult.data.filter(this.isCampaignValid);
