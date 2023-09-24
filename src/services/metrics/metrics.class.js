@@ -53,7 +53,10 @@ exports.Metrics = class Metrics {
       this.app.service('form').find(p),
       this.app.service('case-report-form').find(p),
       this.app.service('case-report').find(p),
-      this.app.service('case-report').Model.aggregate(agg)
+      this.app.service('case-report').Model.aggregate(agg),
+      this.app.service('interview-design').find(p),
+      this.app.service('interview').find(p),
+      this.app.service('interview').Model.aggregate(agg),
     ]);
     return {
       counts: {
@@ -63,36 +66,31 @@ exports.Metrics = class Metrics {
         forms: counts[3].total,
         case_report_forms: counts[4].total,
         case_reports: counts[5].total,
-        case_reports_agg: counts[6]
+        case_reports_agg: counts[6],
+        interview_designs: counts[7].total,
+        interviews: counts[8].total,
+        interviews_agg: counts[9],
       }
     };
   }
 
   async get (id, params) {
     throw new BadRequest('Not implemented');
-    // return {};
   }
 
   async create (data, params) {
     throw new BadRequest('Not implemented');
-    // if (Array.isArray(data)) {
-    //   return Promise.all(data.map(current => this.create(current, params)));
-    // }
-    // return data;
   }
 
   async update (id, data, params) {
     throw new BadRequest('Not implemented');
-    // return data;
   }
 
   async patch (id, data, params) {
     throw new BadRequest('Not implemented');
-    // return data;
   }
 
   async remove (id, params) {
     throw new BadRequest('Not implemented');
-    // return { id };
   }
 };
