@@ -37,7 +37,9 @@ class ItwBase {
     const campaign = result.data[0];
     // an interviewer must be one of the investigators
     if (params.user) {
-      if (params.user.role === 'interviewer' && !campaign.investigators.map(id => id.toString()).includes(params.user._id.toString())) {
+      if (params.user.role === 'interviewer'
+        && !campaign.investigators.map(id => id.toString()).includes(params.user._id.toString())
+        && !campaign.supporters.map(id => id.toString()).includes(params.user._id.toString())) {
         throw new Forbidden('You are not an investigator');
       }
     }
