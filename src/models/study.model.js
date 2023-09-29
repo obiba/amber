@@ -11,6 +11,7 @@ module.exports = function (app) {
     description: { type: String, required: false },
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
     forms: { type: [Schema.Types.ObjectId], ref: 'form' },
+    services: { type: Array, default: [] },
   }, {
     timestamps: true
   });
