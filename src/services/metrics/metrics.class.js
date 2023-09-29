@@ -1,4 +1,5 @@
 const { BadRequest } = require('@feathersjs/errors');
+const { ObjectId } = require('mongoose').Types;
 
 /* eslint-disable no-unused-vars */
 exports.Metrics = class Metrics {
@@ -7,21 +8,29 @@ exports.Metrics = class Metrics {
     this.app = app;
   }
 
-  async find (params) {
+  makeCountQuery (params, entity) {
     const p = {
       query: {
         $limit: 0
       },
     };
-    const agg = [
-      /*{
-        $match: {
-          createdAt: {
-            $gte: new Date('2022-01-01'),
-            $lt: new Date('2022-04-01')
-          }
-        }
-      },*/
+    if (params.query && params.query[entity]) {
+      p.query = {
+        ...params.query[entity],
+        $limit: 0
+      };
+    }
+    return p;
+  }
+
+  makeAggregationQuery (params, entity) {
+    const agg = [];
+    if (params.query && params.query[entity]) {
+      agg.push({
+        $match: this.toMongoQuery(params.query[entity])
+      });
+    }
+    agg.push(
       {
         $group: {
           _id: {
@@ -45,18 +54,31 @@ exports.Metrics = class Metrics {
           '_id.day': 1
         }
       }
-    ];
+    );
+    return agg;
+  }
+
+  toMongoQuery (query) {
+    ['study', 'form', 'caseReportForm', 'interviewDesign', 'campaign'].forEach(entity => {
+      if (query[entity]) {
+        query[entity] = ObjectId(query[entity]);
+      }
+    });
+    return query;
+  }
+
+  async find (params) {
     const counts = await Promise.all([
-      this.app.service('user').find(p),
-      this.app.service('group').find(p),
-      this.app.service('study').find(p),
-      this.app.service('form').find(p),
-      this.app.service('case-report-form').find(p),
-      this.app.service('case-report').find(p),
-      this.app.service('case-report').Model.aggregate(agg),
-      this.app.service('interview-design').find(p),
-      this.app.service('interview').find(p),
-      this.app.service('interview').Model.aggregate(agg),
+      this.app.service('user').find(this.makeCountQuery(params, 'user')),
+      this.app.service('group').find(this.makeCountQuery(params, 'group')),
+      this.app.service('study').find(this.makeCountQuery(params, 'study')),
+      this.app.service('form').find(this.makeCountQuery(params, 'form')),
+      this.app.service('case-report-form').find(this.makeCountQuery(params, 'case-report-form')),
+      this.app.service('case-report').find(this.makeCountQuery(params, 'case-report')),
+      this.app.service('case-report').Model.aggregate(this.makeAggregationQuery(params, 'case-report')),
+      this.app.service('interview-design').find(this.makeCountQuery(params, 'interview-design')),
+      this.app.service('interview').find(this.makeCountQuery(params, 'interview')),
+      this.app.service('interview').Model.aggregate(this.makeAggregationQuery(params, 'interview')),
     ]);
     return {
       counts: {
@@ -75,7 +97,27 @@ exports.Metrics = class Metrics {
   }
 
   async get (id, params) {
-    throw new BadRequest('Not implemented');
+    if (id === 'case-report') {
+      return {
+        counts: {
+          case_reports: await this.app.service('case-report').find(this.makeCountQuery(params, 'case-report')),
+          case_reports_agg: await this.app.service('case-report').Model.aggregate(this.makeAggregationQuery(params, 'case-report')),
+        }
+      };
+    }
+    if (id === 'interview') {
+      return {
+        counts: {
+          interviews: await this.app.service('interview').find(this.makeCountQuery(params, 'interview')),
+          interviews_agg: await this.app.service('interview').Model.aggregate(this.makeAggregationQuery(params, 'interview')),
+        }
+      };
+    }
+    return {
+      counts: {
+        [id]: await this.app.service(id).find(this.makeCountQuery(params, id))
+      }
+    };
   }
 
   async create (data, params) {
