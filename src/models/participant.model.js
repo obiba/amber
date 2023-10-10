@@ -6,6 +6,10 @@ module.exports = function (app) {
   const modelName = 'participant';
   const mongooseClient = app.get('mongooseClient');
   const { Schema } = mongooseClient;
+  const ReminderSchema = new Schema({
+    type: { type: String, enum: ['participants-reminder', 'participants-reminder-expire'] },
+    date: { type: Date }
+  });
   const schema = new Schema({
     code: { type: String, required: true }, // personal invitation code
     password: { type: String },   // personal secret
@@ -13,7 +17,7 @@ module.exports = function (app) {
     validFrom: { type: Date },    // participant is enabled from provided date, optional
     validUntil: { type: Date },   // participant is enabled until provided date, optional
     initialContact: { type: Date },
-    reminders: [{ type: Date }],
+    reminders: [{ type: ReminderSchema }],
     activated: { type: Boolean, default: true }, // can be (de)activated temporarily
     lastSeen: { type: Date }, // last authentication by the participant (not on behalf of the interviewer)
     initAt: { type: Date },   // last authentication by the participant (not on behalf of the interviewer)

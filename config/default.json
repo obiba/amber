@@ -130,6 +130,16 @@
         "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>De nouveaux participants ont été enrollés pour l'entrevue <b>{interview} ({campaign}) de l'étude {study}</b>. Veuillez communiquer avec eux pour leur transmettre le code d'accès et les informer de la procédure d'entrevue.</p> <p>Les entrevues se font par l'application <a href='{amber_visit_url}'>Amber Visit</a>.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
       }
     },
+    "remindParticipantsAboutToExpire": {
+      "en": {
+        "subject": "[{app_name}] Participants About to Expire Reminder",
+        "html": "<html><p>Dear {firstname} {lastname},</p> <p>Some participants have not completed their interview <b>{interview} ({campaign}) of study {study}</b>. Their account is about to expire in {weeksReminderBeforeDeactivation} weeks. Please remind them their access code and the interview process.</p> <p>The interviews are conducted via the <a href='{amber_visit_url}'>Amber Visit</a> application.</p> <p>---<br/>This email was automatically sent, please do not reply.</p></html>"
+      },
+      "fr": {
+        "subject": "[{app_name}] Rappels de participants avant expiration",
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Des participants n'ont pas complété leur entrevue <b>{interview} ({campaign}) de l'étude {study}</b>. Leur compte expirera dans {weeksReminderBeforeDeactivation} semaines. Veuillez communiquer avec eux pour leur rappeler le code d'accès et la procédure d'entrevue.</p> <p>Les entrevues se font par l'application <a href='{amber_visit_url}'>Amber Visit</a>.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
+      }
+    },
     "remindParticipants": {
       "en": {
         "subject": "[{app_name}] Participants Reminder #{reminder}",
