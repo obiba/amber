@@ -11,6 +11,8 @@ const interviewDecrypt = require('../../hooks/interview-decrypt');
 
 const interviewAuthz = require('../../hooks/interview-authz');
 
+const interviewReopened = require('../../hooks/interview-reopened');
+
 module.exports = {
   before: {
     all: [authenticate('jwt'), makeAbilities(defineAbilitiesFor), interviewAuthz()],
@@ -28,11 +30,13 @@ module.exports = {
     ],
     update: [
       authorize({ adapter: 'feathers-mongoose' }),
-      interviewEncrypt()
+      interviewEncrypt(),
+      interviewReopened()
     ],
     patch: [
       authorize({ adapter: 'feathers-mongoose' }),
-      interviewEncrypt()
+      interviewEncrypt(),
+      interviewReopened()
     ],
     remove: [
       authorize({ adapter: 'feathers-mongoose' })

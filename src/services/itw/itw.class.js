@@ -39,6 +39,13 @@ exports.Itw = class Itw extends ItwBase {
       patched.steps = interview.steps;
       for (const step of data.steps) {
         const idx = patched.steps.map(step => step.name).indexOf(step.name);
+        if (step.state === null) {
+          // remove the step
+          if (idx >= 0) {
+            patched.steps.splice(idx, 1);
+          }
+          continue;
+        }
         const type = step.data ? (step.state === 'completed' ? 'complete' : 'pause') : 'init'; 
         if (idx<0) {
           step.actions = [

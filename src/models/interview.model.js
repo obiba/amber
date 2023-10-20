@@ -7,7 +7,7 @@ module.exports = function (app) {
   const mongooseClient = app.get('mongooseClient');
   const { Schema } = mongooseClient;
   const ActionSchema = new Schema({
-    type: { type: String, enum: ['init', 'pause', 'complete', 'invalid'], default: 'complete' },
+    type: { type: String, enum: ['init', 'pause', 'complete', 'invalid', 'reopen'], default: 'complete' },
     user: { type: String },
     timestamp: { type: Number }
   });
