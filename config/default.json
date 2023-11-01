@@ -120,6 +120,16 @@
         "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Le mot de passe a été mis à jour. Si vous n'êtes pas l'auteur de ce changement, veuillez nous contacter.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
       }
     },
+    "infoParticipantsAboutToInit": {
+      "en": {
+        "subject": "[{app_name}] Participants Activation Information",
+        "html": "<html><p>Dear {firstname} {lastname},</p> <p>Some participant accounts will soon be activated for the interview <b>{interview} ({campaign}) of study {study}</b>. The activation will happen in at most {weeksInfoBeforeActivation} weeks. Please be prepared to contact them to give their access code and the interview process. Another email will be sent to you with the access codes when accounts are activated.</p> <p>The interviews are conducted via the <a href='{amber_visit_url}'>Amber Visit</a> application.</p> <p>---<br/>This email was automatically sent, please do not reply.</p></html>"
+      },
+      "fr": {
+        "subject": "[{app_name}] Information des participants avant activation",
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Des comptes de participant seront prochainement activés pour l'entrevue <b>{interview} ({campaign}) de l'étude {study}</b>. Ces comptes seront actifs dans au plus {weeksInfoBeforeActivation} semaines. Veuillez vous préparer à communiquer avec eux pour leur transmettre leur code d'accès et la procédure d'entrevue. Un autre courriel suivra avec les codes d'accès lorsque ces comptes seront actifs.</p> <p>Les entrevues se font par l'application <a href='{amber_visit_url}'>Amber Visit</a>.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
+      }
+    },
     "initParticipants": {
       "en": {
         "subject": "[{app_name}] New Participants",
@@ -130,14 +140,14 @@
         "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>De nouveaux participants ont été enrollés pour l'entrevue <b>{interview} ({campaign}) de l'étude {study}</b>. Veuillez communiquer avec eux pour leur transmettre le code d'accès et les informer de la procédure d'entrevue.</p> <p>Les entrevues se font par l'application <a href='{amber_visit_url}'>Amber Visit</a>.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
       }
     },
-    "remindParticipantsAboutToExpire": {
+    "infoParticipantsAboutToExpire": {
       "en": {
-        "subject": "[{app_name}] Participants About to Expire Reminder",
-        "html": "<html><p>Dear {firstname} {lastname},</p> <p>Some participants have not completed their interview <b>{interview} ({campaign}) of study {study}</b>. Their account is about to expire in {weeksReminderBeforeDeactivation} weeks. Please remind them their access code and the interview process.</p> <p>The interviews are conducted via the <a href='{amber_visit_url}'>Amber Visit</a> application.</p> <p>---<br/>This email was automatically sent, please do not reply.</p></html>"
+        "subject": "[{app_name}] Participants About to Expire Information",
+        "html": "<html><p>Dear {firstname} {lastname},</p> <p>Some participants have not completed their interview <b>{interview} ({campaign}) of study {study}</b>. Their account is about to expire in {weeksInfoBeforeDeactivation} weeks. Please remind them their access code and the interview process.</p> <p>The interviews are conducted via the <a href='{amber_visit_url}'>Amber Visit</a> application.</p> <p>---<br/>This email was automatically sent, please do not reply.</p></html>"
       },
       "fr": {
-        "subject": "[{app_name}] Rappels de participants avant expiration",
-        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Des participants n'ont pas complété leur entrevue <b>{interview} ({campaign}) de l'étude {study}</b>. Leur compte expirera dans {weeksReminderBeforeDeactivation} semaines. Veuillez communiquer avec eux pour leur rappeler le code d'accès et la procédure d'entrevue.</p> <p>Les entrevues se font par l'application <a href='{amber_visit_url}'>Amber Visit</a>.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
+        "subject": "[{app_name}] Information des participants avant expiration",
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Des participants n'ont pas complété leur entrevue <b>{interview} ({campaign}) de l'étude {study}</b>. Leur compte expirera dans {weeksInfoBeforeDeactivation} semaines. Veuillez communiquer avec eux pour leur rappeler le code d'accès et la procédure d'entrevue.</p> <p>Les entrevues se font par l'application <a href='{amber_visit_url}'>Amber Visit</a>.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
       }
     },
     "remindParticipants": {

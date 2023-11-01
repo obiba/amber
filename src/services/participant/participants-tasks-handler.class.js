@@ -9,12 +9,14 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
 
   async process(task) {
     try {
-      if (task.type === 'participants-activate') {
+      if (task.type === 'participants-info-activate') {
+        await this.sendInfoBeforeActivation(task);
+      }else if (task.type === 'participants-activate') {
         await this.sendInit(task);
       } else if (task.type === 'participants-reminder') {
         await this.sendReminders(task);
-      } else if (task.type === 'participants-reminder-expire') {
-        await this.sendReminderBeforeDeactivation(task);
+      } else if (task.type === 'participants-info-expire') {
+        await this.sendInfoBeforeDeactivation(task);
       } else if (task.type === 'participants-deactivate') {
         await this.deactivate(task);
       } else if (task.type === 'participants-summary') {
@@ -26,6 +28,17 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
         state: 'aborted'
       });
     }
+  }
+
+  async sendInfoBeforeActivation(task) {
+    const itwds = await this.findActiveInterviewDesigns(task);
+    for (const itwd of itwds) {
+      const study = await this.app.service('study').get(itwd.study);
+      await this.scanCampaignsForParticipantInfoBeforeActivation(task, study, itwd);
+    }
+    this.app.service('task').patch(task._id, {
+      state: 'completed'
+    });
   }
 
   async sendInit(task) {
@@ -50,11 +63,11 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
     });
   }
 
-  async sendReminderBeforeDeactivation(task) {
+  async sendInfoBeforeDeactivation(task) {
     const itwds = await this.findActiveInterviewDesigns(task);
     for (const itwd of itwds) {
       const study = await this.app.service('study').get(itwd.study);
-      await this.scanCampaignsForParticipantReminderBeforeDeactivation(task, study, itwd);
+      await this.scanCampaignsForParticipantInfoBeforeDeactivation(task, study, itwd);
     }
     this.app.service('task').patch(task._id, {
       state: 'completed'
@@ -83,6 +96,15 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
     });
   }
 
+  async scanCampaignsForParticipantInfoBeforeActivation(task, study, interviewDesign) {
+    const campaigns = await this.findValidCampaigns(task, interviewDesign);
+    for (const campaign of campaigns) {
+      if (campaign.weeksInfoBeforeActivation > 0) {
+        await this.scanParticipantsForInfoBeforeActivation(task, study, interviewDesign, campaign);
+      }
+    }
+  }
+
   async scanCampaignsForParticipantInit(task, study, interviewDesign) {
     const campaigns = await this.findValidCampaigns(task, interviewDesign);
     for (const campaign of campaigns) {
@@ -99,11 +121,11 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
     }
   }
 
-  async scanCampaignsForParticipantReminderBeforeDeactivation(task, study, interviewDesign) {
+  async scanCampaignsForParticipantInfoBeforeDeactivation(task, study, interviewDesign) {
     const campaigns = await this.findValidCampaigns(task, interviewDesign);
     for (const campaign of campaigns) {
-      if (campaign.weeksReminderBeforeDeactivation > 0) {
-        await this.scanParticipantsForReminderBeforeDeactivation(task, study, interviewDesign, campaign);
+      if (campaign.weeksInfoBeforeDeactivation > 0) {
+        await this.scanParticipantsForInfoBeforeDeactivation(task, study, interviewDesign, campaign);
       }
     }
   }
@@ -119,6 +141,67 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
     const campaigns = await this.findValidCampaigns(task, interviewDesign);
     for (const campaign of campaigns) {
       await this.scanParticipantsForSummary(task, study, interviewDesign, campaign);
+    }
+  }
+
+  async scanParticipantsForInfoBeforeActivation(study, interviewDesign, campaign) {
+    const now = new Date();
+    const visitUrl = this.getAmberVisitUrl(campaign);
+    const participantsResult = await this.app.service('participant')
+      .find({
+        query: {
+          $limit: this.app.get('paginate').max,
+          activated: false,
+          validFrom: { $exists: true },
+          campaign: campaign._id.toString(),
+          initAt: { $exists: false }
+        }
+      });
+    const participants = participantsResult.data
+      .filter((p) => p.identifier && p.validFrom.getTime() > now) // only participants with identifier and a future start date
+      .filter((p) => this.isTimeToInformBeforeActivate(p, campaign, now));
+    if (participants.length > 0) {
+      // notify by reminder occurrences
+      for (let i = 0; i < campaign.numberOfReminders; i++) {
+        // filter by reminders count and send
+        const participantsToRemind = participants
+          .filter((p) => p.reminders === undefined || p.reminders.length === 0);
+        if (participantsToRemind.length > 0) {
+          // participants list as a csv file
+          const csv = this.toParticipantsCSV(participantsToRemind, undefined);
+          // send mail to each investigator
+          const builder = new MailBuilder(this.app);
+          for (const investigator of campaign.investigators) {
+            // recipient
+            const user = await this.app.service('user').get(investigator);
+            const context = { // TODO translate
+              study: study.name,
+              interview: interviewDesign.name,
+              campaign: campaign.name,
+              amber_visit_url: visitUrl,
+              weeksInfoBeforeDeactivation: campaign.weeksInfoBeforeDeactivation,
+              attachments: [
+                {
+                  filename: 'participants.csv',
+                  contentType: 'text/plain',
+                  content: csv
+                }
+              ]
+            };
+            builder.sendEmail('infoParticipantsAboutToExpire', user, context);
+          }
+          // set participants reminder date
+          for (const participant of participantsToRemind) {
+            const reminders = [{
+              type: 'participants-info-activate',
+              date: now
+            }];
+            await this.app.service('participant')
+              .patch(participant._id, { reminders: reminders });
+          }
+          logger.info(`Reminded participants about to expire: ${participantsToRemind.map(p => p.code).join(', ')}`);
+        }
+      }
     }
   }
 
@@ -227,7 +310,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
     }
   }
 
-  async scanParticipantsForReminderBeforeDeactivation(study, interviewDesign, campaign) {
+  async scanParticipantsForInfoBeforeDeactivation(study, interviewDesign, campaign) {
     const now = new Date();
     const visitUrl = this.getAmberVisitUrl(campaign);
     const participantsResult = await this.app.service('participant')
@@ -241,7 +324,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       });
     const participants = participantsResult.data
       .filter(this.isParticipantValid)
-      .filter((p) => this.isTimeToRemindBeforeExpire(p, campaign, now));
+      .filter((p) => this.isTimeToInformBeforeExpire(p, campaign, now));
     if (participants.length > 0) {
       // notify by reminder occurrences
       for (let i = 0; i < campaign.numberOfReminders; i++) {
@@ -261,7 +344,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
               interview: interviewDesign.name,
               campaign: campaign.name,
               amber_visit_url: visitUrl,
-              weeksReminderBeforeDeactivation: campaign.weeksReminderBeforeDeactivation,
+              weeksInfoBeforeDeactivation: campaign.weeksInfoBeforeDeactivation,
               attachments: [
                 {
                   filename: 'participants.csv',
@@ -270,13 +353,13 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
                 }
               ]
             };
-            builder.sendEmail('remindParticipantsAboutToExpire', user, context);
+            builder.sendEmail('infoParticipantsAboutToExpire', user, context);
           }
           // set participants reminder date
           for (const participant of participantsToRemind) {
             const reminders = [...participant.reminders];
             reminders.push({
-              type: 'participants-reminder-expire',
+              type: 'participants-info-expire',
               date: now
             });
             await this.app.service('participant')
@@ -397,10 +480,10 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
     }
     // time between last reminder or from init date
     const delayMillis = campaign.weeksBetweenReminders * 7 * 24 * 60 * 60 * 1000;
-    if (participant.reminders.length === 0) {
+    if (participant.reminders === undefined || participant.reminders.length === 0) {
       // never been reminded
       return now.getTime() > participant.initAt.getTime() + delayMillis;
-    } else if (participant.reminders.find((r) => r.type === 'participants-reminder-expire') === undefined) {
+    } else if (participant.reminders.find((r) => r.type === 'participants-info-expire') === undefined) {
       // no expiration reminder must have been sent
       const lastRemind = participant.reminders[participant.reminders.length - 1];
       return now.getTime() > lastRemind.getTime() + delayMillis;
@@ -408,15 +491,28 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
     return false;
   }
 
-  isTimeToRemindBeforeExpire(participant, campaign, now) {
-    if (campaign.weeksReminderBeforeDeactivation <= 0) {
+  isTimeToInformBeforeActivate(participant, campaign, now) {
+    if (campaign.weeksInfoBeforeActivation <= 0) {
+      return false;
+    }
+    // time of weeks before activation
+    const delayMillis = (campaign.weeksInfoBeforeActivation) * 7 * 24 * 60 * 60 * 1000;
+    if (now.getTime() > participant.validFrom.getTime() - delayMillis) {
+      // no activation notification must have been sent
+      return participant.reminders === undefined || participant.reminders.find((r) => r.type === 'participants-info-activate') === undefined;
+    }
+    return false;
+  }
+
+  isTimeToInformBeforeExpire(participant, campaign, now) {
+    if (campaign.weeksInfoBeforeDeactivation <= 0) {
       return false;
     }
     // time from init date to weeks before deactivation
-    const delayMillis = (campaign.weeksToDeactivate - campaign.weeksReminderBeforeDeactivation) * 7 * 24 * 60 * 60 * 1000;
+    const delayMillis = (campaign.weeksToDeactivate - campaign.weeksInfoBeforeDeactivation) * 7 * 24 * 60 * 60 * 1000;
     if (now.getTime() > participant.initAt.getTime() + delayMillis) {
-      // no expiration reminder must have been sent
-      return participant.reminders.find((r) => r.type === 'participants-reminder-expire') === undefined;
+      // no expiration notification must have been sent
+      return participant.reminders === undefined || participant.reminders.find((r) => r.type === 'participants-info-expire') === undefined;
     }
     return false;
   }
@@ -435,7 +531,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
    */
   toParticipantsCSV(participants, visitUrl) {
     const headerRows = {
-      header: ['code', 'identifier'],
+      header: visitUrl ? ['code', 'identifier'] : ['identifier'],
       rows: [],
     };
     if (participants) {

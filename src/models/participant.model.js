@@ -7,7 +7,7 @@ module.exports = function (app) {
   const mongooseClient = app.get('mongooseClient');
   const { Schema } = mongooseClient;
   const ReminderSchema = new Schema({
-    type: { type: String, enum: ['participants-reminder', 'participants-reminder-expire'] },
+    type: { type: String, enum: ['participants-reminder', 'participants-info-expire'] },
     date: { type: Date }
   });
   const schema = new Schema({

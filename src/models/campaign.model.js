@@ -13,11 +13,11 @@ module.exports = function (app) {
     supporters: [{ type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true }], // support interviewers, will NOT receive notifications
     validFrom: { type: Date },    // notifications and participants are enabled from provided date, optional
     validUntil: { type: Date },   // notifications and participants are enabled until provided date, optional
-    weeksReminderBeforeActivation: { type: Number, default: 2 },  // number of weeks before activation to send a reminder
+    weeksInfoBeforeActivation: { type: Number, default: 2 },  // number of weeks before activation to send a reminder
     weeksBetweenReminders: { type: Number, default: 2 },  // number of weeks to wait between invitation reminders
     numberOfReminders: { type: Number, default: 2 },
     weeksToDeactivate: { type: Number, default: 18 },     // number of weeks from initial contact after which a participant is deactivated
-    weeksReminderBeforeDeactivation: { type: Number, default: 3 },  // number of weeks before deactivation to send a reminder
+    weeksInfoBeforeDeactivation: { type: Number, default: 3 },  // number of weeks before deactivation to send a reminder
     withPassword: { type: Boolean, default: false }, // whether participants are asked to set a password at first connection
     visitUrl: { type: String, required: false },
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
