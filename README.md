@@ -73,6 +73,7 @@ Amber uses [dotenv](https://github.com/motdotla/dotenv) for environment variable
 * `AMBER_VISIT_URL`, Amber Visit app url, to be included in the notification emails
 * `MONGODB_URL`, the MongoDB connection string
 * `ENCRYPT_DATA`, whether the patient/participant data should be encrypted in the database
+* `OTP_TIMEOUT`, is the number of minutes during which the onetime password (OTP) sent by email is valid. Default is 5; when set to 0, the email-based onetime password is deactivated. This does not apply to the time-based onetime password (TOTP) procedure, which can be activated per user.
 * `RECAPTCHA_SECRET_KEY`, the [reCAPTCHA v3](https://developers.google.com/recaptcha/docs/v3) secret key.
 * `SIGNUP_WHITELIST`, the list of email domains that are allowed to signup. Use '*' for wild card. Default is all.
 * `SIGNUP_BLACKLIST`, the list of email domains that are NOT allowed to signup. Use '*' for wild card. Default is none.

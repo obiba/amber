@@ -36,6 +36,7 @@ module.exports = function (app) {
 
     totp2faSecret: { type: String },
     totp2faRequired: { type: Boolean, default: authenticationConfig.totp2faRequired },
+    otp: { type: String }, // the temp OTP token sent to the user
     
     googleId: { type: String },
     githubId: { type: String },

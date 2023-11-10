@@ -2,7 +2,12 @@ const { AuthenticationService, JWTStrategy } = require('@feathersjs/authenticati
 const { expressOauth } = require('@feathersjs/authentication-oauth');
 const { totp2fa } = require('feathers-totp-2fa').hooks;
 const authActivity = require('./hooks/auth-activity');
+const authEmailOtp = require('./hooks/auth-email-otp');
+const { iff } = require('feathers-hooks-common');
+
 const { AnonymousStrategy, ActiveLocalStrategy, ApiKeyStrategy, ParticipantStrategy } = require('./utils/auth-strategies');
+
+
 
 module.exports = app => {
   const authentication = new AuthenticationService(app);
@@ -19,11 +24,15 @@ module.exports = app => {
     after: {
       create: [
         authActivity(),
-        totp2fa({
-          usersService: 'user',
-          applicationName: authenticationConfig.jwtOptions.issuer,
-          cryptoUtil: app.get('crypto')
-        })
+        authEmailOtp(),
+        iff(
+          context => context.result.otp !== true,
+          totp2fa({
+            usersService: 'user',
+            applicationName: authenticationConfig.jwtOptions.issuer,
+            cryptoUtil: app.get('crypto')
+          })
+        )
       ]
     }
   });

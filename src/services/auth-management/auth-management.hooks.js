@@ -22,6 +22,7 @@ module.exports = {
         'totp2faSecret',
         'totp2faRequired',
         'totp2faEnabled',
+        'otp',
         'updatedAt',
         'createdAt',
         'verifyToken',

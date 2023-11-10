@@ -19,6 +19,7 @@
       "apiKey"
     ],
     "totp2faRequired": true,
+    "otpTimeout": 5,
     "activityTimeout": "5d",
     "jwtOptions": {
       "header": {
@@ -60,6 +61,16 @@
   },
   "from_email": "no-reply@example.org",
   "email_templates": {
+    "otp": {
+      "en": {
+        "subject": "[{app_name}] New Signin",
+        "html": "<html><p>Dear {firstname} {lastname},</p> <p>Continue your authentication with the token <b>{token}</b>. This token will expire in {expire} minutes.</p> <p>If you are not the originator of this connection, please ignore this message.</p> <p>---<br/>This email was automatically sent, please do not reply.</p></html>"
+      },
+      "fr": {
+        "subject": "[{app_name}] Nouvelle connexion",
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Poursuivez votre authentification avec le jeton <b>{token}</b>. Ce jeton est valide durant {expire} minutes.</p> <p>Si vous n'êtes pas à l'origine de cette connection, veuillez ignorer ce message.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
+      }
+    },
     "notifySignup": {
       "en": {
         "subject": "[{app_name}] New Signup",
