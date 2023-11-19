@@ -20,10 +20,13 @@ exports.MailBuilder = class MailBuilder {
     if (emailTemplates[type]) {
       const FROM_EMAIL = process.env.FROM_EMAIL ? process.env.FROM_EMAIL : this.app.get('from_email');
       const subject = emailTemplates[type][user.language] ? emailTemplates[type][user.language].subject : emailTemplates[type].en.subject;
-      const file = emailTemplates[type][user.language] ? emailTemplates[type][user.language].file : emailTemplates[type].en.file;
+      let file = emailTemplates[type][user.language] ? emailTemplates[type][user.language].file : emailTemplates[type].en.file;
       let html;
       // read template from file if it exists
-      if (file) {
+      if (!file) {
+        file = `config/email_templates/${type}_${user.language}.html`;
+      }
+      if (fs.existsSync(file)) {
         try {
           html = fs.readFileSync(file, 'utf8');
         } catch (err) {
@@ -46,6 +49,7 @@ exports.MailBuilder = class MailBuilder {
         language: user.language,
         role: user.role,
         app_name: (process.env.APP_NAME || 'Amber'),
+        api_url: this.app.get('api_url'),
         ...context
       };
 
