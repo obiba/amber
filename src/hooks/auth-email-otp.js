@@ -6,6 +6,10 @@ const { authenticator } = require('otplib');
 // eslint-disable-next-line no-unused-vars
 module.exports = (options = {}) => {
   return (context) => {
+    if (!context.data || !context.result || context.data.strategy !== 'local') {
+      return context;
+    }
+
     if (context.result.user) {
       // check if OTP by email is enabled
       const timeout = process.env.OTP_TIMEOUT === undefined ? context.app.get('authentication').otpTimeout : parseInt(process.env.OTP_TIMEOUT);
