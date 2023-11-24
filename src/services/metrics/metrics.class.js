@@ -97,6 +97,19 @@ exports.Metrics = class Metrics {
   }
 
   async get (id, params) {
+    if (id === 'study') {
+      return {
+        counts: {
+          forms: (await this.app.service('form').find(this.makeCountQuery(params, 'form'))).total,
+          case_report_forms: (await this.app.service('case-report-form').find(this.makeCountQuery(params, 'case-report-form'))).total,
+          case_reports: (await this.app.service('case-report').find(this.makeCountQuery(params, 'case-report'))).total,
+          case_reports_agg: await this.app.service('case-report').Model.aggregate(this.makeAggregationQuery(params, 'case-report')),
+          interview_designs: (await this.app.service('interview-design').find(this.makeCountQuery(params, 'interview-design'))).total,
+          interviews: (await this.app.service('interview').find(this.makeCountQuery(params, 'interview'))).total,
+          interviews_agg: await this.app.service('interview').Model.aggregate(this.makeAggregationQuery(params, 'interview')),
+        }
+      };
+    }
     if (id === 'case-report') {
       return {
         counts: {
