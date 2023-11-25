@@ -23,7 +23,7 @@ exports.Metrics = class Metrics {
     return p;
   }
 
-  makeAggregationQuery (params, entity) {
+  makeTimeAggregationQuery (params, entity) {
     const agg = [];
     if (params.query && params.query[entity]) {
       agg.push({
@@ -58,6 +58,24 @@ exports.Metrics = class Metrics {
     return agg;
   }
 
+  makeStatusAggregationQuery (params, entity, stateField) {
+    const agg = [];
+    if (params.query && params.query[entity]) {
+      agg.push({
+        $match: this.toMongoQuery(params.query[entity])
+      });
+    }
+    agg.push(
+      {
+        $group: {
+          _id: `$${stateField}`,
+          count: { $sum: 1 }
+        }
+      }
+    );
+    return agg;
+  }
+
   toMongoQuery (query) {
     ['study', 'form', 'caseReportForm', 'interviewDesign', 'campaign'].forEach(entity => {
       if (query[entity]) {
@@ -75,10 +93,10 @@ exports.Metrics = class Metrics {
       this.app.service('form').find(this.makeCountQuery(params, 'form')),
       this.app.service('case-report-form').find(this.makeCountQuery(params, 'case-report-form')),
       this.app.service('case-report').find(this.makeCountQuery(params, 'case-report')),
-      this.app.service('case-report').Model.aggregate(this.makeAggregationQuery(params, 'case-report')),
+      this.app.service('case-report').Model.aggregate(this.makeTimeAggregationQuery(params, 'case-report')),
       this.app.service('interview-design').find(this.makeCountQuery(params, 'interview-design')),
       this.app.service('interview').find(this.makeCountQuery(params, 'interview')),
-      this.app.service('interview').Model.aggregate(this.makeAggregationQuery(params, 'interview')),
+      this.app.service('interview').Model.aggregate(this.makeTimeAggregationQuery(params, 'interview')),
     ]);
     return {
       counts: {
@@ -100,13 +118,13 @@ exports.Metrics = class Metrics {
     if (id === 'study') {
       return {
         counts: {
-          forms: (await this.app.service('form').find(this.makeCountQuery(params, 'form'))).total,
+          //forms: (await this.app.service('form').find(this.makeCountQuery(params, 'form'))).total,
           case_report_forms: (await this.app.service('case-report-form').find(this.makeCountQuery(params, 'case-report-form'))).total,
           case_reports: (await this.app.service('case-report').find(this.makeCountQuery(params, 'case-report'))).total,
-          case_reports_agg: await this.app.service('case-report').Model.aggregate(this.makeAggregationQuery(params, 'case-report')),
+          case_reports_agg: await this.app.service('case-report').Model.aggregate(this.makeTimeAggregationQuery(params, 'case-report')),
           interview_designs: (await this.app.service('interview-design').find(this.makeCountQuery(params, 'interview-design'))).total,
           interviews: (await this.app.service('interview').find(this.makeCountQuery(params, 'interview'))).total,
-          interviews_agg: await this.app.service('interview').Model.aggregate(this.makeAggregationQuery(params, 'interview')),
+          interviews_agg: await this.app.service('interview').Model.aggregate(this.makeTimeAggregationQuery(params, 'interview')),
         }
       };
     }
@@ -114,7 +132,7 @@ exports.Metrics = class Metrics {
       return {
         counts: {
           case_reports: await this.app.service('case-report').find(this.makeCountQuery(params, 'case-report')),
-          case_reports_agg: await this.app.service('case-report').Model.aggregate(this.makeAggregationQuery(params, 'case-report')),
+          case_reports_agg: await this.app.service('case-report').Model.aggregate(this.makeTimeAggregationQuery(params, 'case-report')),
         }
       };
     }
@@ -122,7 +140,9 @@ exports.Metrics = class Metrics {
       return {
         counts: {
           interviews: await this.app.service('interview').find(this.makeCountQuery(params, 'interview')),
-          interviews_agg: await this.app.service('interview').Model.aggregate(this.makeAggregationQuery(params, 'interview')),
+          interviews_agg: await this.app.service('interview').Model.aggregate(this.makeTimeAggregationQuery(params, 'interview')),
+          interviews_freq: await this.app.service('interview').Model.aggregate(this.makeStatusAggregationQuery(params, 'interview', 'state')),
+          participants_freq: await this.app.service('participant').Model.aggregate(this.makeStatusAggregationQuery(params, 'participant', 'activated')),
         }
       };
     }
