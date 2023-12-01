@@ -466,24 +466,26 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
 
   // eslint-disable-next-line no-unused-vars
   async findActiveInterviewDesigns(task) {
+    const args = task.arguments || {};
     const itwdResult = await this.app.service('interview-design')
       .find({
         query: {
           $limit: this.app.get('paginate').max,
           state: 'active',
-          ...task.arguments.interviewDesign
+          ...args.interviewDesign
         }
       });
     return itwdResult.data;
   }
 
   async findValidCampaigns(task, interviewDesign) {
+    const args = task.arguments || {};
     const campaignsResult = await this.app.service('campaign')
       .find({
         query: {
           $limit: this.app.get('paginate').max,
           interviewDesign: interviewDesign._id.toString(),
-          ...task.arguments.campaign
+          ...args.campaign
         }
       });
     return campaignsResult.data.filter(this.isCampaignValid);
