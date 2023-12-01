@@ -178,6 +178,9 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
               study: study.name,
               interview: interviewDesign.name,
               campaign: campaign.name,
+              study_id: study._id.toString(),
+              interview_id: interviewDesign._id.toString(),
+              campaign_id: campaign._id.toString(),
               amber_visit_url: visitUrl,
               weeksInfoBeforeDeactivation: campaign.weeksInfoBeforeDeactivation,
               attachments: [
@@ -230,6 +233,9 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
           study: study.name,
           interview: interviewDesign.name,
           campaign: campaign.name,
+          study_id: study._id.toString(),
+          interview_id: interviewDesign._id.toString(),
+          campaign_id: campaign._id.toString(),
           amber_visit_url: visitUrl,
           attachments: [
             {
@@ -282,6 +288,9 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
               study: study.name,
               interview: interviewDesign.name,
               campaign: campaign.name,
+              study_id: study._id.toString(),
+              interview_id: interviewDesign._id.toString(),
+              campaign_id: campaign._id.toString(),
               amber_visit_url: visitUrl,
               reminder: i + 1,
               attachments: [
@@ -343,6 +352,9 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
               study: study.name,
               interview: interviewDesign.name,
               campaign: campaign.name,
+              study_id: study._id.toString(),
+              interview_id: interviewDesign._id.toString(),
+              campaign_id: campaign._id.toString(),
               amber_visit_url: visitUrl,
               weeksInfoBeforeDeactivation: campaign.weeksInfoBeforeDeactivation,
               attachments: [
@@ -440,6 +452,9 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
           study: study.name,
           interview: interviewDesign.name,
           campaign: campaign.name,
+          study_id: study._id.toString(),
+          interview_id: interviewDesign._id.toString(),
+          campaign_id: campaign._id.toString(),
           inProgress: itwInProgress.length,
           completed: itwCompleted.length,
           attachments: attachments
@@ -548,7 +563,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
         const value = { ...datum, ...datum.data };
         delete value.data;
         if (visitUrl) {
-          value.url = `${visitUrl}login?code=${datum.code}`;
+          value.url = `${visitUrl}go/${datum.code}`;
         }
         return value;
       });
