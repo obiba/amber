@@ -67,6 +67,7 @@ Amber uses [dotenv](https://github.com/motdotla/dotenv) for environment variable
 * `APP_SECRET_KEY`, encryption key
 * `APP_SECRET_IV`, secret string for the encryption's initial vector,
 * `APP_URL`, JWT audience
+* `APP_API_KEYS`, the allowed API keys (comma separated values) for triggering backround tasks execution,
 * `CLIENT_URLS`, comma separated client urls, for the CORS policy
 * `AMBER_STUDIO_URL`, Amber Studio app url, to be included in the notification emails
 * `AMBER_COLLECT_URL`, Amber Collect app url, to be included in the notification emails

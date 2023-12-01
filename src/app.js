@@ -42,6 +42,9 @@ if (process.env.APP_NAME) {
 if (process.env.APP_SECRET_KEY) {
   authenticationConfig.secret = process.env.APP_SECRET_KEY;
 }
+if (process.env.APP_API_KEYS && authenticationConfig.apiKey) {
+  authenticationConfig.apiKey.allowedKeys = process.env.APP_API_KEYS.split(',').map(k => k.trim());
+}
 if (process.env.APP_URL) {
   authenticationConfig.jwtOptions.audience = process.env.APP_URL;
   app.set('api_url', process.env.APP_URL);
