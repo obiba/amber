@@ -52,8 +52,6 @@
   "smtp": {
     "host": "some_smtp_host",
     "name": "",
-    "user": "",
-    "pw": "",
     "secure": true,
     "require_tls": false,
     "logger": false,
