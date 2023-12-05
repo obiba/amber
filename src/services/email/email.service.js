@@ -8,6 +8,7 @@ const logger = require('../../logger');
 module.exports = function (app) {
   // Initialize our service with any options it requires
   let transport;
+  logger.info('Initializing email service');
   if (process.env.GMAIL) {
     transport = smtpTransport({
       service: 'gmail',
@@ -22,20 +23,23 @@ module.exports = function (app) {
     });
   } else {
     const smtpOpts = app.get('smtp');
-    const withAuth = process.env.SMTP_USER || smtpOpts.user;
     const smtpConfig = {
-      host: process.env.SMTP_HOST ? process.env.SMTP_HOST : smtpOpts.host,
-      port: process.env.SMTP_PORT ? process.env.SMTP_PORT : undefined,
-      name: process.env.SMTP_NAME ? process.env.SMTP_NAME : smtpOpts.name,
+      host: process.env.SMTP_HOST || smtpOpts.host,
+      name: process.env.SMTP_NAME || smtpOpts.name,
       secure: process.env.SMTP_SECURE !== undefined ? (process.env.SMTP_SECURE === true || process.env.SMTP_SECURE === 'true') : smtpOpts.secure,
       requireTLS: process.env.SMTP_REQUIRE_TLS !== undefined ? (process.env.SMTP_REQUIRE_TLS === true || process.env.SMTP_REQUIRE_TLS === 'true') : smtpOpts.require_tls,
       logger: process.env.SMTP_LOGGER !== undefined ? (process.env.SMTP_LOGGER === true || process.env.SMTP_LOGGER === 'true') : smtpOpts.logger,
       debug: process.env.SMTP_DEBUG !== undefined ? (process.env.SMTP_DEBUG === true || process.env.SMTP_DEBUG === 'true') : smtpOpts.debug,
-      auth: withAuth ? {
-        user: process.env.SMTP_USER ? process.env.SMTP_USER : smtpOpts.user,
-        pass: process.env.SMTP_PASSWORD ? process.env.SMTP_PASSWORD : smtpOpts.pw,
-      } : undefined
     };
+    if (process.env.SMTP_PORT || smtpOpts.port) {
+      smtpConfig.port = process.env.SMTP_PORT || smtpOpts.port;
+    }
+    if (process.env.SMTP_USER || smtpOpts.user) {
+      smtpConfig.auth = {
+        user: process.env.SMTP_USER || smtpOpts.user,
+        pass: process.env.SMTP_PASSWORD || smtpOpts.pw,
+      };
+    }
     logger.info('SMTP config: %s', JSON.stringify(smtpConfig));
     transport = smtpTransport(smtpConfig);
   }
