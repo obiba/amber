@@ -21,6 +21,7 @@ module.exports = function (app) {
     });
   } else {
     const smtpOpts = app.get('smtp');
+    const withAuth = process.env.SMTP_USER || smtpOpts.user;
     transport = smtpTransport({
       host: process.env.SMTP_HOST ? process.env.SMTP_HOST : smtpOpts.host,
       port: process.env.SMTP_PORT ? process.env.SMTP_PORT : undefined,
@@ -29,10 +30,10 @@ module.exports = function (app) {
       requireTLS: process.env.SMTP_REQUIRE_TLS !== undefined ? (process.env.SMTP_REQUIRE_TLS === true || process.env.SMTP_REQUIRE_TLS === 'true') : smtpOpts.require_tls,
       logger: process.env.SMTP_LOGGER !== undefined ? (process.env.SMTP_LOGGER === true || process.env.SMTP_LOGGER === 'true') : smtpOpts.logger,
       debug: process.env.SMTP_DEBUG !== undefined ? (process.env.SMTP_DEBUG === true || process.env.SMTP_DEBUG === 'true') : smtpOpts.debug,
-      auth: {
+      auth: withAuth ? {
         user: process.env.SMTP_USER ? process.env.SMTP_USER : smtpOpts.user,
         pass: process.env.SMTP_PASSWORD ? process.env.SMTP_PASSWORD : smtpOpts.pw,
-      }
+      } : undefined
     });
   }
   app.use(
