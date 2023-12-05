@@ -23,6 +23,7 @@ module.exports = function (app) {
     const smtpOpts = app.get('smtp');
     transport = smtpTransport({
       host: process.env.SMTP_HOST ? process.env.SMTP_HOST : smtpOpts.host,
+      port: process.env.SMTP_PORT ? process.env.SMTP_PORT : undefined,
       name: process.env.SMTP_NAME ? process.env.SMTP_NAME : smtpOpts.name,
       secure: process.env.SMTP_SECURE !== undefined ? (process.env.SMTP_SECURE === true || process.env.SMTP_SECURE === 'true') : smtpOpts.secure,
       requireTLS: process.env.SMTP_REQUIRE_TLS !== undefined ? (process.env.SMTP_REQUIRE_TLS === true || process.env.SMTP_REQUIRE_TLS === 'true') : smtpOpts.require_tls,
