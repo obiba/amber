@@ -3,6 +3,7 @@ const mailer = require('feathers-mailer');
 const hooks = require('./email.hooks');
 const smtpTransport = require('nodemailer-smtp-transport');
 const Transport = require('nodemailer-sendinblue-transport');
+const logger = require('../../logger');
 
 module.exports = function (app) {
   // Initialize our service with any options it requires
@@ -22,7 +23,7 @@ module.exports = function (app) {
   } else {
     const smtpOpts = app.get('smtp');
     const withAuth = process.env.SMTP_USER || smtpOpts.user;
-    transport = smtpTransport({
+    const smtpConfig = {
       host: process.env.SMTP_HOST ? process.env.SMTP_HOST : smtpOpts.host,
       port: process.env.SMTP_PORT ? process.env.SMTP_PORT : undefined,
       name: process.env.SMTP_NAME ? process.env.SMTP_NAME : smtpOpts.name,
@@ -34,7 +35,9 @@ module.exports = function (app) {
         user: process.env.SMTP_USER ? process.env.SMTP_USER : smtpOpts.user,
         pass: process.env.SMTP_PASSWORD ? process.env.SMTP_PASSWORD : smtpOpts.pw,
       } : undefined
-    });
+    };
+    logger.info('SMTP config: %s', JSON.stringify(smtpConfig));
+    transport = smtpTransport(smtpConfig);
   }
   app.use(
     '/email',
