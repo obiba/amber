@@ -40,7 +40,6 @@ module.exports = function (app) {
         pass: process.env.SMTP_PASSWORD || smtpOpts.pw,
       };
     }
-    logger.info('SMTP config: %s', JSON.stringify(smtpConfig));
     transport = smtpTransport(smtpConfig);
   }
   app.use(
