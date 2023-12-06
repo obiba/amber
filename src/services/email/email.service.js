@@ -3,12 +3,10 @@ const mailer = require('feathers-mailer');
 const hooks = require('./email.hooks');
 const smtpTransport = require('nodemailer-smtp-transport');
 const Transport = require('nodemailer-sendinblue-transport');
-const logger = require('../../logger');
 
 module.exports = function (app) {
   // Initialize our service with any options it requires
   let transport;
-  logger.info('Initializing email service');
   if (process.env.GMAIL) {
     transport = smtpTransport({
       service: 'gmail',
