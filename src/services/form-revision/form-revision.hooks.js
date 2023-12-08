@@ -8,8 +8,6 @@ const searchQuery = require('../../hooks/search-query');
 
 const formRevisionCheckRemove = require('../../hooks/form-revision-check-remove');
 
-const formRevisionRemoveCaseReportForms = require('../../hooks/form-revision-remove-case-report-forms');
-
 module.exports = {
   before: {
     all: [
@@ -35,8 +33,7 @@ module.exports = {
     ],
     remove: [
       authorize({ adapter: 'feathers-mongoose' }),
-      formRevisionCheckRemove(),
-      formRevisionRemoveCaseReportForms()
+      formRevisionCheckRemove()
     ]
   },
 

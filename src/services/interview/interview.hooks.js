@@ -40,6 +40,7 @@ module.exports = {
     ],
     remove: [
       authorize({ adapter: 'feathers-mongoose' })
+      // note: interviews can be orphans of their interview design
     ]
   },
 

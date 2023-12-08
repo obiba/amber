@@ -31,6 +31,7 @@ module.exports = {
     ],
     remove: [
       authorize({ adapter: 'feathers-mongoose' })
+      // note: case reports can be orphans of their CRF
     ]
   },
 

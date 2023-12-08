@@ -3,9 +3,9 @@
 
 const { FeathersError } = require('@feathersjs/errors');
 
-class FormRevisionHasCaseReports extends FeathersError {
+class FormRevisionRemoveError extends FeathersError {
   constructor(message, data) {
-    super(message, 'FormRevisionHasCaseReports', 400, 'bad-request', data);
+    super(message, 'FormRevisionRemoveError', 400, 'bad-request', data);
   }
 }
 
@@ -13,8 +13,7 @@ class FormRevisionHasCaseReports extends FeathersError {
 module.exports = (options = {}) => {
   return async context => {
 
-    if (context.id) {
-      const formRevision = await context.app.service('form-revision').get(context.id);
+    async function checkCaseReports(formRevision) {
       const result = await context.app.service('case-report').find({
         query: {
           $limit: 0,
@@ -24,32 +23,93 @@ module.exports = (options = {}) => {
       });
       if (result.total>0) {
         const form = await context.app.service('form').get(formRevision.form);
-        throw new FormRevisionHasCaseReports(`Some case reports are associated to the form ${form.name} with revision ${formRevision.revision}`, {
-          id: context.id,
+        throw new FormRevisionRemoveError(`Some case reports (${result.total}) are associated to the form ${form.name} with revision ${formRevision.revision}`, {
+          id: formRevision._id.toString(),
           form: form._id.toString(),
           name: form.name,
-          revision: formRevision.revision
+          revision: formRevision.revision,
+          type: 'case-report',
+          count: result.total
         });
       }
+    }
+
+    async function checkCaseReportForms(formRevision) {
+      const result = await context.app.service('case-report-form').find({
+        query: {
+          $limit: 0,
+          form: formRevision.form.toString(),
+          revision: formRevision.revision
+        }
+      });
+      if (result.total>0) {
+        const form = await context.app.service('form').get(formRevision.form);
+        throw new FormRevisionRemoveError(`Some case report forms (${result.total}) are associated to the form ${form.name} with revision ${formRevision.revision}`, {
+          id: formRevision._id.toString(),
+          form: form._id.toString(),
+          name: form.name,
+          revision: formRevision.revision,
+          type: 'case-report-form',
+          count: result.total
+        });
+      }
+    }
+
+    async function checkInterviews(formRevision) {
+      const result = await context.app.service('case-report').find({
+        query: {
+          $limit: 0,
+          'steps.form': formRevision.form.toString(),
+          'steps.revision': formRevision.revision
+        }
+      });
+      if (result.total>0) {
+        const form = await context.app.service('form').get(formRevision.form);
+        throw new FormRevisionRemoveError(`Some interviews (${result.total}) are associated to the form ${form.name} with revision ${formRevision.revision}`, {
+          id: formRevision._id.toString(),
+          form: form._id.toString(),
+          name: form.name,
+          revision: formRevision.revision,
+          type: 'interview',
+          count: result.total
+        });
+      }
+    }
+
+    async function checkInterviewDesigns(formRevision) {
+      const result = await context.app.service('interview-design').find({
+        query: {
+          $limit: 0,
+          'steps.form': formRevision.form.toString(),
+          'steps.revision': formRevision.revision
+        }
+      });
+      if (result.total>0) {
+        const form = await context.app.service('form').get(formRevision.form);
+        throw new FormRevisionRemoveError(`Some interview designs (${result.total}) are associated to the form ${form.name} with revision ${formRevision.revision}`, {
+          id: formRevision._id.toString(),
+          form: form._id.toString(),
+          name: form.name,
+          revision: formRevision.revision,
+          type: 'interview-design',
+          count: result.total
+        });
+      }
+    }
+
+    if (context.id) {
+      const formRevision = await context.app.service('form-revision').get(context.id);
+      await checkCaseReports(formRevision);
+      await checkCaseReportForms(formRevision);
+      await checkInterviews(formRevision);
+      await checkInterviewDesigns(formRevision);
     } else if (context.params.query) {
       const formRevisionsResult = await context.app.service('form-revision').find(context.params);
       for (let formRevision of formRevisionsResult.data) {
-        const result = await context.app.service('case-report').find({
-          query: {
-            $limit: 0,
-            form: formRevision.form.toString(),
-            revision: formRevision.revision
-          }
-        });
-        if (result.total>0) {
-          const form = await context.app.service('form').get(formRevision.form);
-          throw new FormRevisionHasCaseReports(`Some case reports are associated to the form ${form.name} with revision ${formRevision.revision}`, {
-            id: formRevision._id.toString(),
-            form: form._id.toString(),
-            name: form.name,
-            revision: formRevision.revision
-          });
-        }
+        await checkCaseReports(formRevision);
+        await checkCaseReportForms(formRevision);
+        await checkInterviews(formRevision);
+        await checkInterviewDesigns(formRevision);
       }
     }
     

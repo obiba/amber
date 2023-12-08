@@ -25,9 +25,10 @@ module.exports = (options = {}) => {
 
     if (context.id) {
       await removeParticipants(context.id);
-    }  else if (context.params.query._id && context.params.query._id.$in) {
-      for (let id of context.params.query._id.$in) {
-        await removeParticipants(id);
+    }  else if (context.params.query) {
+      const result = await context.app.service('campaign').find(context.params);
+      for (let campaign of result.data) {
+        await removeParticipants(campaign._id.toString());
       }
     }
 

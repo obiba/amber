@@ -8,7 +8,7 @@ const searchQuery = require('../../hooks/search-query');
 const formAddToStudy = require('../../hooks/form-add-to-study');
 const formRemoveFromStudy = require('../../hooks/form-remove-from-study');
 const formRemoveRevisions = require('../../hooks/form-remove-revisions');
-const formRemoveCaseReportForms = require('../../hooks/form-remove-case-report-forms');
+const formCheckRemove = require('../../hooks/form-check-remove');
 
 module.exports = {
   before: {
@@ -35,8 +35,8 @@ module.exports = {
     ],
     remove: [
       authorize({ adapter: 'feathers-mongoose' }),
-      formRemoveRevisions(),
-      formRemoveCaseReportForms()
+      formCheckRemove(), // check if the form has dependencies
+      formRemoveRevisions(), // remove form revisions before removing the form
     ]
   },
 

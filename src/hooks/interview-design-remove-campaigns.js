@@ -5,31 +5,31 @@
 module.exports = (options = {}) => {
   return async context => {
 
-    // attempt to remove forms before removing the study
-    // will fail if there are associated items (case reports, case report forms, interviews, interview designs)
-    const removeForms = async (id) => {
-      const formResult = await context.app.service('form').find({
+    // attempt to remove form campaigns before removing the interview design
+    // will remove also associated participants
+    const removeCampaigns = async (id) => {
+      const result = await context.app.service('campaign').find({
         query: {
-          study: id,
+          interviewDesign: id,
           $select: [ '_id' ]
         }
       });
       const params = {
         query: {
           _id: {
-            $in: formResult.data.map(fr => fr._id.toString())
+            $in: result.data.map(fr => fr._id.toString())
           }
         }
       };
-      await context.app.service('form').remove(null, params);
+      await context.app.service('campaign').remove(null, params);
     };
 
     if (context.id) {
-      await removeForms(context.id);
+      await removeCampaigns(context.id);
     }  else if (context.params.query) {
-      const result = await context.app.service('study').find(context.params);
+      const result = await context.app.service('interview-design').find(context.params);
       for (let id of result.data.map(fr => fr._id.toString())) {
-        await removeForms(id);
+        await removeCampaigns(id);
       }
     }
 

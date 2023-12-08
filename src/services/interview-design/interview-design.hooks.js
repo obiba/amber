@@ -9,6 +9,8 @@ const addUserGroupsToContext = require('../../hooks/user-add-groups-to-context')
 
 const interviewDesignValidate = require('../../hooks/interview-design-validate');
 
+const interviewDesignRemoveCampaigns = require('../../hooks/interview-design-remove-campaigns');
+
 module.exports = {
   before: {
     all: [
@@ -37,7 +39,8 @@ module.exports = {
       interviewDesignValidate()
     ],
     remove: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'feathers-mongoose' }),
+      interviewDesignRemoveCampaigns()
     ]
   },
 

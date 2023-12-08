@@ -26,8 +26,9 @@ module.exports = (options = {}) => {
 
     if (context.id) {
       await removeFormRevisions(context.id);
-    }  else if (context.params.query._id && context.params.query._id.$in) {
-      for (let id of context.params.query._id.$in) {
+    }  else if (context.params.query) {
+      const result = await context.app.service('form').find(context.params);
+      for (let id of result.data.map(fr => fr._id.toString())) {
         await removeFormRevisions(id);
       }
     }
