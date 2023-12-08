@@ -118,7 +118,7 @@ exports.Metrics = class Metrics {
     if (id === 'study') {
       return {
         counts: {
-          //forms: (await this.app.service('form').find(this.makeCountQuery(params, 'form'))).total,
+          forms: (await this.app.service('form').find(this.makeCountQuery(params, 'form'))).total,
           case_report_forms: (await this.app.service('case-report-form').find(this.makeCountQuery(params, 'case-report-form'))).total,
           case_reports: (await this.app.service('case-report').find(this.makeCountQuery(params, 'case-report'))).total,
           case_reports_agg: await this.app.service('case-report').Model.aggregate(this.makeTimeAggregationQuery(params, 'case-report')),
