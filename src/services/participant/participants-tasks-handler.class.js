@@ -100,7 +100,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
     const campaigns = await this.findValidCampaigns(task, interviewDesign);
     for (const campaign of campaigns) {
       if (campaign.weeksInfoBeforeActivation > 0) {
-        await this.scanParticipantsForInfoBeforeActivation(task, study, interviewDesign, campaign);
+        await this.scanParticipantsForInfoBeforeActivation(study, interviewDesign, campaign);
       }
     }
   }
@@ -108,7 +108,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
   async scanCampaignsForParticipantInit(task, study, interviewDesign) {
     const campaigns = await this.findValidCampaigns(task, interviewDesign);
     for (const campaign of campaigns) {
-      await this.scanParticipantsForInit(task, study, interviewDesign, campaign);
+      await this.scanParticipantsForInit(study, interviewDesign, campaign);
     }
   }
 
@@ -116,7 +116,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
     const campaigns = await this.findValidCampaigns(task, interviewDesign);
     for (const campaign of campaigns) {
       if (campaign.numberOfReminders > 0) {
-        await this.scanParticipantsForReminders(task, study, interviewDesign, campaign);
+        await this.scanParticipantsForReminders(study, interviewDesign, campaign);
       }
     }
   }
@@ -125,7 +125,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
     const campaigns = await this.findValidCampaigns(task, interviewDesign);
     for (const campaign of campaigns) {
       if (campaign.weeksInfoBeforeDeactivation > 0) {
-        await this.scanParticipantsForInfoBeforeDeactivation(task, study, interviewDesign, campaign);
+        await this.scanParticipantsForInfoBeforeDeactivation(study, interviewDesign, campaign);
       }
     }
   }
@@ -133,14 +133,14 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
   async scanCampaignsForParticipantDeactivation(task, study, interviewDesign) {
     const campaigns = await this.findValidCampaigns(task, interviewDesign);
     for (const campaign of campaigns) {
-      await this.scanParticipantsForDeactivation(task, study, interviewDesign, campaign);
+      await this.scanParticipantsForDeactivation(study, interviewDesign, campaign);
     }
   }
 
   async scanCampaignsForParticipantSummary(task, study, interviewDesign) {
     const campaigns = await this.findValidCampaigns(task, interviewDesign);
     for (const campaign of campaigns) {
-      await this.scanParticipantsForSummary(task, study, interviewDesign, campaign);
+      await this.scanParticipantsForSummary(study, interviewDesign, campaign);
     }
   }
 
@@ -208,7 +208,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
     }
   }
 
-  async scanParticipantsForInit(task, study, interviewDesign, campaign) {
+  async scanParticipantsForInit(study, interviewDesign, campaign) {
     const now = new Date();
     const visitUrl = this.getAmberVisitUrl(campaign);
     const participantsResult = await this.app.service('participant')
@@ -413,7 +413,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
     }
   }
 
-  async scanParticipantsForSummary(task, study, interviewDesign, campaign) {
+  async scanParticipantsForSummary(study, interviewDesign, campaign) {
     // get completed interviews
     const interviewsResult = await this.app.service('interview')
       .find({
