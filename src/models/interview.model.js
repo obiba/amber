@@ -15,7 +15,7 @@ module.exports = function (app) {
     name: { type: String, required: true }, // the step name
     form: { type: Schema.Types.ObjectId, ref: 'form', required: true },
     revision: { type: Number, required: true },
-    state: { type: String, enum: ['in_progress', 'completed'], default: 'completed' },
+    state: { type: String, enum: ['in_progress', 'completed'], default: 'in_progress' },
     actions: [ActionSchema],
     data: { type: Object, required: true, default: {} }
   });
@@ -28,7 +28,7 @@ module.exports = function (app) {
     interviewDesign: { type: Schema.Types.ObjectId, ref: 'interview-design', required: true },
     study: { type: Schema.Types.ObjectId, ref: 'study', required: true },
     steps: [{ type: stepSchema }],
-    state: { type: String, enum: ['in_progress', 'completed'], default: 'in_progress' },
+    state: { type: String, enum: ['initiated', 'in_progress', 'completed'], default: 'initiated' },
     data: { type: Object, required: true, default: {} } // participant data
   }, {
     timestamps: true
