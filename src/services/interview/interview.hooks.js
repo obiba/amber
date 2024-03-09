@@ -13,12 +13,17 @@ const interviewAuthz = require('../../hooks/interview-authz');
 
 const interviewReopened = require('../../hooks/interview-reopened');
 
+const interviewParticipantValidity = require('../../hooks/interview-participant-validity');
+
+const interviewSearch = require('../../hooks/interview-search');
+
 module.exports = {
   before: {
     all: [authenticate('jwt'), makeAbilities(defineAbilitiesFor), interviewAuthz()],
     find: [
       searchQuery(),
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'feathers-mongoose' }),
+      interviewSearch()
     ],
     get: [
       authorize({ adapter: 'feathers-mongoose' })
@@ -46,8 +51,8 @@ module.exports = {
 
   after: {
     all: [],
-    find: [interviewDecrypt()],
-    get: [interviewDecrypt()],
+    find: [interviewDecrypt(), interviewParticipantValidity()],
+    get: [interviewDecrypt(), interviewParticipantValidity()],
     create: [interviewDecrypt()],
     update: [
       interviewDecrypt(),

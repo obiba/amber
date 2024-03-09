@@ -7,7 +7,7 @@ module.exports = (options = {}) => {
 
     const rewriteQuery = (q) => {
       for (let field in q) {
-        if(q[field].$search && field.indexOf('$') == -1) {
+        if(q[field] !== undefined && q[field].$search && field.indexOf('$') == -1) {
           q[field] = { $regex: new RegExp(q[field].$search, 'i') };
         }
         if(field === '$or' || field === '$and') {

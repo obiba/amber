@@ -2,6 +2,8 @@ const { NotAuthenticated } = require('@feathersjs/errors');
 const { AuthenticationBaseStrategy } = require('@feathersjs/authentication');
 const { LocalStrategy } = require('@feathersjs/authentication-local');
 const bcrypt = require('bcryptjs');
+const { isParticipantValid, isCampaignValid } = require('./participant-validity');
+const { is } = require('date-fns/locale');
 
 class AnonymousStrategy extends AuthenticationBaseStrategy {
   // eslint-disable-next-line no-unused-vars
@@ -58,15 +60,11 @@ class ParticipantStrategy extends AuthenticationBaseStrategy {
       throw new NotAuthenticated('Not a valid participant code');
     } else {
       const participant = res.data[0];
-      const now = new Date().getTime();
-      if (!participant.activated
-        || (participant.validFrom && now < participant.validFrom.getTime())
-        || (participant.validUntil && now > participant.validUntil.getTime())) {
+      if (!isParticipantValid(participant)) {
         throw new NotAuthenticated('Not a valid participant code');
       }
       const campaign = await this.app.service('campaign').get(participant.campaign);
-      if ((campaign.validFrom && now < campaign.validFrom.getTime())
-        || (campaign.validUntil && now > campaign.validUntil.getTime())) {
+      if (!isCampaignValid(campaign)) {
         throw new NotAuthenticated('Not a valid participant code');
       }
       // Password check, requirement is configured at the campaign definition level?

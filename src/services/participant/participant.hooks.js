@@ -13,6 +13,10 @@ const participantInterviewerAuthz = require('../../hooks/participant-interviewer
 
 const participantPasswordHash = require('../../hooks/participant-password-hash');
 
+const participantValidity = require('../../hooks/participant-validity');
+
+const participantSearch = require('../../hooks/participant-search');
+
 module.exports = {
   before: {
     all: [
@@ -21,7 +25,8 @@ module.exports = {
     ],
     find: [
       searchQuery(),
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'feathers-mongoose' }),
+      participantSearch()
     ],
     get: [
       authorize({ adapter: 'feathers-mongoose' })
@@ -58,8 +63,8 @@ module.exports = {
         '__v'
       )
     ],
-    find: [participantDecrypt()],
-    get: [participantDecrypt()],
+    find: [participantDecrypt(), participantValidity()],
+    get: [participantDecrypt(), participantValidity()],
     create: [participantDecrypt()],
     update: [participantDecrypt()],
     patch: [participantDecrypt()],
