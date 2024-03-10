@@ -3,7 +3,6 @@ const { AuthenticationBaseStrategy } = require('@feathersjs/authentication');
 const { LocalStrategy } = require('@feathersjs/authentication-local');
 const bcrypt = require('bcryptjs');
 const { isParticipantValid, isCampaignValid } = require('./participant-validity');
-const { is } = require('date-fns/locale');
 
 class AnonymousStrategy extends AuthenticationBaseStrategy {
   // eslint-disable-next-line no-unused-vars
