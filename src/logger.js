@@ -13,6 +13,15 @@ if (process.env.LOG_FILE) {
     }));
 }
 
+const hideAuthenticationError = format((message) => {
+  if (level !== 'silly' && message.level === 'error' && message.hook) {
+    if (message.hook.path === 'authentication') {
+      return false;
+    }
+  }
+  return message;
+});
+
 // Configure the Winston logger. For the complete documentation see https://github.com/winstonjs/winston
 const logger = createLogger({
   // To see more detailed errors, change this to 'debug' or 'silly'
@@ -21,6 +30,7 @@ const logger = createLogger({
     format.splat(),
     format.simple(),
     format.timestamp(),
+    hideAuthenticationError(),
     //format.prettyPrint()
   ),
   transports: trans,
