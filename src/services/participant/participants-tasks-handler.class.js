@@ -503,7 +503,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
     } else if (participant.reminders.find((r) => r.type === 'participants-info-expire') === undefined) {
       // no expiration reminder must have been sent
       const lastRemind = participant.reminders[participant.reminders.length - 1];
-      return now.getTime() > lastRemind.getTime() + delayMillis;
+      return now.getTime() > lastRemind.date.getTime() + delayMillis;
     }
     return false;
   }
