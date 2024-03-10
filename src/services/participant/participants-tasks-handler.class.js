@@ -220,7 +220,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
           initAt: { $exists: false }
         }
       });
-    const participants = participantsResult.data.filter(this.isParticipantValid);
+    const participants = participantsResult.data.filter(this.isParticipantInValidRange);
     if (participants.length > 0) {
       // participants list as a csv file
       const csv = this.toParticipantsCSV(participants, visitUrl);
@@ -268,7 +268,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
         }
       });
     const participants = participantsResult.data
-      .filter(this.isParticipantValid)
+      .filter(this.isParticipantInValidRange)
       .filter((p) => this.isTimeToRemind(p, campaign, now));
     if (participants.length > 0) {
       // notify by reminder occurrences
@@ -332,7 +332,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
         }
       });
     const participants = participantsResult.data
-      .filter(this.isParticipantValid)
+      .filter(this.isParticipantInValidRange)
       .filter((p) => this.isTimeToInformBeforeExpire(p, campaign, now));
     if (participants.length > 0) {
       // notify by reminder occurrences
@@ -424,8 +424,27 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       });
     const interviews = interviewsResult.data;
     if (interviews.length > 0) {
+      const participantsResult = await this.app.service('participant')
+        .find({
+          query: { // TODO additional query params, e.g. filter by updatedAt for recent changes
+            $limit: this.app.get('paginate').max,
+            campaign: campaign._id.toString(),
+            _id: { $in: interviews.map(itw => itw.participant.toString()) }
+          }
+        });
+      const participantIds = participantsResult.data.map(p => p._id.toString());
+      const participantIdsValid = participantsResult.data
+        .filter(p => p.activated && this.isParticipantInValidRange(p))
+        .map(p => p._id.toString());
+      const participantIdsNotValid = participantsResult.data
+        .filter(p => !p.activated || !this.isParticipantInValidRange(p))
+        .map(p => p._id.toString());
+      
       const attachments = [];
-      const itwInProgress = interviews.filter((itw) => itw.state === 'in_progress');
+      // interviews in progress that could be completed
+      const itwInProgress = interviews
+        .filter((itw) => itw.state === 'in_progress')
+        .filter((itw) => participantIdsValid.includes(itw.participant.toString()));
       if (itwInProgress.length > 0) {
         const csvInProgress = this.toInterviewsCSV(itwInProgress);
         attachments.push({
@@ -434,6 +453,19 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
           content: csvInProgress
         });
       }
+      // interviews in progress that cannot be completed
+      const itwIncomplete = interviews
+        .filter((itw) => itw.state === 'in_progress')
+        .filter((itw) => participantIdsNotValid.includes(itw.participant.toString()) || !participantIds.includes(itw.participant.toString()));
+      if (itwInProgress.length > 0) {
+        const csvIncomplete = this.toInterviewsCSV(itwIncomplete);
+        attachments.push({
+          filename: 'interviews_incomplete.csv',
+          contentType: 'text/plain',
+          content: csvIncomplete
+        });
+      }
+      // completed interviews
       const itwCompleted = interviews.filter((itw) => itw.state === 'completed');
       if (itwCompleted.length > 0) {
         const csvCompleted = this.toInterviewsCSV(itwCompleted);
@@ -456,6 +488,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
           interview_id: interviewDesign._id.toString(),
           campaign_id: campaign._id.toString(),
           inProgress: itwInProgress.length,
+          incomplete: itwIncomplete.length,
           completed: itwCompleted.length,
           attachments: attachments
         };
@@ -607,7 +640,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
    * @param {Object} participant 
    * @returns 
    */
-  isParticipantValid(participant) {
+  isParticipantInValidRange(participant) {
     const now = new Date().getTime();
     return (!participant.validFrom || participant.validFrom === null || participant.validFrom.getTime() < now)
       && (!participant.validUntil || participant.validUntil === null || participant.validUntil.getTime() > now);
