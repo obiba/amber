@@ -1,5 +1,5 @@
 // interview-model.js - A mongoose model
-// 
+//
 // See http://mongoosejs.com/docs/models.html
 // for more of what you can do here.
 module.exports = function (app) {
@@ -29,7 +29,8 @@ module.exports = function (app) {
     study: { type: Schema.Types.ObjectId, ref: 'study', required: true },
     steps: [{ type: stepSchema }],
     state: { type: String, enum: ['initiated', 'in_progress', 'completed'], default: 'initiated' },
-    data: { type: Object, required: true, default: {} } // participant data
+    data: { type: Object, required: true, default: {} }, // participant data
+    fillingDate: { type: Date, required: false } // date directly entered by the interviewer, when different from last update date
   }, {
     timestamps: true
   });
@@ -40,5 +41,4 @@ module.exports = function (app) {
     mongooseClient.deleteModel(modelName);
   }
   return mongooseClient.model(modelName, schema);
-  
 };
