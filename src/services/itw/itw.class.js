@@ -2,7 +2,7 @@ const { BadRequest } = require('@feathersjs/errors');
 const { ItwBase } = require('../../utils/itw');
 
 /**
- * Get or create the interview for the requesting participant (either by the 
+ * Get or create the interview for the requesting participant (either by the
  * the participant itself, or on behalf of an interviewer).
  */
 /* eslint-disable no-unused-vars */
@@ -46,7 +46,7 @@ exports.Itw = class Itw extends ItwBase {
           }
           continue;
         }
-        const type = step.data ? (step.state === 'completed' ? 'complete' : 'pause') : 'init'; 
+        const type = step.data ? (step.state === 'completed' ? 'complete' : 'pause') : 'init';
         if (idx<0) {
           step.actions = [
             {
@@ -88,7 +88,7 @@ exports.Itw = class Itw extends ItwBase {
       // note: does not cover the cases where dependent states are not to be filled-in
       // so it is up to the client that evaluated the step activity to specify the global interview state
       if (Object.values(states).length === 0) {
-        patched.state = 'initiated';  
+        patched.state = 'initiated';
       } else {
         patched.state = Object.values(states).length < interviewDesign.steps.length || Object.values(states).includes('in_progress') ? 'in_progress' : 'completed';
       }
@@ -104,8 +104,8 @@ exports.Itw = class Itw extends ItwBase {
 
   /**
    * Make security checks, and get or create the interview for the requesting participant.
-   * @param {Object} params 
-   * @returns 
+   * @param {Object} params
+   * @returns
    */
   async getOrCreateInterview (params) {
     const { participant, campaign, interviewDesign } = await this.extractInterviewInfo(params);
@@ -141,6 +141,7 @@ exports.Itw = class Itw extends ItwBase {
       data: interview.data,
       interviewDesign: interview.interviewDesign, // for consistency with itwd service
       state: interview.state,
+      fillingDate: interview.fillingDate,
       steps: interview.steps.map(step => {
         return {
           name: step.name,
