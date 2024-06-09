@@ -84,7 +84,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       state: 'completed'
     });
   }
-  
+
   async summary(task) {
     const itwds = await this.findActiveInterviewDesigns(task);
     for (const itwd of itwds) {
@@ -129,7 +129,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       }
     }
   }
-  
+
   async scanCampaignsForParticipantDeactivation(task, study, interviewDesign) {
     const campaigns = await this.findValidCampaigns(task, interviewDesign);
     for (const campaign of campaigns) {
@@ -185,7 +185,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
               weeksInfoBeforeDeactivation: campaign.weeksInfoBeforeDeactivation,
               attachments: [
                 {
-                  filename: 'participants.csv',
+                  filename: `participants${this.getExtension()}`,
                   contentType: 'text/plain',
                   content: csv
                 }
@@ -202,7 +202,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
             await this.app.service('participant')
               .patch(participant._id, { reminders: reminders });
           }
-          logger.info(`Reminded participants about to expire: ${participantsToRemind.map(p => p.code).join(', ')}`);
+          logger.info(`[Task] Reminded participants about to expire: ${participantsToRemind.map(p => p.code).join(', ')}`);
         }
       }
     }
@@ -239,7 +239,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
           amber_visit_url: visitUrl,
           attachments: [
             {
-              filename: 'participants.csv',
+              filename: `participants${this.getExtension()}`,
               contentType: 'text/plain',
               content: csv
             }
@@ -251,7 +251,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       const ids = participants.map((participant) => participant._id);
       await this.app.service('participant')
         .patch(null, { initAt: now }, { query: { _id: { $in: ids }}});
-      logger.info(`Initialized participants: ${participants.map(p => p.code).join(', ')}`);
+      logger.info(`[Task] Initialized participants: ${participants.map(p => p.code).join(', ')}`);
     }
   }
 
@@ -295,7 +295,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
               reminder: i + 1,
               attachments: [
                 {
-                  filename: 'participants.csv',
+                  filename: `participants${this.getExtension()}`,
                   contentType: 'text/plain',
                   content: csv
                 }
@@ -313,7 +313,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
             await this.app.service('participant')
               .patch(participant._id, { reminders: reminders });
           }
-          logger.info(`Reminded participants: ${participantsToRemind.map(p => p.code).join(', ')}`);
+          logger.info(`[Task] Reminded participants: ${participantsToRemind.map(p => p.code).join(', ')}`);
         }
       }
     }
@@ -359,7 +359,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
               weeksInfoBeforeDeactivation: campaign.weeksInfoBeforeDeactivation,
               attachments: [
                 {
-                  filename: 'participants.csv',
+                  filename: `participants${this.getExtension()}`,
                   contentType: 'text/plain',
                   content: csv
                 }
@@ -377,7 +377,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
             await this.app.service('participant')
               .patch(participant._id, { reminders: reminders });
           }
-          logger.info(`Reminded participants about to expire: ${participantsToRemind.map(p => p.code).join(', ')}`);
+          logger.info(`[Task] Reminded participants about to expire: ${participantsToRemind.map(p => p.code).join(', ')}`);
         }
       }
     }
@@ -409,7 +409,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       const ids = participants.map((participant) => participant._id);
       await this.app.service('participant')
         .patch(null, { activated: false }, { query: { _id: { $in: ids }}});
-      logger.info(`Deactivated participants: ${participants.map(p => p.code).join(', ')}`);
+      logger.info(`[Task] Deactivated participants: ${participants.map(p => p.code).join(', ')}`);
     }
   }
 
@@ -439,7 +439,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       const participantIdsNotValid = participantsResult.data
         .filter(p => !p.activated || !this.isParticipantInValidRange(p))
         .map(p => p._id.toString());
-      
+
       const attachments = [];
       // interviews in progress that could be completed
       const itwInProgress = interviews
@@ -448,7 +448,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       if (itwInProgress.length > 0) {
         const csvInProgress = this.toInterviewsCSV(itwInProgress);
         attachments.push({
-          filename: 'interviews_in_progress.csv',
+          filename: `interviews_in_progress${this.getExtension()}`,
           contentType: 'text/plain',
           content: csvInProgress
         });
@@ -460,7 +460,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       if (itwInProgress.length > 0) {
         const csvIncomplete = this.toInterviewsCSV(itwIncomplete);
         attachments.push({
-          filename: 'interviews_incomplete.csv',
+          filename: `interviews_incomplete${this.getExtension()}`,
           contentType: 'text/plain',
           content: csvIncomplete
         });
@@ -470,7 +470,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       if (itwCompleted.length > 0) {
         const csvCompleted = this.toInterviewsCSV(itwCompleted);
         attachments.push({
-          filename: 'interviews_completed.csv',
+          filename: `interviews_completed${this.getExtension()}`,
           contentType: 'text/plain',
           content: csvCompleted
         });
@@ -575,8 +575,8 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
 
   /**
    * Make a CSV string from a participants array.
-   * @param {Array} participants 
-   * @param {string} visitUrl 
+   * @param {Array} participants
+   * @param {string} visitUrl
    * @returns The csv string
    */
   toParticipantsCSV(participants, visitUrl) {
@@ -603,7 +603,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
         return value;
       });
     }
-    const csv = new Parser({ fields: headerRows.header, delimiter: ';' }).parse(headerRows.rows);
+    const csv = new Parser({ fields: headerRows.header, delimiter: this.getDelimiter() }).parse(headerRows.rows);
     return csv;
   }
 
@@ -618,7 +618,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       rows: [],
     };
     if (interviews.length > 0) {
-      const csv = new Parser({ fields: headerRows.header }).parse(interviews);
+      const csv = new Parser({ fields: headerRows.header, delimiter: this.getDelimiter() }).parse(interviews);
       return csv;
     }
     return undefined;
@@ -626,8 +626,8 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
 
   /**
    * Check campaign time interval.
-   * @param {Object} campaign 
-   * @returns 
+   * @param {Object} campaign
+   * @returns
    */
   isCampaignValid(campaign) {
     const now = new Date().getTime();
@@ -637,12 +637,26 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
 
   /**
    * Check participant time interval.
-   * @param {Object} participant 
-   * @returns 
+   * @param {Object} participant
+   * @returns
    */
   isParticipantInValidRange(participant) {
     const now = new Date().getTime();
     return (!participant.validFrom || participant.validFrom === null || participant.validFrom.getTime() < now)
       && (!participant.validUntil || participant.validUntil === null || participant.validUntil.getTime() > now);
+  }
+
+  /**
+   * Get the CSV delimiter.
+   */
+  getDelimiter() {
+    return this.app.get('tasks').delimiter;
+  }
+
+  /**
+   * Get the CSV file extension.
+   */
+  getExtension() {
+    return this.app.get('tasks').extension;
   }
 };

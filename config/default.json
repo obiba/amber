@@ -55,7 +55,7 @@
     "secure": true,
     "require_tls": false,
     "logger": false,
-    "debug": false  
+    "debug": false
   },
   "from_email": "no-reply@example.org",
   "email_templates": {
@@ -179,6 +179,10 @@
         "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Ceci est un résumé de l'activité des participants pour l'entrevue <a href='{amber_studio_url}/study/{study_id}/interview-design/{interview_id}?c={campaign_id}'>{interview} ({campaign}) de l'étude {study}</a>.</p> <ul><li>Complétées: {completed}</li><li>En cours: {inProgress}</li><li>Incomplètes: {incomplete}</li></ul> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
       }
     }
+  },
+  "tasks": {
+    "delimiter": ";",
+    "extension": ".csv"
   },
   "client_urls": "*",
   "amber_studio_url": "http://localhost:3080",
