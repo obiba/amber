@@ -244,7 +244,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       });
     } else {
       logs.push({
-        level: 'info',
+        level: 'debug',
         message: `No participants before activation found for campaign: ${campaignFullName}`,
         timestamp: Date.now()
       });
@@ -305,7 +305,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       });
     } else {
       logs.push({
-        level: 'info',
+        level: 'debug',
         message: `No participants to init found for campaign: ${campaignFullName}`,
         timestamp: Date.now()
       });
@@ -385,7 +385,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
           });
         } else {
           logs.push({
-            level: 'info',
+            level: 'debug',
             message: `No participants to remind for reminder ${i + 1} found for campaign: ${campaignFullName}`,
             timestamp: Date.now()
           });
@@ -393,7 +393,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       }
     } else {
       logs.push({
-        level: 'info',
+        level: 'debug',
         message: `No participants to remind found for campaign: ${campaignFullName}`,
         timestamp: Date.now()
       });
@@ -463,7 +463,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       });
     } else {
       logs.push({
-        level: 'info',
+        level: 'debug',
         message: `No participants before deactivation found for campaign: ${campaignFullName}`,
         timestamp: Date.now()
       });
@@ -507,7 +507,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       });
     } else {
       logs.push({
-        level: 'info',
+        level: 'debug',
         message: `No participants to deactivate found for campaign: ${campaignFullName}`,
         timestamp: Date.now()
       });
@@ -563,7 +563,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
         });
       } else {
         logs.push({
-          level: 'info',
+          level: 'debug',
           message: `No interviews in progress for campaign: ${campaignFullName}`,
           timestamp: Date.now()
         });
@@ -586,7 +586,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
         });
       } else {
         logs.push({
-          level: 'info',
+          level: 'debug',
           message: `No interviews incomplete for campaign: ${campaignFullName}`,
           timestamp: Date.now()
         });
@@ -607,7 +607,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
         });
       } else {
         logs.push({
-          level: 'info',
+          level: 'debug',
           message: `No interviews completed for campaign: ${campaignFullName}`,
           timestamp: Date.now()
         });
@@ -633,7 +633,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       }
     } else {
       logs.push({
-        level: 'info',
+        level: 'debug',
         message: `No interviews found for campaign: ${campaignFullName}`,
         timestamp: Date.now()
       });
@@ -681,8 +681,8 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       return now.getTime() > participant.initAt.getTime() + delayMillis;
     } else if (reminders.find((r) => r.type === 'participants-info-expire') === undefined) {
       // no expiration reminder must have been sent
-      const lastRemind = participant.reminders[participant.reminders.length - 1];
-      return now.getTime() > lastRemind.date.getTime() + delayMillis;
+      const lastRemind = reminders[reminders.length - 1];
+      return lastRemind.date && now.getTime() > (lastRemind.date.getTime() + delayMillis);
     }
     return false;
   }
