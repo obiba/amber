@@ -1,16 +1,22 @@
 // task-model.js - A mongoose model
-// 
+//
 // See http://mongoosejs.com/docs/models.html
 // for more of what you can do here.
 module.exports = function (app) {
   const modelName = 'task';
   const mongooseClient = app.get('mongooseClient');
   const { Schema } = mongooseClient;
+  const logSchema = new Schema({
+    level: { type: String, required: true },
+    message: { type: String, required: true },
+    timestamp: { type: Date, required: true }
+  });
   const schema = new Schema({
     type: { type: String, enum: ['participants-info-activate', 'participants-activate', 'participants-reminder', 'participants-info-expire', 'participants-deactivate', 'participants-summary'], required: true },
     state: { type: String, enum: ['in_progress', 'completed', 'aborted'], required: true, default: 'in_progress' },
     error: { type: String },
     message: { type: String },
+    logs: [logSchema],
     arguments: { type: Object, required: false },
   }, {
     timestamps: true
@@ -22,5 +28,5 @@ module.exports = function (app) {
     mongooseClient.deleteModel(modelName);
   }
   return mongooseClient.model(modelName, schema);
-  
+
 };
