@@ -9,10 +9,13 @@ module.exports = (options = {}) => {
         // sanitize result
         delete context.result.totp2faSecret;
       }
-      if (context.result._id && context.data && context.data.action && context.data.action.startsWith('resetPwd')) {
+      if (context.result.email && context.data && context.data.action && context.data.action.startsWith('resetPwd')) {
         // reset 2FA secret
         context.result.totp2faEnabled = false;
-        context.app.service('user').patch(context.result._id, { totp2faSecret: null });
+        const res = await context.app.service('user').find({ query: { email: context.result.email } });
+        if (res.data && res.data.length > 0) {
+          context.app.service('user').patch(res.data[0]._id, { totp2faSecret: null });
+        }
       }
     }
     return context;
