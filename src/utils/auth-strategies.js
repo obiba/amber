@@ -1,8 +1,9 @@
 const { NotAuthenticated } = require('@feathersjs/errors');
 const { AuthenticationBaseStrategy } = require('@feathersjs/authentication');
 const { LocalStrategy } = require('@feathersjs/authentication-local');
-const bcrypt = require('bcryptjs');
 const { isParticipantValid, isCampaignValid } = require('./participant-validity');
+const { comparePassword } = require('./password-hasher');
+const { get } = require('lodash');
 
 class AnonymousStrategy extends AuthenticationBaseStrategy {
   // eslint-disable-next-line no-unused-vars
@@ -24,17 +25,34 @@ class ActiveLocalStrategy extends LocalStrategy {
       $limit: 1
     };
   }
+
+  async comparePassword (entity, password) {
+    const { entityPasswordField, errorMessage } = this.configuration;
+    // find password in entity, this allows for dot notation
+    const hash = get(entity, entityPasswordField);
+
+    if (!hash) {
+      throw new NotAuthenticated(errorMessage);
+    }
+    const result = await comparePassword(password, hash);
+
+    if (result) {
+      return entity;
+    }
+
+    throw new NotAuthenticated(errorMessage);
+  }
 }
 
 class ApiKeyStrategy extends AuthenticationBaseStrategy {
   async authenticate(authentication) {
     const { token } = authentication;
-  
+
     const config = this.authentication.configuration[this.name];
 
     const match = config.allowedKeys.includes(token);
     if (!match) throw new NotAuthenticated('Incorrect API Key');
-  
+
     return {
       apiKey: true
     };
@@ -73,7 +91,7 @@ class ParticipantStrategy extends AuthenticationBaseStrategy {
         } else {
           if (participant.password) {
             // following visits: compare password hashes
-            const result = await bcrypt.compare(data.password, participant.password);
+            const result = await comparePassword(data.password, participant.password);
             if (!result) {
               throw new NotAuthenticated('Wrong participant password');
             }

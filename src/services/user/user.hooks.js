@@ -18,6 +18,8 @@ const addUserToGroupDomain = require('../../hooks/user-add-to-group-domain');
 const userDeleteFromGroups = require('../../hooks/user-delete-from-groups');
 const checkUpdateUser = require('../../hooks/check-update-user');
 
+const { hashPassword } = require('../../utils/password-hasher');
+
 const {
   discard,
   iff,
@@ -26,7 +28,6 @@ const {
 } = require('feathers-hooks-common');
 
 const {
-  hashPassword,
   protect,
 } = require('@feathersjs/authentication-local').hooks;
 
@@ -160,7 +161,12 @@ module.exports = {
         validate.mongoose(schema, joiOptions))
         .else(
           validate.mongoose(adminCreateSchema, joiOptions)),
-      hashPassword('password'),
+      async context => {
+        if (context.data && context.data.password) {
+          context.data.password = await hashPassword(context.data.password);
+        }
+        return context;
+      },
       verifyHooks.addVerification(),
       authorize({ adapter: 'feathers-mongoose' })
     ],
@@ -248,8 +254,8 @@ module.exports = {
       accountService(context.app).notifier(
         'resendVerifySignup',
         context.data);
-    }, verifyHooks.removeVerification(), 
-    addUserToGroupDomain(), 
+    }, verifyHooks.removeVerification(),
+    addUserToGroupDomain(),
     userSignupNotifyAdmin()],
     update: [
       authorize({ adapter: 'feathers-mongoose' })

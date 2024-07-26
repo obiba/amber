@@ -1,5 +1,5 @@
 const { BadRequest } = require('@feathersjs/errors');
-const bcrypt = require('bcryptjs');
+const { hashPassword } = require('../utils/password-hasher');
 
 // eslint-disable-next-line no-unused-vars
 module.exports = (options = {}) => {
@@ -10,9 +10,6 @@ module.exports = (options = {}) => {
       if (context.data.password.length < (authConfig.passwordLength || 8)) {
         throw new BadRequest('Password too short');
       }
-      const hashPassword = async (password) => {
-        return bcrypt.hash(password, authConfig.hashSize || 10);
-      };
       const pwd = await hashPassword(context.data.password);
       context.data.password = pwd;
     }
