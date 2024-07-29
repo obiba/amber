@@ -191,7 +191,12 @@ module.exports = {
           'resetExpires'
         ),
         validate.mongoose(adminUpdateSchema, joiOptions),
-        hashPassword('password')
+        async context => {
+        if (context.data && context.data.password) {
+          context.data.password = await hashPassword(context.data.password);
+        }
+        return context;
+      }
       ),
       authorize({ adapter: 'feathers-mongoose' })
     ],
@@ -216,7 +221,12 @@ module.exports = {
           'resetExpires'
         ),
         validate.mongoose(adminUpdateSchema, joiOptions),
-        hashPassword('password')
+        async context => {
+        if (context.data && context.data.password) {
+          context.data.password = await hashPassword(context.data.password);
+        }
+        return context;
+      }
       ),
       authorize({ adapter: 'feathers-mongoose' })
     ],
