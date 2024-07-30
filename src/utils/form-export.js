@@ -191,7 +191,7 @@ exports.FormDataExport = class FormDataExport {
   }
 
   marshallValue (value) {
-    if(typeof(value) === 'object') {
+    if (value && typeof value === 'object') {
       // simplify geojson value to its coordinates, the type of feature will be in the data dictionary
       if (value.type && value.type === 'Feature' && value.geometry && value.geometry.coordinates) {
         return JSON.stringify(value.geometry.coordinates);
