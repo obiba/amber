@@ -135,6 +135,13 @@ const userSanitize = require('../../hooks/user-sanitize');
 
 const userTotp2Fa = require('../../hooks/user-totp2fa');
 
+const passwordHasher = async context => {
+  if (context.data && context.data.password) {
+    context.data.password = await hashPassword(context.data.password);
+  }
+  return context;
+};
+
 module.exports = {
   before: {
     all: [],
@@ -161,12 +168,7 @@ module.exports = {
         validate.mongoose(schema, joiOptions))
         .else(
           validate.mongoose(adminCreateSchema, joiOptions)),
-      async context => {
-        if (context.data && context.data.password) {
-          context.data.password = await hashPassword(context.data.password);
-        }
-        return context;
-      },
+      passwordHasher,
       verifyHooks.addVerification(),
       authorize({ adapter: 'feathers-mongoose' })
     ],
@@ -191,12 +193,7 @@ module.exports = {
           'resetExpires'
         ),
         validate.mongoose(adminUpdateSchema, joiOptions),
-        async context => {
-        if (context.data && context.data.password) {
-          context.data.password = await hashPassword(context.data.password);
-        }
-        return context;
-      }
+        passwordHasher
       ),
       authorize({ adapter: 'feathers-mongoose' })
     ],
@@ -221,12 +218,7 @@ module.exports = {
           'resetExpires'
         ),
         validate.mongoose(adminUpdateSchema, joiOptions),
-        async context => {
-        if (context.data && context.data.password) {
-          context.data.password = await hashPassword(context.data.password);
-        }
-        return context;
-      }
+        passwordHasher
       ),
       authorize({ adapter: 'feathers-mongoose' })
     ],
