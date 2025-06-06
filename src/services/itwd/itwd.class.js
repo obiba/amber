@@ -41,7 +41,8 @@ exports.Itwd = class Itwd extends ItwBase {
       steps: [],
       i18n: interviewDesign.i18n,
       participant: participantData,
-      supporters: supporters
+      supporters: supporters,
+      completionUrl: campaign.completionUrl,
     };
     for (const step of interviewDesign.steps) {
       const q = {
