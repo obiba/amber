@@ -19,6 +19,7 @@ module.exports = {
     all: [
       protect(
         'password',
+        'with2fa',
         'totp2faSecret',
         'totp2faRequired',
         'totp2faEnabled',

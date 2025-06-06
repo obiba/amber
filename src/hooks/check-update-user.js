@@ -12,7 +12,7 @@ module.exports = (options = {}) => {
         delete context.data[field];
     });
     // disable 2FA by dropping secret
-    if (context.data.totp2faEnabled === false) {
+    if (context.data.with2fa === false || context.data.totp2faEnabled === false) {
       delete context.data.totp2faEnabled;
       context.data.totp2faSecret = null;
     }

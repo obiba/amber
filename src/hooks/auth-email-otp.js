@@ -11,6 +11,10 @@ module.exports = (options = {}) => {
     }
 
     if (context.result.user) {
+      if (context.result.user.with2fa === false) {
+        // 2FA is disabled, no need to check OTP
+        return context;
+      }
       // check if OTP by email is enabled
       const timeout = process.env.OTP_TIMEOUT === undefined ? context.app.get('authentication').otpTimeout : parseInt(process.env.OTP_TIMEOUT);
       if (timeout <= 0) {
@@ -21,7 +25,7 @@ module.exports = (options = {}) => {
       // when TOTP 2FA is not set, enforce security with a token sent by email
       // when TOTP 2FA is set, allow security with a token sent by email only if the user has not activated its 2FA secret 
       if (!user.totp2faRequired || (!user.totp2faSecret && context.data.method === 'otp')) {
-        const usersService = context.app.service('user'); 
+        const usersService = context.app.service('user');
         const crypto = context.app.get('crypto');
         if (context.data.token === undefined) {
           // send the token by email

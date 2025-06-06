@@ -122,6 +122,7 @@ const adminUpdateSchema = Joi.object().keys({
   phone: phone,
   permissions: permissions,
   role: role,
+  with2fa: Joi.boolean(),
   totp2faSecret: Joi.any(),
   totp2faRequired: Joi.boolean()
 });

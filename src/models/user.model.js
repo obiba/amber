@@ -7,7 +7,7 @@ module.exports = function (app) {
   const modelName = 'user';
   const mongooseClient = app.get('mongooseClient');
   const schema = new mongooseClient.Schema({
-  
+
     email: { type: String, unique: true, lowercase: true },
     password: { type: String },
     firstname: { type: String },
@@ -34,13 +34,14 @@ module.exports = function (app) {
     resetExpires: { type: Date },
     clientId: { type: String },
 
+    with2fa: { type: Boolean, default: true }, // whether the user has enabled 2FA (via authenticator app or email)
     totp2faSecret: { type: String },
     totp2faRequired: { type: Boolean, default: authenticationConfig.totp2faRequired },
     otp: { type: String }, // the temp OTP token sent to the user
-    
+
     googleId: { type: String },
     githubId: { type: String },
-  
+
   }, {
     timestamps: true
   });

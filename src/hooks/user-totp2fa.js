@@ -7,10 +7,10 @@ module.exports = (options = {}) => {
     if (Array.isArray(context.result.data)) {
       //
       context.result.data.forEach(user => {
-        user.totp2faEnabled = user.totp2faSecret ? true : false;
+        user.totp2faEnabled = context.result.with2fa !== false && user.totp2faSecret ? true : false;
       });
     } else if (context.result.totp2faRequired) {
-      context.result.totp2faEnabled = context.result.totp2faSecret ? true : false;
+      context.result.totp2faEnabled = context.result.with2fa !== false && context.result.totp2faSecret ? true : false;
     }
     return context;
   };

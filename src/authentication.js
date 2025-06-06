@@ -26,7 +26,7 @@ module.exports = app => {
         authActivity(),
         authEmailOtp(),
         iff(
-          context => context.result.otp !== true,
+          context => context.result.user.with2fa !== false && context.result.otp !== true,
           totp2fa({
             usersService: 'user',
             applicationName: authenticationConfig.jwtOptions.issuer,
