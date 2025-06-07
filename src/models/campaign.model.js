@@ -19,6 +19,8 @@ module.exports = function (app) {
     weeksToDeactivate: { type: Number, default: 18 },     // number of weeks from initial contact after which a participant is deactivated
     weeksInfoBeforeDeactivation: { type: Number, default: 3 },  // number of weeks before deactivation to send a reminder
     withPassword: { type: Boolean, default: false }, // whether participants are asked to set a password at first connection
+    walkInEnabled: { type: Boolean, default: false }, // whether walk-in participants are allowed to participate in this campaign
+    walkInData: { type: Object, required: true, default: {} }, // personal data for walk-in participants either with default value or will be provisionned by the interviewer
     visitUrl: { type: String, required: false }, // amber visit app URL for this campaign
     completionUrl: { type: String, required: false }, // URL to redirect participants after completing the campaign
     createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },

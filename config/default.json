@@ -16,6 +16,7 @@
       "jwt",
       "local",
       "participant",
+      "campaign",
       "apiKey"
     ],
     "totp2faRequired": true,
@@ -35,6 +36,11 @@
       "passwordField": "password"
     },
     "participant": {
+      "service": "participant",
+      "hashSize": 10,
+      "passwordLength": 8
+    },
+    "campaign": {
       "service": "participant",
       "hashSize": 10,
       "passwordLength": 8

@@ -50,7 +50,7 @@ class ApiKeyStrategy extends AuthenticationBaseStrategy {
 
     const config = this.authentication.configuration[this.name];
 
-    const match = config.allowedKeys.includes(token);
+    const match = config.allowedKeys.includes(token) && token !== 'CHANGEME';
     if (!match) throw new NotAuthenticated('Incorrect API Key');
 
     return {
@@ -110,4 +110,66 @@ class ParticipantStrategy extends AuthenticationBaseStrategy {
   }
 }
 
-module.exports = { AnonymousStrategy, ActiveLocalStrategy, ApiKeyStrategy, ParticipantStrategy };
+class WalkInParticipantStrategy extends ParticipantStrategy {
+ 
+  async authenticate(data) {
+    // find the campaign by the provided campaign id
+    if (!data.campaign) {
+      throw new NotAuthenticated('No campaign provided for walk-in participant authentication');
+    }
+    const campaign = await this.app.service('campaign').get(data.campaign);
+    if (campaign.walkInEnabled !== true) {
+      throw new NotAuthenticated('Walk-in participants are not allowed for this campaign');
+    }
+    // check if walk-in data keys are provided
+    if (campaign.walkInData && Object.keys(campaign.walkInData).length > 0) {
+      if (!data.data || typeof data.data !== 'object') {
+        throw new NotAuthenticated('Walk-in participant data is missing or not an object');
+      }
+      const walkInDataKeys = Object.keys(campaign.walkInData);
+      const newData = {};  
+      for (const key of walkInDataKeys) {
+        if (campaign.walkInData[key] === null && !data.data[key]) {
+          throw new NotAuthenticated(`Walk-in participant data is missing: ${key}`);
+        }
+        if (data.data[key] !== undefined) {
+          newData[key] = data.data[key]; // use provided data
+        } else {
+          newData[key] = campaign.walkInData[key]; // use default value
+        }
+      }
+      data.data = newData; // update data with walk-in data
+    }
+    // find if a participant already exists for this campaign with the same data
+    const participantService = this.app.service('participant');
+    const existingParticipant = await participantService.find({
+      query: {
+        campaign: data.campaign,
+        data: { $eq: data.data }, // match the provided data
+        $limit: 1
+      }
+    });
+    if (existingParticipant.total > 0) {
+      // if a participant already exists, return it
+      return super.authenticate({
+        code: existingParticipant.data[0].code, // use the existing participant code
+        password: data.password // if password is provided, it will be checked
+      });
+    }
+    // create a new participant with the provided data
+    const participant = await participantService.create({
+      data: data.data || {}, // walk-in data
+      campaign: data.campaign,
+      validFrom: new Date(), // valid from now
+      validUntil: null, // no expiration for walk-in participants
+      activated: true, // walk-in participants are always activated
+      createdBy: null, // no specific creator for walk-in participants
+      lastSeen: new Date() // track last activity
+    });
+    return {
+      participant
+    };
+  }
+}
+
+module.exports = { AnonymousStrategy, ActiveLocalStrategy, ApiKeyStrategy, ParticipantStrategy, WalkInParticipantStrategy };

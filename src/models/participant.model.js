@@ -22,7 +22,7 @@ module.exports = function (app) {
     lastSeen: { type: Date }, // last authentication by the participant (not on behalf of the interviewer)
     initAt: { type: Date },   // last authentication by the participant (not on behalf of the interviewer)
     data: { type: Object, required: true, default: {} }, // personal data
-    createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: true },
+    createdBy: { type: mongooseClient.Schema.Types.ObjectId, ref: 'user', required: false }, // user who created the participant, optional (case of wallk-in participants)
     study: { type: Schema.Types.ObjectId, ref: 'study', required: true },
     interviewDesign: { type: Schema.Types.ObjectId, ref: 'interview-design', required: true },
     campaign: { type: Schema.Types.ObjectId, ref: 'campaign', required: true }

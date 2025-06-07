@@ -26,7 +26,7 @@ module.exports = (options = {}) => {
       }
       pdata.code = codeTmp;
       // Set created by the logged in user
-      pdata.createdBy = context.params.user._id;
+      pdata.createdBy = context.params.user?._id;
       return pdata;
     }
     if (Array.isArray(context.data)) {

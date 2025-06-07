@@ -5,7 +5,7 @@ const authActivity = require('./hooks/auth-activity');
 const authEmailOtp = require('./hooks/auth-email-otp');
 const { iff } = require('feathers-hooks-common');
 
-const { AnonymousStrategy, ActiveLocalStrategy, ApiKeyStrategy, ParticipantStrategy } = require('./utils/auth-strategies');
+const { AnonymousStrategy, ActiveLocalStrategy, ApiKeyStrategy, ParticipantStrategy, WalkInParticipantStrategy } = require('./utils/auth-strategies');
 
 
 
@@ -17,6 +17,7 @@ module.exports = app => {
   authentication.register('anonymous', new AnonymousStrategy());
   authentication.register('apiKey', new ApiKeyStrategy());
   authentication.register('participant', new ParticipantStrategy());
+  authentication.register('campaign', new WalkInParticipantStrategy());
 
   app.use('/authentication', authentication);
   const authenticationConfig = app.get('authentication');
