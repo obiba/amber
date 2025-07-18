@@ -205,26 +205,35 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       // send mail to each investigator
       const builder = new MailBuilder(this.app);
       for (const investigator of campaign.investigators) {
-        // recipient
-        const user = await this.app.service('user').get(investigator);
-        const context = { // TODO translate
-          study: study.name,
-          interview: interviewDesign.name,
-          campaign: campaign.name,
-          study_id: study._id.toString(),
-          interview_id: interviewDesign._id.toString(),
-          campaign_id: campaign._id.toString(),
-          amber_visit_url: visitUrl,
-          weeksInfoBeforeActivation: campaign.weeksInfoBeforeActivation,
-          attachments: [
-            {
-              filename: `participants${this.getExtension()}`,
-              contentType: 'text/plain',
-              content: csv
-            }
-          ]
-        };
-        builder.sendEmail('infoParticipantsAboutToInit', user, context);
+        try {
+          // recipient
+          const user = await this.app.service('user').get(investigator);
+          const context = { // TODO translate
+            study: study.name,
+            interview: interviewDesign.name,
+            campaign: campaign.name,
+            study_id: study._id.toString(),
+            interview_id: interviewDesign._id.toString(),
+            campaign_id: campaign._id.toString(),
+            amber_visit_url: visitUrl,
+            weeksInfoBeforeActivation: campaign.weeksInfoBeforeActivation,
+            attachments: [
+              {
+                filename: `participants${this.getExtension()}`,
+                contentType: 'text/plain',
+                content: csv
+              }
+            ]
+          };
+          builder.sendEmail('infoParticipantsAboutToInit', user, context);
+        } catch (err) {
+          logger.error(`Error sending info participants before activation email to investigator ${investigator}: ${err.message}`);
+          logs.push({
+            level: 'error',
+            message: `Error sending info participants before activation email to investigator ${investigator}: ${err.message}`,
+            timestamp: Date.now()
+          });
+        }
       }
       // set participants reminder date
       for (const participant of participants) {
@@ -273,25 +282,34 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       // send mail to each investigator
       const builder = new MailBuilder(this.app);
       for (const investigator of campaign.investigators) {
-        // recipient
-        const user = await this.app.service('user').get(investigator);
-        const context = { // TODO translate
-          study: study.name,
-          interview: interviewDesign.name,
-          campaign: campaign.name,
-          study_id: study._id.toString(),
-          interview_id: interviewDesign._id.toString(),
-          campaign_id: campaign._id.toString(),
-          amber_visit_url: visitUrl,
-          attachments: [
-            {
-              filename: `participants${this.getExtension()}`,
-              contentType: 'text/plain',
-              content: csv
-            }
-          ]
-        };
-        builder.sendEmail('initParticipants', user, context);
+        try {
+          // recipient
+          const user = await this.app.service('user').get(investigator);
+          const context = { // TODO translate
+            study: study.name,
+            interview: interviewDesign.name,
+            campaign: campaign.name,
+            study_id: study._id.toString(),
+            interview_id: interviewDesign._id.toString(),
+            campaign_id: campaign._id.toString(),
+            amber_visit_url: visitUrl,
+            attachments: [
+              {
+                filename: `participants${this.getExtension()}`,
+                contentType: 'text/plain',
+                content: csv
+              }
+            ]
+          };
+          builder.sendEmail('initParticipants', user, context);
+        } catch (err) {
+          logger.error(`Error sending participants init email to investigator ${investigator}: ${err.message}`);
+          logs.push({
+            level: 'error',
+            message: `Error sending participants init email to investigator ${investigator}: ${err.message}`,
+            timestamp: Date.now()
+          });
+        }
       }
       // set participants init date
       const ids = participants.map((participant) => participant._id);
@@ -346,26 +364,35 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
           // send mail to each investigator
           const builder = new MailBuilder(this.app);
           for (const investigator of campaign.investigators) {
-            // recipient
-            const user = await this.app.service('user').get(investigator);
-            const context = { // TODO translate
-              study: study.name,
-              interview: interviewDesign.name,
-              campaign: campaign.name,
-              study_id: study._id.toString(),
-              interview_id: interviewDesign._id.toString(),
-              campaign_id: campaign._id.toString(),
-              amber_visit_url: visitUrl,
-              reminder: i + 1,
-              attachments: [
-                {
-                  filename: `participants${this.getExtension()}`,
-                  contentType: 'text/plain',
-                  content: csv
-                }
-              ]
-            };
-            builder.sendEmail('remindParticipants', user, context);
+            try {
+              // recipient
+              const user = await this.app.service('user').get(investigator);
+              const context = { // TODO translate
+                study: study.name,
+                interview: interviewDesign.name,
+                campaign: campaign.name,
+                study_id: study._id.toString(),
+                interview_id: interviewDesign._id.toString(),
+                campaign_id: campaign._id.toString(),
+                amber_visit_url: visitUrl,
+                reminder: i + 1,
+                attachments: [
+                  {
+                    filename: `participants${this.getExtension()}`,
+                    contentType: 'text/plain',
+                    content: csv
+                  }
+                ]
+              };
+              builder.sendEmail('remindParticipants', user, context);
+            } catch (err) {
+              logger.error(`Error sending participants reminder email to investigator ${investigator}: ${err.message}`);
+              logs.push({
+                level: 'error',
+                message: `Error sending participants reminder email to investigator ${investigator}: ${err.message}`,
+                timestamp: Date.now()
+              });
+            }
           }
           // set participants reminder date
           for (const participant of participantsToRemind) {
@@ -424,26 +451,35 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       // send mail to each investigator
       const builder = new MailBuilder(this.app);
       for (const investigator of campaign.investigators) {
-        // recipient
-        const user = await this.app.service('user').get(investigator);
-        const context = { // TODO translate
-          study: study.name,
-          interview: interviewDesign.name,
-          campaign: campaign.name,
-          study_id: study._id.toString(),
-          interview_id: interviewDesign._id.toString(),
-          campaign_id: campaign._id.toString(),
-          amber_visit_url: visitUrl,
-          weeksInfoBeforeDeactivation: campaign.weeksInfoBeforeDeactivation,
-          attachments: [
-            {
-              filename: `participants${this.getExtension()}`,
-              contentType: 'text/plain',
-              content: csv
-            }
-          ]
-        };
-        builder.sendEmail('infoParticipantsAboutToExpire', user, context);
+        try {
+          // recipient
+          const user = await this.app.service('user').get(investigator);
+          const context = { // TODO translate
+            study: study.name,
+            interview: interviewDesign.name,
+            campaign: campaign.name,
+            study_id: study._id.toString(),
+            interview_id: interviewDesign._id.toString(),
+            campaign_id: campaign._id.toString(),
+            amber_visit_url: visitUrl,
+            weeksInfoBeforeDeactivation: campaign.weeksInfoBeforeDeactivation,
+            attachments: [
+              {
+                filename: `participants${this.getExtension()}`,
+                contentType: 'text/plain',
+                content: csv
+              }
+            ]
+          };
+          builder.sendEmail('infoParticipantsAboutToExpire', user, context);
+        } catch (err) {
+          logger.error(`Error sending info participants before deactivation email to investigator ${investigator}: ${err.message}`);
+          logs.push({
+            level: 'error',
+            message: `Error sending info participants before deactivation email to investigator ${investigator}: ${err.message}`,
+            timestamp: Date.now()
+          });
+        }
       }
       // set participants reminder date
       for (const participant of participants) {
@@ -615,21 +651,30 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
       // send mail to each investigator
       const builder = new MailBuilder(this.app);
       for (const investigator of campaign.investigators) {
-        // recipient
-        const user = await this.app.service('user').get(investigator);
-        const context = { // TODO translate
-          study: study.name,
-          interview: interviewDesign.name,
-          campaign: campaign.name,
-          study_id: study._id.toString(),
-          interview_id: interviewDesign._id.toString(),
-          campaign_id: campaign._id.toString(),
-          inProgress: itwInProgress.length,
-          incomplete: itwIncomplete.length,
-          completed: itwCompleted.length,
-          attachments: attachments
-        };
-        builder.sendEmail('summaryParticipants', user, context);
+        try {
+          // recipient
+          const user = await this.app.service('user').get(investigator);
+          const context = { // TODO translate
+            study: study.name,
+            interview: interviewDesign.name,
+            campaign: campaign.name,
+            study_id: study._id.toString(),
+            interview_id: interviewDesign._id.toString(),
+            campaign_id: campaign._id.toString(),
+            inProgress: itwInProgress.length,
+            incomplete: itwIncomplete.length,
+            completed: itwCompleted.length,
+            attachments: attachments
+          };
+          builder.sendEmail('summaryParticipants', user, context);
+        } catch (err) {
+          logger.error(`Error sending participants summary email to investigator ${investigator}: ${err.message}`);
+          logs.push({
+            level: 'error',
+            message: `Error sending participants summary email to investigator ${investigator}: ${err.message}`,
+            timestamp: Date.now()
+          });
+        }
       }
     } else {
       logs.push({
