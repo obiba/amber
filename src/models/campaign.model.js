@@ -18,6 +18,7 @@ module.exports = function (app) {
     numberOfReminders: { type: Number, default: 2 },
     weeksToDeactivate: { type: Number, default: 18 },     // number of weeks from initial contact after which a participant is deactivated
     weeksInfoBeforeDeactivation: { type: Number, default: 3 },  // number of weeks before deactivation to send a reminder
+    notifyOnInterviewCompletion: { type: Boolean, default: false }, // whether investigators are notified when a participant completes the interview
     withPassword: { type: Boolean, default: false }, // whether participants are asked to set a password at first connection
     walkInEnabled: { type: Boolean, default: false }, // whether walk-in participants are allowed to participate in this campaign
     walkInData: { type: Object, required: true, default: {} }, // personal data for walk-in participants either with default value or will be provisionned by the interviewer

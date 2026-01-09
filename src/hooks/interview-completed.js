@@ -11,7 +11,7 @@ module.exports = (options = {}) => {
       });
       // get campaign administrators and send email notification about this participant's interview completion
       const campaign = await context.app.service('campaign').get(context.result.campaign);
-      if (!campaign) {
+      if (!campaign || !campaign.notifyOnInterviewCompletion) {
         return context;
       }
       const study = await context.app.service('study').get(campaign.study);
