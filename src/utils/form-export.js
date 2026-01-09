@@ -169,6 +169,10 @@ exports.FormDataExport = class FormDataExport {
     } : {};
     if (data) {
       items.forEach(item => {
+        if (item.type === 'section') {
+          // skip sections as they have no data value
+          return;
+        }
         if (item.items) {
           const npath = path ? [...path] : [];
           npath.push(item.name);
