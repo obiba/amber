@@ -6,16 +6,27 @@ module.exports = (options = {}) => {
   return async context => {
     // deactivate associated participant when its interview is completed
     if (context.result.state === 'completed') {
-      context.app.service('participant').patch(context.result.participant, {
+      await context.app.service('participant').patch(context.result.participant, {
         activated: false
       });
-      // get campaign administrators and send email notification about this participant's interview completion
+      // get campaign investigators and send email notification about this participant's interview completion
       const campaign = await context.app.service('campaign').get(context.result.campaign);
       if (!campaign || !campaign.notifyOnInterviewCompletion) {
         return context;
       }
+      if (!Array.isArray(campaign.investigators) || campaign.investigators.length === 0) {
+        return context;
+      }
       const study = await context.app.service('study').get(campaign.study);
+      if (!study) {
+        logger.error(`Study not found for campaign ${campaign._id} when sending interview completion notification.`);
+        return context;
+      }
       const interviewDesign = await context.app.service('interview-design').get(context.result.interviewDesign);
+      if (!interviewDesign) {
+        logger.error(`Interview design not found for interview ${context.result.interviewDesign} when sending interview completion notification.`);
+        return context;
+      }
       for (const investigator of campaign.investigators) {
         try {
           const builder = new MailBuilder(context.app);
@@ -33,7 +44,7 @@ module.exports = (options = {}) => {
           };
           builder.sendEmail('interviewCompleted', user, ctx);
         } catch (err) {
-          logger.error(`Error sending info participant has completed interview email to investigator ${investigator}: ${err.message}`);
+          logger.error(`Error sending interview completion notification email to investigator ${investigator}: ${err.message}`);
         }
       }
     }
