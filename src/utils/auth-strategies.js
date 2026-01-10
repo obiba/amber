@@ -145,6 +145,12 @@ class WalkInParticipantStrategy extends ParticipantStrategy {
     const existingParticipant = await participantService.find({
       query: {
         campaign: data.campaign,
+        activated: true,
+        // match true walk-ins: either null or not set
+        $or: [
+          { createdBy: { $eq: null } },
+          { createdBy: { $exists: false } }
+        ],
         data: { $eq: data.data }, // match the provided data
         $limit: 1
       }
