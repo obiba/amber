@@ -6,11 +6,11 @@ module.exports = (options = {}) => {
   return async context => {
     // deactivate associated participant when its interview is completed
     if (context.result.state === 'completed') {
-      await context.app.service('participant').patch(context.result.participant, {
+      const participant = await context.app.service('participant').patch(context.result.participant, {
         activated: false
       });
       // get campaign investigators and send email notification about this participant's interview completion
-      const campaign = await context.app.service('campaign').get(context.result.campaign);
+      const campaign = await context.app.service('campaign').get(participant.campaign);
       if (!campaign || !campaign.notifyOnInterviewCompletion) {
         return context;
       }
@@ -22,9 +22,9 @@ module.exports = (options = {}) => {
         logger.error(`Study not found for campaign ${campaign._id} when sending interview completion notification.`);
         return context;
       }
-      const interviewDesign = await context.app.service('interview-design').get(context.result.interviewDesign);
+      const interviewDesign = await context.app.service('interview-design').get(participant.interviewDesign);
       if (!interviewDesign) {
-        logger.error(`Interview design not found for interview ${context.result.interviewDesign} when sending interview completion notification.`);
+        logger.error(`Interview design not found for interview ${participant.interviewDesign} when sending interview completion notification.`);
         return context;
       }
       for (const investigator of campaign.investigators) {
@@ -40,7 +40,7 @@ module.exports = (options = {}) => {
             study_id: study._id,
             interview_id: interviewDesign._id,
             campaign_id: campaign._id,
-            participant_code: context.result.code,
+            code_identifier: `${participant.code}${participant.identifier ? ` (${participant.identifier})` : '' }`
           };
           builder.sendEmail('interviewCompleted', user, ctx);
         } catch (err) {

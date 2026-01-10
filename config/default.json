@@ -188,11 +188,11 @@
     "interviewCompleted": {
       "en": {
         "subject": "[{app_name}] Participant Completed Interview",
-        "html": "<html><p>Dear {firstname} {lastname},</p> <p>The participant with code <b>{participant_code}</b> has completed the interview {interview} ({campaign}) of study {study}.</p> <p>You can <a href='{amber_studio_url}/study/{study_id}/interview-design/{interview_id}?c={campaign_id}'>review the interview campaign</a> in Amber Studio.</p> <p>---<br/>This email was automatically sent, please do not reply.</p></html>"
+        "html": "<html><p>Dear {firstname} {lastname},</p> <p>The participant identified by <b>{code_identifier}</b> has completed the interview {interview} ({campaign}) of study {study}.</p> <p>You can <a href='{amber_studio_url}/study/{study_id}/interview-design/{interview_id}?c={campaign_id}'>review the interview campaign</a> in Amber Studio.</p> <p>---<br/>This email was automatically sent, please do not reply.</p></html>"
       },
       "fr": {
         "subject": "[{app_name}] Participant a complété l'entrevue",
-        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Le participant avec le code <b>{participant_code}</b> a complété l'entrevue {interview} ({campaign}) de l'étude {study}.</p> <p>Vous pouvez <a href='{amber_studio_url}/study/{study_id}/interview-design/{interview_id}?c={campaign_id}'>consulter la campagne de l'entrevue</a> dans Amber Studio.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
+        "html": "<html><p>Cher.ère {firstname} {lastname},</p> <p>Le participant identifié par <b>{code_identifier}</b> a complété l'entrevue {interview} ({campaign}) de l'étude {study}.</p> <p>Vous pouvez <a href='{amber_studio_url}/study/{study_id}/interview-design/{interview_id}?c={campaign_id}'>consulter la campagne de l'entrevue</a> dans Amber Studio.</p> <p>---<br/>Ce courriel a été envoyé automatiquement, veuillez ne pas répondre.</p></html>"
       }
     }
   },
