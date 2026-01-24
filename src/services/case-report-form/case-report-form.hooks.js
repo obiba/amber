@@ -14,30 +14,30 @@ module.exports = {
       makeAbilities(defineAbilitiesFor)
     ],
     find: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
     get: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
     create: [
       caseReportFormCreate(),
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
     update: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
     patch: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
     remove: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
       // note: case reports can be orphans of their CRF
     ]
   },
 
   after: {
     all: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
     find: [],
     get: [],

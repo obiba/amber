@@ -150,12 +150,12 @@ module.exports = {
       authenticate('jwt'),
       makeAbilities(defineAbilitiesFor),
       searchQuery(),
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
     get: [
       authenticate('jwt'),
       makeAbilities(defineAbilitiesFor),
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
     create: [
       allowAnonymous(),
@@ -171,7 +171,7 @@ module.exports = {
           validate.mongoose(adminCreateSchema, joiOptions)),
       passwordHasher,
       verifyHooks.addVerification(),
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
     update: [
       authenticate('jwt'),
@@ -196,7 +196,7 @@ module.exports = {
         validate.mongoose(adminUpdateSchema, joiOptions),
         passwordHasher
       ),
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
     patch: [
       authenticate('jwt'),
@@ -221,12 +221,12 @@ module.exports = {
         validate.mongoose(adminUpdateSchema, joiOptions),
         passwordHasher
       ),
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
     remove: [
       authenticate('jwt'),
       makeAbilities(defineAbilitiesFor),
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
   },
 
@@ -248,10 +248,10 @@ module.exports = {
       )
     ],
     find: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
     get: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
     create: [(context) => {
       accountService(context.app).notifier(
@@ -261,13 +261,13 @@ module.exports = {
     addUserToGroupDomain(),
     userSignupNotifyAdmin()],
     update: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
     patch: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
     remove: [
-      authorize({ adapter: 'feathers-mongoose' }),
+      authorize({ adapter: 'mongodb' }),
       userDeleteFromGroups(),
       userDeleteFromPermissions()
     ],

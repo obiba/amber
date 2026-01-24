@@ -25,36 +25,36 @@ module.exports = {
     ],
     find: [
       searchQuery(),
-      authorize({ adapter: 'feathers-mongoose' }),
+      authorize({ adapter: 'mongodb' }),
       participantSearch()
     ],
     get: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
     create: [
       participantCreate(),
-      authorize({ adapter: 'feathers-mongoose' }),
+      authorize({ adapter: 'mongodb' }),
       participantEncrypt(),
       participantPasswordHash()
     ],
     update: [
-      authorize({ adapter: 'feathers-mongoose' }),
+      authorize({ adapter: 'mongodb' }),
       participantEncrypt(),
       participantPasswordHash()
     ],
     patch: [
-      authorize({ adapter: 'feathers-mongoose' }),
+      authorize({ adapter: 'mongodb' }),
       participantEncrypt(),
       participantPasswordHash()
     ],
     remove: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ]
   },
 
   after: {
     all: [
-      authorize({ adapter: 'feathers-mongoose' }),
+      authorize({ adapter: 'mongodb' }),
       participantInterviewerAuthz(),
       protect(
         'password',

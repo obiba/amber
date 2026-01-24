@@ -16,32 +16,32 @@ module.exports = {
     ],
     find: [
       searchQuery(),
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
     get: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
     create: [
       caseReportCreate(),
-      authorize({ adapter: 'feathers-mongoose' }),
+      authorize({ adapter: 'mongodb' }),
       caseReportEncrypt()
     ],
     update: [
-      authorize({ adapter: 'feathers-mongoose' }),
+      authorize({ adapter: 'mongodb' }),
       caseReportEncrypt()
     ],
     patch: [
-      authorize({ adapter: 'feathers-mongoose' }),
+      authorize({ adapter: 'mongodb' }),
       caseReportEncrypt()
     ],
     remove: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ]
   },
 
   after: {
     all: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: 'mongodb' })
     ],
     find: [caseReportDecrypt()],
     get: [caseReportDecrypt()],

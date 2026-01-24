@@ -13,16 +13,16 @@ module.exports = {
       authenticate('jwt'),
       makeAbilities(defineAbilitiesFor)
     ],
-    find: [authorize({ adapter: 'feathers-mongoose' })],
-    get: [authorize({ adapter: 'feathers-mongoose' })],
-    create: [authorize({ adapter: 'feathers-mongoose' }), auditCreateInternal()],
-    update: [authorize({ adapter: 'feathers-mongoose' })],
-    patch: [authorize({ adapter: 'feathers-mongoose' })],
-    remove: [authorize({ adapter: 'feathers-mongoose' })]
+    find: [authorize({ adapter: 'mongodb' })],
+    get: [authorize({ adapter: 'mongodb' })],
+    create: [authorize({ adapter: 'mongodb' }), auditCreateInternal()],
+    update: [authorize({ adapter: 'mongodb' })],
+    patch: [authorize({ adapter: 'mongodb' })],
+    remove: [authorize({ adapter: 'mongodb' })]
   },
 
   after: {
-    all: [authorize({ adapter: 'feathers-mongoose' })],
+    all: [authorize({ adapter: 'mongodb' })],
     find: [],
     get: [],
     create: [],

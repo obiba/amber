@@ -5,10 +5,10 @@ const cors = require('cors');
 const compress = require('compression');
 const logger = require('./logger');
 
-const feathers = require('@feathersjs/feathers');
+const { feathers } = require('@feathersjs/feathers');
 const configuration = require('@feathersjs/configuration');
 const express = require('@feathersjs/express');
-const casl = require('feathers-casl');
+const { feathersCasl } = require('feathers-casl');
 
 const middleware = require('./middleware');
 const services = require('./services');
@@ -17,7 +17,7 @@ const channels = require('./channels');
 
 const authentication = require('./authentication');
 
-const mongoose = require('./mongoose');
+const mongodb = require('./mongodb');
 const crypto = require('./crypto');
 
 const app = express(feathers());
@@ -97,7 +97,7 @@ app.use('/', express.static(app.get('public')));
 // Set up Plugins and providers
 app.configure(express.rest());
 
-app.configure(mongoose);
+app.configure(mongodb);
 app.configure(crypto);
 
 // Configure other middleware (see `middleware/index.js`)
@@ -109,7 +109,7 @@ app.configure(services);
 app.configure(channels);
 
 // Authz
-app.configure(casl());
+app.configure(feathersCasl());
 
 // Configure a middleware for 404s and the error handler
 app.use(express.notFound());
