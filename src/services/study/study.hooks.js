@@ -1,5 +1,5 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
-const { authorize } = require('feathers-casl').hooks;
+const { authorize } = require('feathers-casl');
 const { defineAbilitiesFor } = require('./study.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');

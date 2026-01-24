@@ -6,7 +6,12 @@ module.exports = function (app) {
   const database = new URL(connection).pathname.substring(1);
   
   const mongoClient = MongoClient.connect(connection)
-    .then(client => client.db(database))
+    .then(client => {
+      const db = client.db(database);
+      // Store the resolved db for synchronous access
+      app.set('mongoDb', db);
+      return db;
+    })
     .catch(err => {
       logger.error(err);
       process.exit(1);

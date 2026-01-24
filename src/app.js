@@ -91,9 +91,11 @@ app.use(cors(corsOptions));
 app.use(compress());
 app.use(json({limit: '25mb'}));
 app.use(urlencoded({ limit: '25mb', extended: true }));
-app.use(favicon(path.join(app.get('public'), 'favicon.ico')));
+// Resolve public path relative to app root
+const publicPath = path.resolve(__dirname, app.get('public'));
+app.use(favicon(path.join(publicPath, 'favicon.ico')));
 // Host the public folder
-app.use('/', serveStatic(app.get('public')));
+app.use('/', serveStatic(publicPath));
 
 // Set up Plugins and providers
 app.configure(rest());

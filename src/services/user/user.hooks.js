@@ -2,7 +2,7 @@ const Joi = require('@hapi/joi');
 const validate = require('@feathers-plus/validate-joi');
 
 const { authenticate } = require('@feathersjs/authentication').hooks;
-const { authorize } = require('feathers-casl').hooks;
+const { authorize } = require('feathers-casl');
 
 //const { setField } = require('feathers-authentication-hooks');
 const verifyHooks = require('feathers-authentication-management').hooks;

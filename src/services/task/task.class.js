@@ -1,5 +1,7 @@
-const { MongoDBService } = require('@feathersjs/mongodb');
+const { LazyMongoDBService } = require('../mongodb-service.class');
 
-exports.Task = class Task extends MongoDBService {
-  
+exports.Task = class Task extends LazyMongoDBService {
+  constructor(options, app) {
+    super(options, app, 'tasks');
+  }
 };

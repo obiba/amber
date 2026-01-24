@@ -16,10 +16,5 @@ module.exports = function (app) {
   // Get our initialized service so that we can register hooks
   const service = app.service('campaign');
 
-  // Set up MongoDB collection
-  app.get('mongodbClient').then(db => {
-    service.Model = db.collection('campaigns');
-  });
-
   service.hooks(hooks);
 };

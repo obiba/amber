@@ -1,7 +1,16 @@
 const assert = require('assert');
+
+// Disable OTP for testing
+process.env.OTP_TIMEOUT = '0';
+
 const app = require('../src/app');
 
 describe('authentication', () => {
+  // Wait for MongoDB connection before all tests
+  before(async () => {
+    await app.get('mongodbClient');
+  });
+
   it('registered the authentication service', () => {
     assert.ok(app.service('authentication'));
   });
@@ -9,30 +18,41 @@ describe('authentication', () => {
   describe('local strategy', () => {
     const userInfo = {
       email: 'admin@obiba.com',
-      password: 'password',
+      password: 'Password1#',
       firstname: 'Xx',
       lastname: 'Yy',
       language: 'en',
-      role: 'administrator'
+      role: 'administrator',
+      with2fa: false
     };
 
     before(async () => {
       try {
-        await app.service('user').create(userInfo);
+        const user = await app.service('user').create(userInfo);
+        // Disable 2FA for the test user (with2fa field is not in create schema)
+        await app.service('user').patch(user._id, { with2fa: false });
       } catch (error) {
-        //console.error(error);
-        // Do nothing, it just means the user already exists and can be tested
+        // User might already exist, try to find and patch them
+        try {
+          const users = await app.service('user').find({ query: { email: userInfo.email } });
+          if (users.data && users.data.length > 0) {
+            await app.service('user').patch(users.data[0]._id, { with2fa: false });
+          }
+        } catch (e) {
+          // Ignore
+        }
       }
     });
 
     it('authenticates user and creates accessToken', async () => {
-      const { user, accessToken } = await app.service('authentication').create({
+      const result = await app.service('authentication').create({
         strategy: 'local',
-        ...userInfo
+        email: userInfo.email,
+        password: userInfo.password
       });
       
-      assert.ok(accessToken, 'Created access token for user');
-      assert.ok(user, 'Includes user in authentication data');
+      assert.ok(result.accessToken, 'Created access token for user');
+      assert.ok(result.user, 'Includes user in authentication data');
     });
   });
 });
