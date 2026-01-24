@@ -1,36 +1,46 @@
+const nodemailer = require('nodemailer');
 const { BadRequest } = require('@feathersjs/errors');
 
-/* eslint-disable no-unused-vars */
-exports.Email = class Email {
-  constructor (options) {
-    this.options = options || {};
+/**
+ * Email service class using nodemailer directly.
+ * Replaces feathers-mailer to eliminate vulnerable dependencies.
+ */
+class EmailService {
+  constructor(transportConfig) {
+    this.transporter = nodemailer.createTransport(transportConfig);
   }
 
-  async find (params) {
-    throw new BadRequest('Not implemented');
+  async find() {
+    throw new BadRequest('Method not allowed');
   }
 
-  async get (id, params) {
-    throw new BadRequest('Not implemented');
+  async get() {
+    throw new BadRequest('Method not allowed');
   }
 
-  async create (data, params) {
+  /**
+   * Send an email
+   * @param {Object} data - Email data (from, to, subject, html, text, etc.)
+   * @returns {Promise<Object>} - Send result
+   */
+  async create(data) {
     if (Array.isArray(data)) {
-      return Promise.all(data.map(current => this.create(current, params)));
+      return Promise.all(data.map(item => this.create(item)));
     }
-
-    return data;
+    return this.transporter.sendMail(data);
   }
 
-  async update (id, data, params) {
-    throw new BadRequest('Not implemented');
+  async update() {
+    throw new BadRequest('Method not allowed');
   }
 
-  async patch (id, data, params) {
-    throw new BadRequest('Not implemented');
+  async patch() {
+    throw new BadRequest('Method not allowed');
   }
 
-  async remove (id, params) {
-    throw new BadRequest('Not implemented');
+  async remove() {
+    throw new BadRequest('Method not allowed');
   }
-};
+}
+
+module.exports = { EmailService };

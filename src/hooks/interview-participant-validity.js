@@ -10,7 +10,7 @@ module.exports = (options = {}) => {
       try {
         const participant = await context.app.service('participant').get(participantId);
         return isParticipantValid(participant);
-      } catch (error) {
+      } catch {
         return false;
       }
     }

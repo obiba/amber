@@ -1,10 +1,9 @@
-const Joi = require('@hapi/joi');
-const validate = require('@feathers-plus/validate-joi');
+const Joi = require('joi');
+const validate = require('../../utils/validate-joi');
 
 const { authenticate } = require('@feathersjs/authentication').hooks;
 const { authorize } = require('feathers-casl');
 
-//const { setField } = require('feathers-authentication-hooks');
 const verifyHooks = require('feathers-authentication-management').hooks;
 const accountService = require('../auth-management/notifier');
 const { defineAbilitiesFor } = require('./user.abilities');

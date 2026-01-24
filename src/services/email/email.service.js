@@ -1,29 +1,27 @@
 // Initializes the `email` service on path `/email`
-const mailer = require('feathers-mailer');
+const { EmailService } = require('./email.class');
 const hooks = require('./email.hooks');
-const smtpTransport = require('nodemailer-smtp-transport');
-const Transport = require('nodemailer-sendinblue-transport');
+const BrevoTransport = require('nodemailer-brevo-transport');
 const logger = require('../../logger');
 
 module.exports = function (app) {
   // Initialize our service with any options it requires
-  let transport;
+  let transportConfig;
   if (process.env.GMAIL) {
-    transport = smtpTransport({
+    transportConfig = {
       service: 'gmail',
       auth: {
         user: process.env.GMAIL,
         pass: process.env.GMAIL_PASSWORD
       }
-    });
-  } else if (process.env.SENDINBLUE_API_KEY) {
-    transport = new Transport({
-      apiKey: process.env.SENDINBLUE_API_KEY
+    };
+  } else if (process.env.SENDINBLUE_API_KEY || process.env.BREVO_API_KEY) {
+    transportConfig = new BrevoTransport({
+      apiKey: process.env.BREVO_API_KEY || process.env.SENDINBLUE_API_KEY
     });
   } else {
-    const smtpOpts = app.get('smtp');
-    const smtpConfig = {
-      ...smtpOpts,
+    const smtpOpts = app.get('smtp') || {};
+    transportConfig = {
       host: process.env.SMTP_HOST || smtpOpts.host,
       name: process.env.SMTP_NAME || smtpOpts.name,
       secure: process.env.SMTP_SECURE !== undefined ? (process.env.SMTP_SECURE === true || process.env.SMTP_SECURE === 'true') : smtpOpts.secure,
@@ -32,24 +30,18 @@ module.exports = function (app) {
       debug: process.env.SMTP_DEBUG !== undefined ? (process.env.SMTP_DEBUG === true || process.env.SMTP_DEBUG === 'true') : smtpOpts.debug,
     };
     if (process.env.SMTP_PORT || smtpOpts.port) {
-      smtpConfig.port = process.env.SMTP_PORT || smtpOpts.port;
+      transportConfig.port = parseInt(process.env.SMTP_PORT || smtpOpts.port, 10);
     }
     if (process.env.SMTP_USER || smtpOpts.user) {
-      smtpConfig.auth = {
+      transportConfig.auth = {
         user: process.env.SMTP_USER || smtpOpts.user,
         pass: process.env.SMTP_PASSWORD || smtpOpts.pw,
       };
     }
-    delete smtpConfig.require_tls;
-    delete smtpConfig.user;
-    delete smtpConfig.pw;
-    logger.debug('SMTP Config:', smtpConfig);
-    transport = smtpTransport(smtpConfig);
+    logger.debug('SMTP Config:', transportConfig);
   }
-  app.use(
-    '/email',
-    mailer(transport)
-  );
+
+  app.use('/email', new EmailService(transportConfig));
 
   // Get our initialized service so that we can register hooks
   const service = app.service('email');

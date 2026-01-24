@@ -31,14 +31,14 @@ describe('authentication', () => {
         const user = await app.service('user').create(userInfo);
         // Disable 2FA for the test user (with2fa field is not in create schema)
         await app.service('user').patch(user._id, { with2fa: false });
-      } catch (error) {
+      } catch {
         // User might already exist, try to find and patch them
         try {
           const users = await app.service('user').find({ query: { email: userInfo.email } });
           if (users.data && users.data.length > 0) {
             await app.service('user').patch(users.data[0]._id, { with2fa: false });
           }
-        } catch (e) {
+        } catch {
           // Ignore
         }
       }

@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 require('dotenv').config();
 const os = require('os');
 const cluster = require('cluster');

@@ -18,7 +18,7 @@ module.exports = (options = {}) => {
         if (token) {
           const text = Buffer.from(token, 'base64').toString('ascii');
           const query = JSON.parse(text);
-          const participantData = {...query} || {};
+          const participantData = {...query};
           delete participantData.campaign;
     
           if(params && params.provider && !params.authentication) {

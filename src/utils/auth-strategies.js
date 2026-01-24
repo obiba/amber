@@ -61,7 +61,7 @@ class ApiKeyStrategy extends AuthenticationBaseStrategy {
 
 class ParticipantStrategy extends AuthenticationBaseStrategy {
 
-  // eslint-disable-next-line no-unused-vars
+   
   async authenticate(data) {
     // find an participant by the provided code
     // if no such participant code is found throw a NotAuthenticated exception

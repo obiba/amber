@@ -1,6 +1,6 @@
 const { AuthenticationService, JWTStrategy } = require('@feathersjs/authentication');
 const { oauth } = require('@feathersjs/authentication-oauth');
-const { totp2fa } = require('feathers-totp-2fa').hooks;
+const totp2fa = require('./hooks/totp-2fa');
 const authActivity = require('./hooks/auth-activity');
 const authEmailOtp = require('./hooks/auth-email-otp');
 const { iff } = require('feathers-hooks-common');
