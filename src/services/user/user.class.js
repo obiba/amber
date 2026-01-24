@@ -1,5 +1,5 @@
-const { Service } = require('feathers-mongoose');
+const { MongoDBService } = require('@feathersjs/mongodb');
 
-exports.User = class User extends Service {
+exports.User = class User extends MongoDBService {
   
 };

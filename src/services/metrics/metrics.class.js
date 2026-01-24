@@ -1,5 +1,5 @@
 const { BadRequest } = require('@feathersjs/errors');
-const { ObjectId } = require('mongoose').Types;
+const { ObjectId } = require('mongodb');
 
 /* eslint-disable no-unused-vars */
 exports.Metrics = class Metrics {

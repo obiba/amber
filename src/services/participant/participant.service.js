@@ -1,14 +1,13 @@
 // Initializes the `participant` service on path `/participant`
 const { Participant } = require('./participant.class');
-const createModel = require('../../models/participant.model');
 const hooks = require('./participant.hooks');
 
 module.exports = function (app) {
   const options = {
-    Model: createModel(app),
     paginate: app.get('paginate'),
     multi: ['create', 'patch', 'remove'],
-    whitelist: ['$nor', '$or', '$regex', '$exists', '$eq']
+    filters: { $nor: true, $or: true, $exists: true, $eq: true },
+    operators: ['$nor', '$or', '$regex', '$exists', '$eq']
   };
 
   // Initialize our service with any options it requires
@@ -16,6 +15,11 @@ module.exports = function (app) {
 
   // Get our initialized service so that we can register hooks
   const service = app.service('participant');
+
+  // Set up MongoDB collection
+  app.get('mongodbClient').then(db => {
+    service.Model = db.collection('participants');
+  });
 
   service.hooks(hooks);
 };

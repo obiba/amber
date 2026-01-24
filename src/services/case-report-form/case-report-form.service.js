@@ -1,14 +1,13 @@
-// Initializes the `case-report` service on path `/case-report`
+// Initializes the `case-report-form` service on path `/case-report-form`
 const { CaseReportForm } = require('./case-report-form.class');
-const createModel = require('../../models/case-report-form.model');
 const hooks = require('./case-report-form.hooks');
 
 module.exports = function (app) {
   const options = {
-    Model: createModel(app),
     paginate: app.get('paginate'),
     multi: ['remove'],
-    whitelist: ['$nor', '$or', '$regex', '$exists', '$eq']
+    filters: { $nor: true, $or: true, $exists: true, $eq: true },
+    operators: ['$nor', '$or', '$regex', '$exists', '$eq']
   };
 
   // Initialize our service with any options it requires
@@ -16,6 +15,11 @@ module.exports = function (app) {
 
   // Get our initialized service so that we can register hooks
   const service = app.service('case-report-form');
+
+  // Set up MongoDB collection
+  app.get('mongodbClient').then(db => {
+    service.Model = db.collection('casereportforms');
+  });
 
   service.hooks(hooks);
 };

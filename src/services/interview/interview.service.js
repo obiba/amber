@@ -1,14 +1,13 @@
 // Initializes the `interview` service on path `/interview`
 const { Interview } = require('./interview.class');
-const createModel = require('../../models/interview.model');
 const hooks = require('./interview.hooks');
 
 module.exports = function (app) {
   const options = {
-    Model: createModel(app),
     paginate: app.get('paginate'),
     multi: ['remove'],
-    whitelist: ['$nor', '$and', '$regex']
+    filters: { $nor: true, $and: true },
+    operators: ['$nor', '$and', '$regex']
   };
 
   // Initialize our service with any options it requires
@@ -16,6 +15,11 @@ module.exports = function (app) {
 
   // Get our initialized service so that we can register hooks
   const service = app.service('interview');
+
+  // Set up MongoDB collection
+  app.get('mongodbClient').then(db => {
+    service.Model = db.collection('interviews');
+  });
 
   service.hooks(hooks);
 };
