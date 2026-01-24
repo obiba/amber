@@ -8,7 +8,11 @@ const start = async () => {
 
   const app = require('./app');
   const port = app.get('port');
-  const server = app.listen(port);
+  
+  // In Feathers v5, app.listen() returns a Promise
+  const server = await app.listen(port);
+  
+  logger.info('Feathers application started on http://%s:%d', app.get('host'), port);
   
   // in case there is no administrator user and seeding env variables are provided
   // seed an administrator user
@@ -42,10 +46,7 @@ const start = async () => {
     logger.error('Unhandled Rejection at: Promise ', p, reason)
   );
   
-  server.on('listening', () =>
-    logger.info('Feathers application started on http://%s:%d', app.get('host'), port)
-  );
-  
+  return server;
 };
 
 const max_cpus = os.cpus().length - 1;
