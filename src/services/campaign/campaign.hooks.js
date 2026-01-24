@@ -15,30 +15,30 @@ module.exports = {
     ],
     find: [
       searchQuery(),
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     get: [
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
       campaignCreate(),
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     update: [
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     patch: [
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     remove: [
-      authorize({ adapter: 'mongodb' }),
+      authorize({ adapter: '@feathersjs/mongodb' }),
       campaignRemoveParticipants()
     ]
   },
 
   after: {
     all: [
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     find: [],
     get: [],

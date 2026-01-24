@@ -22,29 +22,29 @@ module.exports = {
     all: [authenticate('jwt'), makeAbilities(defineAbilitiesFor), interviewAuthz()],
     find: [
       searchQuery(),
-      authorize({ adapter: 'mongodb' }),
+      authorize({ adapter: '@feathersjs/mongodb' }),
       interviewSearch()
     ],
     get: [
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
-      authorize({ adapter: 'mongodb' }),
+      authorize({ adapter: '@feathersjs/mongodb' }),
       interviewCreate(),
       interviewEncrypt()
     ],
     update: [
-      authorize({ adapter: 'mongodb' }),
+      authorize({ adapter: '@feathersjs/mongodb' }),
       interviewEncrypt(),
       interviewReopened()
     ],
     patch: [
-      authorize({ adapter: 'mongodb' }),
+      authorize({ adapter: '@feathersjs/mongodb' }),
       interviewEncrypt(),
       interviewReopened()
     ],
     remove: [
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
       // note: interviews can be orphans of their interview design
     ]
   },

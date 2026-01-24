@@ -16,17 +16,17 @@ module.exports = {
     ],
     find: [
       searchQuery(),
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
-    get: [authorize({ adapter: 'mongodb' })],
-    create: [authorize({ adapter: 'mongodb' })],
-    update: [authorize({ adapter: 'mongodb' })],
-    patch: [authorize({ adapter: 'mongodb' })],
-    remove: [authorize({ adapter: 'mongodb' })]
+    get: [authorize({ adapter: '@feathersjs/mongodb' })],
+    create: [authorize({ adapter: '@feathersjs/mongodb' })],
+    update: [authorize({ adapter: '@feathersjs/mongodb' })],
+    patch: [authorize({ adapter: '@feathersjs/mongodb' })],
+    remove: [authorize({ adapter: '@feathersjs/mongodb' })]
   },
 
   after: {
-    all: [authorize({ adapter: 'mongodb' })],
+    all: [authorize({ adapter: '@feathersjs/mongodb' })],
     find: [],
     get: [],
     create: [taskCreated()],

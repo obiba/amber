@@ -1,5 +1,5 @@
 const logger = require('../../logger');
-const { AbilityBuilder, createAliasResolver, makeAbilityFromRules } = require('feathers-casl');
+const { AbilityBuilder, createAliasResolver, createMongoAbility } = require('@casl/ability');
 
 
 // don't forget this, as `read` is used internally
@@ -10,8 +10,8 @@ const resolveAction = createAliasResolver({
 });
 
 const defineRulesFor = (user) => {
-  // also see https://casl.js.org/v5/en/guide/define-rules
-  const { can, rules } = new AbilityBuilder();
+  // also see https://casl.js.org/v6/en/guide/define-rules
+  const { can, rules } = new AbilityBuilder(createMongoAbility);
 
   //console.log(user);
 
@@ -33,7 +33,7 @@ const defineRulesFor = (user) => {
 const defineAbilitiesFor = (user) => {
   const rules = defineRulesFor(user);
 
-  return makeAbilityFromRules(rules, { resolveAction });
+  return createMongoAbility(rules, { resolveAction });
 };
 
 module.exports = {

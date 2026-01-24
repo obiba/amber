@@ -11,7 +11,7 @@ module.exports = {
       authenticate('jwt'),
       makeAbilities(defineAbilitiesFor)
     ],
-    find: [ authorize({ adapter: 'mongodb' }) ],
+    find: [ authorize({ adapter: '@feathersjs/mongodb' }) ],
     get: [],
     create: [],
     update: [],
@@ -20,7 +20,7 @@ module.exports = {
   },
 
   after: {
-    all: [ authorize({ adapter: 'mongodb' }) ],
+    all: [ authorize({ adapter: '@feathersjs/mongodb' }) ],
     find: [],
     get: [],
     create: [],

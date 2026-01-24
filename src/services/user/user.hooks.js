@@ -150,12 +150,12 @@ module.exports = {
       authenticate('jwt'),
       makeAbilities(defineAbilitiesFor),
       searchQuery(),
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     get: [
       authenticate('jwt'),
       makeAbilities(defineAbilitiesFor),
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
       allowAnonymous(),
@@ -171,7 +171,7 @@ module.exports = {
           validate.mongoose(adminCreateSchema, joiOptions)),
       passwordHasher,
       verifyHooks.addVerification(),
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     update: [
       authenticate('jwt'),
@@ -196,7 +196,7 @@ module.exports = {
         validate.mongoose(adminUpdateSchema, joiOptions),
         passwordHasher
       ),
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     patch: [
       authenticate('jwt'),
@@ -221,12 +221,12 @@ module.exports = {
         validate.mongoose(adminUpdateSchema, joiOptions),
         passwordHasher
       ),
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     remove: [
       authenticate('jwt'),
       makeAbilities(defineAbilitiesFor),
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
   },
 
@@ -248,10 +248,10 @@ module.exports = {
       )
     ],
     find: [
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     get: [
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [(context) => {
       accountService(context.app).notifier(
@@ -261,13 +261,13 @@ module.exports = {
     addUserToGroupDomain(),
     userSignupNotifyAdmin()],
     update: [
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     patch: [
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     remove: [
-      authorize({ adapter: 'mongodb' }),
+      authorize({ adapter: '@feathersjs/mongodb' }),
       userDeleteFromGroups(),
       userDeleteFromPermissions()
     ],

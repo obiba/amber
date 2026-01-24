@@ -18,23 +18,23 @@ module.exports = {
     ],
     find: [
       searchQuery(),
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     get: [
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
       formCreate(),
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     update: [
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     patch: [
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     remove: [
-      authorize({ adapter: 'mongodb' }),
+      authorize({ adapter: '@feathersjs/mongodb' }),
       formCheckRemove(), // check if the form has dependencies
       formRemoveRevisions(), // remove form revisions before removing the form
     ]
@@ -42,7 +42,7 @@ module.exports = {
 
   after: {
     all: [
-      authorize({ adapter: 'mongodb' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     find: [],
     get: [],
