@@ -27,21 +27,18 @@ describe('authentication', () => {
     };
 
     before(async () => {
+      // Delete user if exists, then create fresh
       try {
-        const user = await app.service('user').create(userInfo);
-        // Disable 2FA for the test user (with2fa field is not in create schema)
-        await app.service('user').patch(user._id, { with2fa: false });
-      } catch {
-        // User might already exist, try to find and patch them
-        try {
-          const users = await app.service('user').find({ query: { email: userInfo.email } });
-          if (users.data && users.data.length > 0) {
-            await app.service('user').patch(users.data[0]._id, { with2fa: false });
-          }
-        } catch {
-          // Ignore
+        const users = await app.service('user').find({ query: { email: userInfo.email } });
+        if (users.data && users.data.length > 0) {
+          await app.service('user').remove(users.data[0]._id);
         }
+      } catch {
+        // Ignore errors during cleanup
       }
+      
+      // Create the test user
+      await app.service('user').create(userInfo);
     });
 
     it('authenticates user and creates accessToken', async () => {
