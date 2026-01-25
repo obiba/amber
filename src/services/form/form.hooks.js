@@ -1,5 +1,6 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
 const { authorize } = require('feathers-casl');
+const { hooks: schemaHooks } = require('@feathersjs/schema');
 const { defineAbilitiesFor } = require('./form.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
@@ -9,6 +10,7 @@ const formAddToStudy = require('../../hooks/form-add-to-study');
 const formRemoveFromStudy = require('../../hooks/form-remove-from-study');
 const formRemoveRevisions = require('../../hooks/form-remove-revisions');
 const formCheckRemove = require('../../hooks/form-check-remove');
+const { formDataResolver, formQueryResolver } = require('./form.resolvers');
 
 module.exports = {
   before: {
@@ -18,19 +20,24 @@ module.exports = {
     ],
     find: [
       searchQuery(),
+      schemaHooks.resolveQuery(formQueryResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     get: [
+      schemaHooks.resolveQuery(formQueryResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
+      schemaHooks.resolveData(formDataResolver),
       formCreate(),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     update: [
+      schemaHooks.resolveData(formDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     patch: [
+      schemaHooks.resolveData(formDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     remove: [

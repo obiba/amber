@@ -1,5 +1,6 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
 const { authorize } = require('feathers-casl');
+const { hooks: schemaHooks } = require('@feathersjs/schema');
 const { defineAbilitiesFor } = require('./interview.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
@@ -16,29 +17,35 @@ const interviewReopened = require('../../hooks/interview-reopened');
 const interviewParticipantValidity = require('../../hooks/interview-participant-validity');
 
 const interviewSearch = require('../../hooks/interview-search');
+const { interviewDataResolver, interviewQueryResolver } = require('./interview.resolvers');
 
 module.exports = {
   before: {
     all: [authenticate('jwt'), makeAbilities(defineAbilitiesFor), interviewAuthz()],
     find: [
       searchQuery(),
+      schemaHooks.resolveQuery(interviewQueryResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       interviewSearch()
     ],
     get: [
+      schemaHooks.resolveQuery(interviewQueryResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
+      schemaHooks.resolveData(interviewDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       interviewCreate(),
       interviewEncrypt()
     ],
     update: [
+      schemaHooks.resolveData(interviewDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       interviewEncrypt(),
       interviewReopened()
     ],
     patch: [
+      schemaHooks.resolveData(interviewDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       interviewEncrypt(),
       interviewReopened()

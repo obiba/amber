@@ -1,11 +1,13 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
 const { authorize } = require('feathers-casl');
+const { hooks: schemaHooks } = require('@feathersjs/schema');
 
 const { defineAbilitiesFor } = require('./audit.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
 
 const auditCreateInternal = require('../../hooks/audit-create-internal');
+const { auditDataResolver, auditQueryResolver } = require('./audit.resolvers');
 
 module.exports = {
   before: {
@@ -13,11 +15,27 @@ module.exports = {
       authenticate('jwt'),
       makeAbilities(defineAbilitiesFor)
     ],
-    find: [authorize({ adapter: '@feathersjs/mongodb' })],
-    get: [authorize({ adapter: '@feathersjs/mongodb' })],
-    create: [authorize({ adapter: '@feathersjs/mongodb' }), auditCreateInternal()],
-    update: [authorize({ adapter: '@feathersjs/mongodb' })],
-    patch: [authorize({ adapter: '@feathersjs/mongodb' })],
+    find: [
+      schemaHooks.resolveQuery(auditQueryResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
+    ],
+    get: [
+      schemaHooks.resolveQuery(auditQueryResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
+    ],
+    create: [
+      schemaHooks.resolveData(auditDataResolver),
+      authorize({ adapter: '@feathersjs/mongodb' }),
+      auditCreateInternal()
+    ],
+    update: [
+      schemaHooks.resolveData(auditDataResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
+    ],
+    patch: [
+      schemaHooks.resolveData(auditDataResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
+    ],
     remove: [authorize({ adapter: '@feathersjs/mongodb' })]
   },
 

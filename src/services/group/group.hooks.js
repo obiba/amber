@@ -1,10 +1,12 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
 const { authorize } = require('feathers-casl');
+const { hooks: schemaHooks } = require('@feathersjs/schema');
 const { defineAbilitiesFor } = require('./group.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
 const searchQuery = require('../../hooks/search-query');
 const groupDeleteFromPermissions = require('../../hooks/group-delete-from-permissions');
+const { groupDataResolver, groupQueryResolver } = require('./group.resolvers');
 
 module.exports = {
   before: {
@@ -14,18 +16,23 @@ module.exports = {
     ],
     find: [
       searchQuery(),
+      schemaHooks.resolveQuery(groupQueryResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     get: [
+      schemaHooks.resolveQuery(groupQueryResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
+      schemaHooks.resolveData(groupDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     update: [
+      schemaHooks.resolveData(groupDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     patch: [
+      schemaHooks.resolveData(groupDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     remove: [

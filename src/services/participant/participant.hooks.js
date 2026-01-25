@@ -1,5 +1,6 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
 const { authorize } = require('feathers-casl');
+const { hooks: schemaHooks } = require('@feathersjs/schema');
 const { defineAbilitiesFor } = require('./participant.abilities');
 
 
@@ -16,6 +17,7 @@ const participantPasswordHash = require('../../hooks/participant-password-hash')
 const participantValidity = require('../../hooks/participant-validity');
 
 const participantSearch = require('../../hooks/participant-search');
+const { participantDataResolver, participantQueryResolver } = require('./participant.resolvers');
 
 module.exports = {
   before: {
@@ -25,24 +27,29 @@ module.exports = {
     ],
     find: [
       searchQuery(),
+      schemaHooks.resolveQuery(participantQueryResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       participantSearch()
     ],
     get: [
+      schemaHooks.resolveQuery(participantQueryResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
+      schemaHooks.resolveData(participantDataResolver),
       participantCreate(),
       authorize({ adapter: '@feathersjs/mongodb' }),
       participantEncrypt(),
       participantPasswordHash()
     ],
     update: [
+      schemaHooks.resolveData(participantDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       participantEncrypt(),
       participantPasswordHash()
     ],
     patch: [
+      schemaHooks.resolveData(participantDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       participantEncrypt(),
       participantPasswordHash()

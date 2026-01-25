@@ -1,11 +1,13 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
 const { authorize } = require('feathers-casl');
+const { hooks: schemaHooks } = require('@feathersjs/schema');
 const { defineAbilitiesFor } = require('./campaign.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
 const campaignCreate = require('../../hooks/campaign-create');
 const searchQuery = require('../../hooks/search-query');
 const campaignRemoveParticipants = require('../../hooks/campaign-remove-participants');
+const { campaignDataResolver, campaignQueryResolver } = require('./campaign.resolvers');
 
 module.exports = {
   before: {
@@ -15,19 +17,24 @@ module.exports = {
     ],
     find: [
       searchQuery(),
+      schemaHooks.resolveQuery(campaignQueryResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     get: [
+      schemaHooks.resolveQuery(campaignQueryResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
+      schemaHooks.resolveData(campaignDataResolver),
       campaignCreate(),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     update: [
+      schemaHooks.resolveData(campaignDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     patch: [
+      schemaHooks.resolveData(campaignDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     remove: [
