@@ -19,6 +19,10 @@ const participantValidity = require('../../hooks/participant-validity');
 const participantSearch = require('../../hooks/participant-search');
 const { participantDataResolver, participantQueryResolver } = require('./participant.resolvers');
 
+const validate = require('../../utils/validate-joi');
+const { participantCreateSchema, participantPatchSchema } = require('../../schemas/participant.schema');
+const { joiOptions } = require('../../schemas/common');
+
 module.exports = {
   before: {
     all: [
@@ -36,6 +40,7 @@ module.exports = {
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
+      validate.mongoose(participantCreateSchema, joiOptions),
       schemaHooks.resolveData(participantDataResolver),
       participantCreate(),
       authorize({ adapter: '@feathersjs/mongodb' }),
@@ -43,12 +48,14 @@ module.exports = {
       participantPasswordHash()
     ],
     update: [
+      validate.mongoose(participantCreateSchema, joiOptions),
       schemaHooks.resolveData(participantDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       participantEncrypt(),
       participantPasswordHash()
     ],
     patch: [
+      validate.mongoose(participantPatchSchema, joiOptions),
       schemaHooks.resolveData(participantDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       participantEncrypt(),

@@ -12,6 +12,10 @@ const formRemoveRevisions = require('../../hooks/form-remove-revisions');
 const formCheckRemove = require('../../hooks/form-check-remove');
 const { formDataResolver, formQueryResolver } = require('./form.resolvers');
 
+const validate = require('../../utils/validate-joi');
+const { formCreateSchema, formPatchSchema } = require('../../schemas/form.schema');
+const { joiOptions } = require('../../schemas/common');
+
 module.exports = {
   before: {
     all: [
@@ -28,22 +32,25 @@ module.exports = {
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
+      validate.mongoose(formCreateSchema, joiOptions),
       schemaHooks.resolveData(formDataResolver),
       formCreate(),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     update: [
+      validate.mongoose(formCreateSchema, joiOptions),
       schemaHooks.resolveData(formDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     patch: [
+      validate.mongoose(formPatchSchema, joiOptions),
       schemaHooks.resolveData(formDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     remove: [
       authorize({ adapter: '@feathersjs/mongodb' }),
-      formCheckRemove(), // check if the form has dependencies
-      formRemoveRevisions(), // remove form revisions before removing the form
+      formCheckRemove(),
+      formRemoveRevisions(),
     ]
   },
 

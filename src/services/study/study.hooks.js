@@ -9,6 +9,10 @@ const studyCreate = require('../../hooks/study-create');
 const studyRemoveForms = require('../../hooks/study-remove-forms');
 const { studyDataResolver, studyQueryResolver } = require('./study.resolvers');
 
+const validate = require('../../utils/validate-joi');
+const { studyCreateSchema, studyPatchSchema } = require('../../schemas/study.schema');
+const { joiOptions } = require('../../schemas/common');
+
 module.exports = {
   before: {
     all: [
@@ -25,15 +29,18 @@ module.exports = {
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
+      validate.mongoose(studyCreateSchema, joiOptions),
       schemaHooks.resolveData(studyDataResolver),
       studyCreate(),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     update: [
+      validate.mongoose(studyCreateSchema, joiOptions),
       schemaHooks.resolveData(studyDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     patch: [
+      validate.mongoose(studyPatchSchema, joiOptions),
       schemaHooks.resolveData(studyDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],

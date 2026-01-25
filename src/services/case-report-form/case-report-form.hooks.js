@@ -8,6 +8,10 @@ const caseReportFormCreate = require('../../hooks/case-report-form-create');
 const addUserGroupsToContext = require('../../hooks/user-add-groups-to-context');
 const { caseReportFormDataResolver, caseReportFormQueryResolver } = require('./case-report-form.resolvers');
 
+const validate = require('../../utils/validate-joi');
+const { caseReportFormCreateSchema, caseReportFormPatchSchema } = require('../../schemas/case-report-form.schema');
+const { joiOptions } = require('../../schemas/common');
+
 module.exports = {
   before: {
     all: [
@@ -24,21 +28,23 @@ module.exports = {
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
+      validate.mongoose(caseReportFormCreateSchema, joiOptions),
       schemaHooks.resolveData(caseReportFormDataResolver),
       caseReportFormCreate(),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     update: [
+      validate.mongoose(caseReportFormCreateSchema, joiOptions),
       schemaHooks.resolveData(caseReportFormDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     patch: [
+      validate.mongoose(caseReportFormPatchSchema, joiOptions),
       schemaHooks.resolveData(caseReportFormDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     remove: [
       authorize({ adapter: '@feathersjs/mongodb' })
-      // note: case reports can be orphans of their CRF
     ]
   },
 

@@ -13,6 +13,10 @@ const interviewDesignValidate = require('../../hooks/interview-design-validate')
 const interviewDesignRemoveCampaigns = require('../../hooks/interview-design-remove-campaigns');
 const { interviewDesignDataResolver, interviewDesignQueryResolver } = require('./interview-design.resolvers');
 
+const validate = require('../../utils/validate-joi');
+const { interviewDesignCreateSchema, interviewDesignPatchSchema } = require('../../schemas/interview-design.schema');
+const { joiOptions } = require('../../schemas/common');
+
 module.exports = {
   before: {
     all: [
@@ -30,17 +34,20 @@ module.exports = {
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
+      validate.mongoose(interviewDesignCreateSchema, joiOptions),
       schemaHooks.resolveData(interviewDesignDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       interviewDesignCreate(),
       interviewDesignValidate()
     ],
     update: [
+      validate.mongoose(interviewDesignCreateSchema, joiOptions),
       schemaHooks.resolveData(interviewDesignDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       interviewDesignValidate()
     ],
     patch: [
+      validate.mongoose(interviewDesignPatchSchema, joiOptions),
       schemaHooks.resolveData(interviewDesignDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       interviewDesignValidate()

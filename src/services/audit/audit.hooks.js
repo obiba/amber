@@ -9,6 +9,10 @@ const makeAbilities = require('../../hooks/make-abilities');
 const auditCreateInternal = require('../../hooks/audit-create-internal');
 const { auditDataResolver, auditQueryResolver } = require('./audit.resolvers');
 
+const validate = require('../../utils/validate-joi');
+const { auditCreateSchema, auditPatchSchema } = require('../../schemas/audit.schema');
+const { joiOptions } = require('../../schemas/common');
+
 module.exports = {
   before: {
     all: [
@@ -24,15 +28,18 @@ module.exports = {
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
+      validate.mongoose(auditCreateSchema, joiOptions),
       schemaHooks.resolveData(auditDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       auditCreateInternal()
     ],
     update: [
+      validate.mongoose(auditCreateSchema, joiOptions),
       schemaHooks.resolveData(auditDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     patch: [
+      validate.mongoose(auditPatchSchema, joiOptions),
       schemaHooks.resolveData(auditDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],

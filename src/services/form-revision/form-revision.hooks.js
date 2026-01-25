@@ -10,6 +10,10 @@ const searchQuery = require('../../hooks/search-query');
 const formRevisionCheckRemove = require('../../hooks/form-revision-check-remove');
 const { formRevisionDataResolver, formRevisionQueryResolver } = require('./form-revision.resolvers');
 
+const validate = require('../../utils/validate-joi');
+const { formRevisionCreateSchema, formRevisionPatchSchema } = require('../../schemas/form-revision.schema');
+const { joiOptions } = require('../../schemas/common');
+
 module.exports = {
   before: {
     all: [
@@ -26,15 +30,18 @@ module.exports = {
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
+      validate.mongoose(formRevisionCreateSchema, joiOptions),
       schemaHooks.resolveData(formRevisionDataResolver),
       formRevisionCreate(),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     update: [
+      validate.mongoose(formRevisionCreateSchema, joiOptions),
       schemaHooks.resolveData(formRevisionDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     patch: [
+      validate.mongoose(formRevisionPatchSchema, joiOptions),
       schemaHooks.resolveData(formRevisionDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],

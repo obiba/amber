@@ -7,6 +7,10 @@ const allowApiKey = require('../../hooks/allow-api-key');
 const searchQuery = require('../../hooks/search-query');
 const taskCreated = require('../../hooks/task-created');
 
+const validate = require('../../utils/validate-joi');
+const { taskCreateSchema, taskPatchSchema } = require('../../schemas/task.schema');
+const { joiOptions } = require('../../schemas/common');
+
 module.exports = {
   before: {
     all: [
@@ -19,9 +23,18 @@ module.exports = {
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     get: [authorize({ adapter: '@feathersjs/mongodb' })],
-    create: [authorize({ adapter: '@feathersjs/mongodb' })],
-    update: [authorize({ adapter: '@feathersjs/mongodb' })],
-    patch: [authorize({ adapter: '@feathersjs/mongodb' })],
+    create: [
+      validate.mongoose(taskCreateSchema, joiOptions),
+      authorize({ adapter: '@feathersjs/mongodb' })
+    ],
+    update: [
+      validate.mongoose(taskCreateSchema, joiOptions),
+      authorize({ adapter: '@feathersjs/mongodb' })
+    ],
+    patch: [
+      validate.mongoose(taskPatchSchema, joiOptions),
+      authorize({ adapter: '@feathersjs/mongodb' })
+    ],
     remove: [authorize({ adapter: '@feathersjs/mongodb' })]
   },
 

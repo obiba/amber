@@ -19,6 +19,10 @@ const interviewParticipantValidity = require('../../hooks/interview-participant-
 const interviewSearch = require('../../hooks/interview-search');
 const { interviewDataResolver, interviewQueryResolver } = require('./interview.resolvers');
 
+const validate = require('../../utils/validate-joi');
+const { interviewCreateSchema, interviewPatchSchema } = require('../../schemas/interview.schema');
+const { joiOptions } = require('../../schemas/common');
+
 module.exports = {
   before: {
     all: [authenticate('jwt'), makeAbilities(defineAbilitiesFor), interviewAuthz()],
@@ -33,18 +37,21 @@ module.exports = {
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
+      validate.mongoose(interviewCreateSchema, joiOptions),
       schemaHooks.resolveData(interviewDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       interviewCreate(),
       interviewEncrypt()
     ],
     update: [
+      validate.mongoose(interviewCreateSchema, joiOptions),
       schemaHooks.resolveData(interviewDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       interviewEncrypt(),
       interviewReopened()
     ],
     patch: [
+      validate.mongoose(interviewPatchSchema, joiOptions),
       schemaHooks.resolveData(interviewDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       interviewEncrypt(),
@@ -52,7 +59,6 @@ module.exports = {
     ],
     remove: [
       authorize({ adapter: '@feathersjs/mongodb' })
-      // note: interviews can be orphans of their interview design
     ]
   },
 

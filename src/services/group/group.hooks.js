@@ -8,6 +8,10 @@ const searchQuery = require('../../hooks/search-query');
 const groupDeleteFromPermissions = require('../../hooks/group-delete-from-permissions');
 const { groupDataResolver, groupQueryResolver } = require('./group.resolvers');
 
+const validate = require('../../utils/validate-joi');
+const { groupCreateSchema, groupPatchSchema } = require('../../schemas/group.schema');
+const { joiOptions } = require('../../schemas/common');
+
 module.exports = {
   before: {
     all: [
@@ -24,14 +28,17 @@ module.exports = {
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
+      validate.mongoose(groupCreateSchema, joiOptions),
       schemaHooks.resolveData(groupDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     update: [
+      validate.mongoose(groupCreateSchema, joiOptions),
       schemaHooks.resolveData(groupDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     patch: [
+      validate.mongoose(groupPatchSchema, joiOptions),
       schemaHooks.resolveData(groupDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],

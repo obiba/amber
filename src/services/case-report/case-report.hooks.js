@@ -10,6 +10,10 @@ const caseReportEncrypt = require('../../hooks/case-report-encrypt');
 const caseReportDecrypt = require('../../hooks/case-report-decrypt');
 const { caseReportDataResolver, caseReportQueryResolver } = require('./case-report.resolvers');
 
+const validate = require('../../utils/validate-joi');
+const { caseReportCreateSchema, caseReportPatchSchema } = require('../../schemas/case-report.schema');
+const { joiOptions } = require('../../schemas/common');
+
 module.exports = {
   before: {
     all: [
@@ -26,17 +30,20 @@ module.exports = {
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
+      validate.mongoose(caseReportCreateSchema, joiOptions),
       schemaHooks.resolveData(caseReportDataResolver),
       caseReportCreate(),
       authorize({ adapter: '@feathersjs/mongodb' }),
       caseReportEncrypt()
     ],
     update: [
+      validate.mongoose(caseReportCreateSchema, joiOptions),
       schemaHooks.resolveData(caseReportDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       caseReportEncrypt()
     ],
     patch: [
+      validate.mongoose(caseReportPatchSchema, joiOptions),
       schemaHooks.resolveData(caseReportDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       caseReportEncrypt()

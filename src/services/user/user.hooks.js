@@ -1,5 +1,6 @@
-const Joi = require('joi');
 const validate = require('../../utils/validate-joi');
+const { userRegisterSchema, userAdminCreateSchema, userAdminUpdateSchema } = require('../../schemas/user.schema');
+const { joiOptions } = require('../../schemas/common');
 
 const { authenticate } = require('@feathersjs/authentication').hooks;
 const { authorize } = require('feathers-casl');
@@ -29,104 +30,6 @@ const {
 const {
   protect,
 } = require('@feathersjs/authentication-local').hooks;
-
-const firstname = Joi.string()
-  .trim()
-  .min(2)
-  .max(30)
-  .required();
-
-const lastname = Joi.string()
-  .trim()
-  .min(2)
-  .max(30)
-  .required();
-
-const language = Joi.string()
-  .trim()
-  .min(2)
-  .max(5);
-
-const strongPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,64}$/;
-const password = Joi.string().trim()
-  .regex(strongPasswordRegex)
-  .min(8)
-  .max(64)
-  .required();
-
-const email = Joi.string()
-  .email({
-    minDomainSegments: 2,
-    //tlds: { allow: ['com','org'] },
-  })
-  .required();
-
-const institution = Joi.string()
-  .trim()
-  .min(2)
-  .max(100);
-
-const city = Joi.string()
-  .trim()
-  .min(2)
-  .max(30);
-
-const title = Joi.string()
-  .trim()
-  .min(2)
-  .max(30);
-
-const phone = Joi.string()
-  .trim()
-  .min(2)
-  .max(30)
-  .pattern(new RegExp('^[+0-9 ]{2,30}$'));
-
-const permissions = Joi.array();
-
-const role = Joi.string()
-  .trim()
-  .pattern(new RegExp('^(guest|interviewer|manager|administrator|inactive)$'));
-
-const schema = Joi.object().keys({
-  firstname: firstname,
-  lastname: lastname,
-  language: language,
-  email: email,
-  password: password,
-  clientId: Joi.string().trim()
-});
-
-const adminCreateSchema = Joi.object().keys({
-  firstname: firstname,
-  lastname: lastname,
-  language: language,
-  email: email,
-  password: password,
-  permissions: permissions,
-  role: role,
-  city: city,
-  institution: institution,
-  title: title,
-  phone: phone,
-});
-
-const adminUpdateSchema = Joi.object().keys({
-  firstname: firstname,
-  lastname: lastname,
-  language: language,
-  city: city,
-  institution: institution,
-  title: title,
-  phone: phone,
-  permissions: permissions,
-  role: role,
-  with2fa: Joi.boolean(),
-  totp2faSecret: Joi.any(),
-  totp2faRequired: Joi.boolean()
-});
-
-const joiOptions = { convert: true, abortEarly: false };
 
 const userDeleteFromPermissions = require('../../hooks/user-delete-from-permissions');
 const userSignupNotifyAdmin = require('../../hooks/user-signup-notify-admin');
@@ -165,9 +68,9 @@ module.exports = {
       userSanitize(),
       iff(
         isAnonymous(),
-        validate.mongoose(schema, joiOptions))
+        validate.mongoose(userRegisterSchema, joiOptions))
         .else(
-          validate.mongoose(adminCreateSchema, joiOptions)),
+          validate.mongoose(userAdminCreateSchema, joiOptions)),
       passwordHasher,
       verifyHooks.addVerification(),
       authorize({ adapter: '@feathersjs/mongodb' })
@@ -192,7 +95,7 @@ module.exports = {
           'resetShortToken',
           'resetExpires'
         ),
-        validate.mongoose(adminUpdateSchema, joiOptions),
+        validate.mongoose(userAdminUpdateSchema, joiOptions),
         passwordHasher
       ),
       authorize({ adapter: '@feathersjs/mongodb' })
@@ -217,7 +120,7 @@ module.exports = {
           'resetShortToken',
           'resetExpires'
         ),
-        validate.mongoose(adminUpdateSchema, joiOptions),
+        validate.mongoose(userAdminUpdateSchema, joiOptions),
         passwordHasher
       ),
       authorize({ adapter: '@feathersjs/mongodb' })
