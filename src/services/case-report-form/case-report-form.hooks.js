@@ -44,6 +44,7 @@ module.exports = {
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     remove: [
+      schemaHooks.resolveQuery(caseReportFormQueryResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ]
   },

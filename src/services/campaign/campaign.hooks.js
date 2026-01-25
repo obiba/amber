@@ -45,6 +45,7 @@ module.exports = {
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     remove: [
+      schemaHooks.resolveQuery(campaignQueryResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       campaignRemoveParticipants()
     ]

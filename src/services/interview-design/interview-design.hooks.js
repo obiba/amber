@@ -53,6 +53,7 @@ module.exports = {
       interviewDesignValidate()
     ],
     remove: [
+      schemaHooks.resolveQuery(interviewDesignQueryResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
       interviewDesignRemoveCampaigns()
     ]

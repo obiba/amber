@@ -44,7 +44,10 @@ module.exports = {
       schemaHooks.resolveData(taskDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
-    remove: [authorize({ adapter: '@feathersjs/mongodb' })]
+    remove: [
+      schemaHooks.resolveQuery(taskQueryResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
+    ]
   },
 
   after: {

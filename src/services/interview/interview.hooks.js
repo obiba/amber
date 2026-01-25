@@ -58,6 +58,7 @@ module.exports = {
       interviewReopened()
     ],
     remove: [
+      schemaHooks.resolveQuery(interviewQueryResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ]
   },

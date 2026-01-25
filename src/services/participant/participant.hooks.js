@@ -62,6 +62,7 @@ module.exports = {
       participantPasswordHash()
     ],
     remove: [
+      schemaHooks.resolveQuery(participantQueryResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ]
   },

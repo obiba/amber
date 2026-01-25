@@ -49,6 +49,7 @@ module.exports = {
       caseReportEncrypt()
     ],
     remove: [
+      schemaHooks.resolveQuery(caseReportQueryResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ]
   },
