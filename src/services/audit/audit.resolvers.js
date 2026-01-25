@@ -1,5 +1,6 @@
 const { resolve } = require('@feathersjs/schema');
-const { resolveObjectId, resolveQueryObjectId } = require('@feathersjs/mongodb');
+const { resolveQueryObjectId } = require('@feathersjs/mongodb');
+const { resolveObjectId } = require('../../resolvers');
 
 /**
  * Resolver for audit create/update/patch data

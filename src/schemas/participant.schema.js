@@ -16,7 +16,7 @@ const reminderSchema = Joi.object({
 });
 
 const participantCreateSchema = Joi.object({
-  code: Joi.string().required(),
+  code: Joi.string().allow('', null),
   password: Joi.string().allow('', null),
   identifier: Joi.string().allow('', null),
   validFrom: Joi.date().iso().allow(null),

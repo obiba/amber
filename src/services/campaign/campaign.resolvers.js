@@ -1,6 +1,6 @@
 const { resolve } = require('@feathersjs/schema');
-const { resolveObjectId, resolveQueryObjectId } = require('@feathersjs/mongodb');
-const { resolveObjectIdArray, resolveCreatedBy, resolveUpdatedBy } = require('../../resolvers');
+const { resolveQueryObjectId } = require('@feathersjs/mongodb');
+const { resolveObjectId, resolveObjectIdArray, resolveCreatedBy, resolveUpdatedBy } = require('../../resolvers');
 
 /**
  * Resolver for campaign create/update/patch data

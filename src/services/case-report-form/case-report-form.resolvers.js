@@ -1,6 +1,6 @@
 const { resolve } = require('@feathersjs/schema');
-const { resolveObjectId, resolveQueryObjectId } = require('@feathersjs/mongodb');
-const { resolvePermissionsField, resolveCreatedBy, resolveUpdatedBy } = require('../../resolvers');
+const { resolveQueryObjectId } = require('@feathersjs/mongodb');
+const { resolveObjectId, resolvePermissionsField, resolveCreatedBy, resolveUpdatedBy } = require('../../resolvers');
 
 /**
  * Resolver for case-report-form create/update/patch data

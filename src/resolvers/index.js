@@ -1,5 +1,5 @@
 const { resolve } = require('@feathersjs/schema');
-const { resolveObjectId, resolveQueryObjectId } = require('@feathersjs/mongodb');
+const { resolveQueryObjectId } = require('@feathersjs/mongodb');
 const { ObjectId } = require('mongodb');
 
 /**
@@ -14,16 +14,29 @@ const isValidObjectIdString = (value) => {
 
 /**
  * Converts a value to ObjectId if it's a valid ObjectId string
+ * Returns undefined/null as-is to avoid generating random ObjectIds
  * @param {any} value - The value to convert
  * @returns {ObjectId|any} - ObjectId or original value
  */
 const toObjectId = (value) => {
-  if (!value) return value;
+  if (value === undefined || value === null) return value;
   if (value instanceof ObjectId) return value;
   if (isValidObjectIdString(value)) {
     return new ObjectId(value);
   }
   return value;
+};
+
+/**
+ * Safe resolver for ObjectId fields - does NOT convert undefined/null to random ObjectIds
+ * Use this instead of @feathersjs/mongodb resolveObjectId for data resolvers
+ * @param {any} value - The value to resolve
+ * @returns {ObjectId|undefined} - ObjectId or undefined (to skip the field)
+ */
+const resolveObjectId = async (value) => {
+  // Return undefined to skip setting this field if no value provided
+  if (value === undefined) return undefined;
+  return toObjectId(value);
 };
 
 /**
