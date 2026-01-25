@@ -5,7 +5,6 @@ const { defineAbilitiesFor } = require('./study.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
 const searchQuery = require('../../hooks/search-query');
-const studyCreate = require('../../hooks/study-create');
 const studyRemoveForms = require('../../hooks/study-remove-forms');
 const { studyDataResolver, studyQueryResolver } = require('./study.resolvers');
 
@@ -31,7 +30,6 @@ module.exports = {
     create: [
       validate.mongoose(studyCreateSchema, joiOptions),
       schemaHooks.resolveData(studyDataResolver),
-      studyCreate(),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     update: [

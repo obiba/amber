@@ -1,14 +1,15 @@
 const { resolve } = require('@feathersjs/schema');
 const { resolveObjectId, resolveQueryObjectId } = require('@feathersjs/mongodb');
-const { resolvePermissionsField } = require('../../resolvers');
+const { resolvePermissionsField, resolveCreatedBy, resolveUpdatedBy } = require('../../resolvers');
 
 /**
  * Resolver for case-report-form create/update/patch data
- * Converts ObjectId fields: createdBy, study, form
+ * Converts ObjectId fields: createdBy, updatedBy, study, form
  * Converts nested permissions: permissions.users[], permissions.groups[]
  */
 const caseReportFormDataResolver = resolve({
-  createdBy: resolveObjectId,
+  createdBy: resolveCreatedBy,
+  updatedBy: resolveUpdatedBy,
   study: resolveObjectId,
   form: resolveObjectId,
   permissions: resolvePermissionsField
@@ -21,6 +22,7 @@ const caseReportFormDataResolver = resolve({
 const caseReportFormQueryResolver = resolve({
   _id: resolveQueryObjectId,
   createdBy: resolveQueryObjectId,
+  updatedBy: resolveQueryObjectId,
   study: resolveQueryObjectId,
   form: resolveQueryObjectId
 });

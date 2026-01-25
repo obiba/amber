@@ -1,5 +1,6 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
 const { authorize } = require('feathers-casl');
+const { hooks: schemaHooks } = require('@feathersjs/schema');
 const { defineAbilitiesFor } = require('./task.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
@@ -9,6 +10,7 @@ const taskCreated = require('../../hooks/task-created');
 
 const validate = require('../../utils/validate-joi');
 const { taskCreateSchema, taskPatchSchema } = require('../../schemas/task.schema');
+const { taskDataResolver, taskQueryResolver } = require('./task.resolvers');
 const { joiOptions } = require('../../schemas/common');
 
 module.exports = {
@@ -20,19 +22,26 @@ module.exports = {
     ],
     find: [
       searchQuery(),
+      schemaHooks.resolveQuery(taskQueryResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
-    get: [authorize({ adapter: '@feathersjs/mongodb' })],
+    get: [
+      schemaHooks.resolveQuery(taskQueryResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
+    ],
     create: [
       validate.mongoose(taskCreateSchema, joiOptions),
+      schemaHooks.resolveData(taskDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     update: [
       validate.mongoose(taskCreateSchema, joiOptions),
+      schemaHooks.resolveData(taskDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     patch: [
       validate.mongoose(taskPatchSchema, joiOptions),
+      schemaHooks.resolveData(taskDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' })
     ],
     remove: [authorize({ adapter: '@feathersjs/mongodb' })]

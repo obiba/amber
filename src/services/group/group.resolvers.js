@@ -1,12 +1,15 @@
 const { resolve } = require('@feathersjs/schema');
 const { resolveQueryObjectId } = require('@feathersjs/mongodb');
-const { resolveObjectIdArray } = require('../../resolvers');
+const { resolveObjectIdArray, resolveCreatedBy, resolveUpdatedBy } = require('../../resolvers');
 
 /**
  * Resolver for group create/update/patch data
+ * Converts ObjectId fields: createdBy, updatedBy
  * Converts array ObjectId fields: users
  */
 const groupDataResolver = resolve({
+  createdBy: resolveCreatedBy,
+  updatedBy: resolveUpdatedBy,
   users: resolveObjectIdArray
 });
 
@@ -16,6 +19,8 @@ const groupDataResolver = resolve({
  */
 const groupQueryResolver = resolve({
   _id: resolveQueryObjectId,
+  createdBy: resolveQueryObjectId,
+  updatedBy: resolveQueryObjectId,
   users: resolveQueryObjectId
 });
 

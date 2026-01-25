@@ -17,10 +17,6 @@ module.exports = (options = {}) => {
     if (res.total > 0) {
       throw new BadRequest('Form name must be unique in the study');
     }
-    // Set created by the logged in user
-    context.data.createdBy = context.params.user._id;
-    context.data.createdAt = new Date();
-    context.data.updatedAt = new Date();
     return context;
   };
 };

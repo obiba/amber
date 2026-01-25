@@ -1,12 +1,14 @@
 const { resolve } = require('@feathersjs/schema');
 const { resolveObjectId, resolveQueryObjectId } = require('@feathersjs/mongodb');
+const { resolveCreatedBy, resolveUpdatedBy } = require('../../resolvers');
 
 /**
  * Resolver for form create/update/patch data
- * Converts ObjectId fields: createdBy, study
+ * Converts ObjectId fields: createdBy, updatedBy, study
  */
 const formDataResolver = resolve({
-  createdBy: resolveObjectId,
+  createdBy: resolveCreatedBy,
+  updatedBy: resolveUpdatedBy,
   study: resolveObjectId
 });
 
@@ -17,6 +19,7 @@ const formDataResolver = resolve({
 const formQueryResolver = resolve({
   _id: resolveQueryObjectId,
   createdBy: resolveQueryObjectId,
+  updatedBy: resolveQueryObjectId,
   study: resolveQueryObjectId
 });
 

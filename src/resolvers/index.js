@@ -93,6 +93,37 @@ const resolveStepsField = async (value) => {
   return resolveSteps(value);
 };
 
+/**
+ * Resolver function for createdBy field
+ * Sets to current user's _id on create operations
+ * @param {any} value - The current value
+ * @param {object} _data - The data object (unused)
+ * @param {object} context - The Feathers context
+ * @returns {ObjectId|any} - User's ObjectId or original value
+ */
+const resolveCreatedBy = async (value, _data, context) => {
+  // Only set on create if not already set
+  if (context.method === 'create' && !value && context.params.user?._id) {
+    return toObjectId(context.params.user._id);
+  }
+  return value ? toObjectId(value) : value;
+};
+
+/**
+ * Resolver function for updatedBy field
+ * Sets to current user's _id on create/update/patch operations
+ * @param {any} value - The current value
+ * @param {object} _data - The data object (unused)
+ * @param {object} context - The Feathers context
+ * @returns {ObjectId|any} - User's ObjectId or original value
+ */
+const resolveUpdatedBy = async (value, _data, context) => {
+  if (context.params.user?._id) {
+    return toObjectId(context.params.user._id);
+  }
+  return value ? toObjectId(value) : value;
+};
+
 module.exports = {
   resolve,
   resolveObjectId,
@@ -104,5 +135,7 @@ module.exports = {
   resolveSteps,
   resolveObjectIdArray,
   resolvePermissionsField,
-  resolveStepsField
+  resolveStepsField,
+  resolveCreatedBy,
+  resolveUpdatedBy
 };

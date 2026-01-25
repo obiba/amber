@@ -1,15 +1,16 @@
 const { resolve } = require('@feathersjs/schema');
 const { resolveObjectId, resolveQueryObjectId } = require('@feathersjs/mongodb');
-const { resolveStepsField } = require('../../resolvers');
+const { resolveStepsField, resolveCreatedBy, resolveUpdatedBy } = require('../../resolvers');
 
 /**
  * Resolver for interview create/update/patch data
- * Converts ObjectId fields: participant, createdBy, campaign, interviewDesign, study
+ * Converts ObjectId fields: participant, createdBy, updatedBy, campaign, interviewDesign, study
  * Converts nested steps: steps[].form
  */
 const interviewDataResolver = resolve({
   participant: resolveObjectId,
-  createdBy: resolveObjectId,
+  createdBy: resolveCreatedBy,
+  updatedBy: resolveUpdatedBy,
   campaign: resolveObjectId,
   interviewDesign: resolveObjectId,
   study: resolveObjectId,
@@ -24,6 +25,7 @@ const interviewQueryResolver = resolve({
   _id: resolveQueryObjectId,
   participant: resolveQueryObjectId,
   createdBy: resolveQueryObjectId,
+  updatedBy: resolveQueryObjectId,
   campaign: resolveQueryObjectId,
   interviewDesign: resolveQueryObjectId,
   study: resolveQueryObjectId

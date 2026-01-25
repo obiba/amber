@@ -34,8 +34,6 @@ module.exports = (options = {}) => {
       throw new BadRequest('Case report form is missing');
     }
     delete context.data.id;
-    // Set created by the logged in user
-    context.data.createdBy = context.params.user._id;
     return context;
   };
 };
