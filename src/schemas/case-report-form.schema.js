@@ -15,7 +15,7 @@ const caseReportFormCreateSchema = Joi.object({
   revision: Joi.number().integer(),
   state: Joi.string().valid(...stateEnums.caseReportForm).default('paused'),
   repeatPolicy: Joi.string().valid(...repeatPolicyEnum).default('single_reject'),
-  permissions: permissionsSchema,
+  permissions: permissionsSchema.allow(null).default(null),
   study: objectId
 });
 
@@ -26,7 +26,7 @@ const caseReportFormPatchSchema = Joi.object({
   revision: Joi.number().integer(),
   state: Joi.string().valid(...stateEnums.caseReportForm),
   repeatPolicy: Joi.string().valid(...repeatPolicyEnum),
-  permissions: permissionsSchema,
+  permissions: permissionsSchema.allow(null),
   study: objectId
 });
 

@@ -30,7 +30,7 @@ const interviewDesignCreateSchema = Joi.object({
   steps: Joi.array().items(interviewDesignStepSchema).default([]),
   i18n: Joi.object().default({}),
   state: Joi.string().valid(...stateEnums.interviewDesign).default('paused'),
-  permissions: permissionsSchema
+  permissions: permissionsSchema.allow(null).default(null)
 });
 
 const interviewDesignPatchSchema = Joi.object({
@@ -43,7 +43,7 @@ const interviewDesignPatchSchema = Joi.object({
   steps: Joi.array().items(interviewDesignStepSchema),
   i18n: Joi.object(),
   state: Joi.string().valid(...stateEnums.interviewDesign),
-  permissions: permissionsSchema
+  permissions: permissionsSchema.allow(null)
 });
 
 module.exports = {
