@@ -19,6 +19,8 @@ module.exports = (options = {}) => {
     }
     // Set created by the logged in user
     context.data.createdBy = context.params.user._id;
+    context.data.createdAt = new Date();
+    context.data.updatedAt = new Date();
     return context;
   };
 };

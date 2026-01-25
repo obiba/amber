@@ -7,7 +7,7 @@ const { NotAuthenticated } = require('@feathersjs/errors');
 module.exports = (options = {}) => {
   return async context => {
     if (context.path !== 'user' && context.params && context.params.user && context.params.user.lastSeen) {
-      const lastSeen = context.params.user.lastSeen.getTime();
+      const lastSeen = context.params.user.lastSeen;
       const now = Date.now();
       const activity = now - lastSeen;
       const activityTimeout = ms(context.app.get('authentication').activityTimeout);

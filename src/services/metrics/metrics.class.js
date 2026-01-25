@@ -79,7 +79,7 @@ exports.Metrics = class Metrics {
   toMongoQuery (query) {
     ['study', 'form', 'caseReportForm', 'interviewDesign', 'campaign'].forEach(entity => {
       if (query[entity]) {
-        query[entity] = ObjectId(query[entity]);
+        query[entity] = ObjectId.createFromHexString(query[entity]);
       }
     });
     return query;
