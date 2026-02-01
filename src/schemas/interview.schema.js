@@ -10,8 +10,8 @@ const { objectId, stateEnums, actionTypeEnums } = require('./common');
 
 const interviewActionSchema = Joi.object({
   type: Joi.string().valid(...actionTypeEnums.interview).default('complete'),
-  user: Joi.string(),
-  timestamp: Joi.number()
+  user: objectId.allow(null),
+  timestamp: Joi.date()
 });
 
 const interviewStepSchema = Joi.object({

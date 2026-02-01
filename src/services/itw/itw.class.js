@@ -95,7 +95,11 @@ exports.Itw = class Itw extends ItwBase {
     }
 
     params.query = {};
-    return this.digestInterview(await itwService.patch(interview._id, patched, params));
+    const interviewUpdated = await itwService.patch(interview._id, patched, {
+      ...params,
+      provider: undefined // internal call - bypass authorization hooks
+    });
+    return this.digestInterview(interviewUpdated);
   }
 
   async remove (id, params) {
@@ -112,7 +116,10 @@ exports.Itw = class Itw extends ItwBase {
 
     // try to find the interview
     const itwService = this.app.service('interview');
-    let result = await itwService.find({ query: { code: participant.code } });
+    let result = await itwService.find({
+      query: { code: participant.code },
+      provider: undefined // internal call - bypass authorization hooks
+    });
     let interview;
     if (result.total === 0) {
       // create one
@@ -125,6 +132,8 @@ exports.Itw = class Itw extends ItwBase {
         study: interviewDesign.study,
         state: 'initiated',
         steps: []
+      }, {
+        provider: undefined // internal call - bypass authorization hooks
       });
     } else {
       interview = result.data[0];

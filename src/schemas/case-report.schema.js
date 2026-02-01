@@ -11,7 +11,7 @@ const { objectId, stateEnums, actionTypeEnums } = require('./common');
 const caseReportActionSchema = Joi.object({
   type: Joi.string().valid(...actionTypeEnums.caseReport).default('complete'),
   user: Joi.string(),
-  timestamp: Joi.number()
+  timestamp: Joi.date()
 });
 
 const caseReportCreateSchema = Joi.object({
