@@ -226,7 +226,7 @@ describe('\'case-report\' service', () => {
   describe('create case report', () => {
     it('creates a case report with valid data', async () => {
       const caseReportData = {
-        crfId: testCaseReportForm._id,
+        crfId: testCaseReportForm._id.toString(),
         caseReportForm: testCaseReportForm._id,
         revision: 1,
         state: 'completed',
@@ -249,7 +249,7 @@ describe('\'case-report\' service', () => {
 
     it('creates a case report with default state', async () => {
       const caseReportData = {
-        crfId: testCaseReportForm._id,
+        crfId: testCaseReportForm._id.toString(),
         caseReportForm: testCaseReportForm._id,
         revision: 1,
         data: {
@@ -273,7 +273,7 @@ describe('\'case-report\' service', () => {
 
     it('creates a case report with actions', async () => {
       const caseReportData = {
-        crfId: testCaseReportForm._id,
+        crfId: testCaseReportForm._id.toString(),
         caseReportForm: testCaseReportForm._id,
         revision: 1,
         state: 'in_progress',
@@ -321,7 +321,7 @@ describe('\'case-report\' service', () => {
       try {
         await app.service('case-report').create(
           {
-            crfId: testCaseReportForm._id,
+            crfId: testCaseReportForm._id.toString(),
             caseReportForm: testCaseReportForm._id,
             revision: 1,
             state: 'invalid_state',
@@ -339,7 +339,7 @@ describe('\'case-report\' service', () => {
       try {
         await app.service('case-report').create(
           {
-            crfId: testCaseReportForm._id,
+            crfId: testCaseReportForm._id.toString(),
             caseReportForm: testCaseReportForm._id,
             revision: 1,
             actions: [{ type: 'invalid_action' }],
@@ -562,7 +562,7 @@ describe('\'case-report\' service', () => {
       // Create a case report to be removed
       caseReportToRemove = await app.service('case-report').create(
         {
-          crfId: testCaseReportForm._id,
+          crfId: testCaseReportForm._id.toString(),
           caseReportForm: testCaseReportForm._id,
           revision: 1,
           state: 'completed',
@@ -613,7 +613,7 @@ describe('\'case-report\' service', () => {
       // Create a case report
       const caseReport = await app.service('case-report').create(
         {
-          crfId: testCaseReportForm._id,
+          crfId: testCaseReportForm._id.toString(),
           caseReportForm: testCaseReportForm._id,
           revision: 1,
           data: {
@@ -642,7 +642,7 @@ describe('\'case-report\' service', () => {
       caseReports = await Promise.all([
         app.service('case-report').create(
           {
-            crfId: testCaseReportForm._id,
+            crfId: testCaseReportForm._id.toString(),
             caseReportForm: testCaseReportForm._id,
             revision: 1,
             state: 'in_progress',
@@ -655,7 +655,7 @@ describe('\'case-report\' service', () => {
         ),
         app.service('case-report').create(
           {
-            crfId: testCaseReportForm._id,
+            crfId: testCaseReportForm._id.toString(),
             caseReportForm: testCaseReportForm._id,
             revision: 1,
             state: 'in_progress',

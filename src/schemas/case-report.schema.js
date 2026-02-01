@@ -15,7 +15,8 @@ const caseReportActionSchema = Joi.object({
 });
 
 const caseReportCreateSchema = Joi.object({
-  caseReportForm: objectId.required(),
+  crfId: Joi.string(), // Used only in create hook, not stored
+  caseReportForm: objectId,
   revision: Joi.number().integer().required(),
   state: Joi.string().valid(...stateEnums.caseReport).default('completed'),
   actions: Joi.array().items(caseReportActionSchema).default([]),

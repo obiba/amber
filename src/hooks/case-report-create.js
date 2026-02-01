@@ -9,7 +9,7 @@ module.exports = (options = {}) => {
     if (context.data.crfId) {
       const crfService = context.app.service('case-report-form');
       const crf = await crfService.get(context.data.crfId);
-      context.data.caseReportForm = context.data.crfId;
+      context.data.caseReportForm = crf._id;
       context.data.study = crf.study;
       context.data.form = crf.form;
       const policy = crf.repeatPolicy ? crf.repeatPolicy : 'multiple';

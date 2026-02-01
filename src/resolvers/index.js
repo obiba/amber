@@ -137,6 +137,31 @@ const resolveUpdatedBy = async (value, _data, context) => {
   return value ? toObjectId(value) : value;
 };
 
+/**
+ * Converts a value to integer if possible
+ * @param {any} value - The value to convert
+ * @returns {number|any} - Integer or original value if conversion fails
+ */
+const toInteger = (value) => {
+  if (value === undefined || value === null) return value;
+  if (typeof value === 'number') return Math.floor(value);
+  if (typeof value === 'string') {
+    const intVal = parseInt(value, 10);
+    return !isNaN(intVal) ? intVal : value;
+  }
+  return value;
+};
+
+/**
+ * Resolver function for integer fields
+ * Use with resolve() for numeric fields like revision, count, etc.
+ * @param {any} value - The value to resolve
+ * @returns {number|any} - Integer or original value if conversion fails
+ */
+const resolveInteger = async (value) => {
+  return toInteger(value);
+};
+
 module.exports = {
   resolve,
   resolveObjectId,
@@ -150,5 +175,7 @@ module.exports = {
   resolvePermissionsField,
   resolveStepsField,
   resolveCreatedBy,
-  resolveUpdatedBy
+  resolveUpdatedBy,
+  toInteger,
+  resolveInteger
 };
