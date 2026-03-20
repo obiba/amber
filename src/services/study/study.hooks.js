@@ -1,11 +1,16 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
-const { authorize } = require('feathers-casl').hooks;
+const { authorize } = require('feathers-casl');
+const { hooks: schemaHooks } = require('@feathersjs/schema');
 const { defineAbilitiesFor } = require('./study.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
 const searchQuery = require('../../hooks/search-query');
-const studyCreate = require('../../hooks/study-create');
 const studyRemoveForms = require('../../hooks/study-remove-forms');
+const { studyDataResolver, studyQueryResolver } = require('./study.resolvers');
+
+const validate = require('../../utils/validate-joi');
+const { studyCreateSchema, studyPatchSchema } = require('../../schemas/study.schema');
+const { joiOptions } = require('../../schemas/common');
 
 module.exports = {
   before: {
@@ -15,30 +20,38 @@ module.exports = {
     ],
     find: [
       searchQuery(),
-      authorize({ adapter: 'feathers-mongoose' })
+      schemaHooks.resolveQuery(studyQueryResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     get: [
-      authorize({ adapter: 'feathers-mongoose' })
+      schemaHooks.resolveQuery(studyQueryResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
-      studyCreate(),
-      authorize({ adapter: 'feathers-mongoose' })
+      validate.mongoose(studyCreateSchema, joiOptions),
+      schemaHooks.resolveData(studyDataResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     update: [
-      authorize({ adapter: 'feathers-mongoose' })
+      validate.mongoose(studyCreateSchema, joiOptions),
+      schemaHooks.resolveData(studyDataResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     patch: [
-      authorize({ adapter: 'feathers-mongoose' })
+      validate.mongoose(studyPatchSchema, joiOptions),
+      schemaHooks.resolveData(studyDataResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     remove: [
-      authorize({ adapter: 'feathers-mongoose' }),
+      schemaHooks.resolveQuery(studyQueryResolver),
+      authorize({ adapter: '@feathersjs/mongodb' }),
       studyRemoveForms()
     ]
   },
 
   after: {
     all: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     find: [],
     get: [],

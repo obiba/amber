@@ -5,10 +5,11 @@ const cors = require('cors');
 const compress = require('compression');
 const logger = require('./logger');
 
-const feathers = require('@feathersjs/feathers');
+const { feathers } = require('@feathersjs/feathers');
 const configuration = require('@feathersjs/configuration');
 const express = require('@feathersjs/express');
-const casl = require('feathers-casl');
+const { json, urlencoded, static: serveStatic, notFound, errorHandler, rest } = express;
+const { feathersCasl } = require('feathers-casl');
 
 const middleware = require('./middleware');
 const services = require('./services');
@@ -17,7 +18,7 @@ const channels = require('./channels');
 
 const authentication = require('./authentication');
 
-const mongoose = require('./mongoose');
+const mongodb = require('./mongodb');
 const crypto = require('./crypto');
 
 const app = express(feathers());
@@ -88,16 +89,18 @@ app.use(cors(corsOptions));
 
 // Enable compression, favicon and body parsing
 app.use(compress());
-app.use(express.json({limit: '25mb'}));
-app.use(express.urlencoded({ limit: '25mb', extended: true }));
-app.use(favicon(path.join(app.get('public'), 'favicon.ico')));
+app.use(json({limit: '25mb'}));
+app.use(urlencoded({ limit: '25mb', extended: true }));
+// Resolve public path relative to app root
+const publicPath = path.resolve(__dirname, app.get('public'));
+app.use(favicon(path.join(publicPath, 'favicon.ico')));
 // Host the public folder
-app.use('/', express.static(app.get('public')));
+app.use('/', serveStatic(publicPath));
 
 // Set up Plugins and providers
-app.configure(express.rest());
+app.configure(rest());
 
-app.configure(mongoose);
+app.configure(mongodb);
 app.configure(crypto);
 
 // Configure other middleware (see `middleware/index.js`)
@@ -109,11 +112,11 @@ app.configure(services);
 app.configure(channels);
 
 // Authz
-app.configure(casl());
+app.configure(feathersCasl());
 
 // Configure a middleware for 404s and the error handler
-app.use(express.notFound());
-app.use(express.errorHandler({ logger }));
+app.use(notFound());
+app.use(errorHandler({ logger }));
 
 // Global hooks
 app.hooks(appHooks);

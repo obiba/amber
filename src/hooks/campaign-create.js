@@ -18,8 +18,6 @@ module.exports = (options = {}) => {
     if (res.total > 0) {
       throw new BadRequest('Campaign name must be unique in its interview design');
     }
-    // Set created by the logged in user
-    context.data.createdBy = context.params.user._id;
     return context;
   };
 };

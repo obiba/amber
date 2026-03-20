@@ -9,7 +9,7 @@ module.exports = (options = {}) => {
     if (context.data.crfId) {
       const crfService = context.app.service('case-report-form');
       const crf = await crfService.get(context.data.crfId);
-      context.data.caseReportForm = context.data.crfId;
+      context.data.caseReportForm = crf._id;
       context.data.study = crf.study;
       context.data.form = crf.form;
       const policy = crf.repeatPolicy ? crf.repeatPolicy : 'multiple';
@@ -34,8 +34,6 @@ module.exports = (options = {}) => {
       throw new BadRequest('Case report form is missing');
     }
     delete context.data.id;
-    // Set created by the logged in user
-    context.data.createdBy = context.params.user._id;
     return context;
   };
 };

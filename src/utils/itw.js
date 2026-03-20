@@ -48,7 +48,10 @@ class ItwBase {
     params.query._id = participant.interviewDesign;
     params.query.state = 'active';
     delete params.query.code;
-    result = await this.app.service('interview-design').find(params);
+    result = await this.app.service('interview-design').find({
+      ...params,
+      provider: undefined // internal call - bypass authorization hooks
+    });
     if (result.total === 0) {
       throw new BadRequest('Interview design is not active');
     }

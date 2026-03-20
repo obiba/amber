@@ -1,5 +1,7 @@
-const { Service } = require('feathers-mongoose');
+const { LazyMongoDBService } = require('../mongodb-service.class');
 
-exports.Participant = class Participant extends Service {
-  
+exports.Participant = class Participant extends LazyMongoDBService {
+  constructor(options, app) {
+    super(options, app, 'participants');
+  }
 };

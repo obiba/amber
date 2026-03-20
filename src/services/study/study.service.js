@@ -1,14 +1,13 @@
 // Initializes the `study` service on path `/study`
 const { Study } = require('./study.class');
-const createModel = require('../../models/study.model');
 const hooks = require('./study.hooks');
 
 module.exports = function (app) {
   const options = {
-    Model: createModel(app),
     paginate: app.get('paginate'),
     multi: ['remove'],
-    whitelist: ['$nor', '$and', '$regex']
+    filters: { $nor: true, $and: true },
+    operators: ['$nor', '$and', '$regex']
   };
 
   // Initialize our service with any options it requires

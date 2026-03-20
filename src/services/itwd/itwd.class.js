@@ -54,7 +54,8 @@ exports.Itwd = class Itwd extends ItwBase {
         q.revision = step.revision;
       }
       const frResult = await formRevisionService.find({
-        query: q
+        query: q,
+        provider: undefined // internal call - bypass authorization hooks
       });
       if (frResult.total > 0) {
         itwdata.steps.push({

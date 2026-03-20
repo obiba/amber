@@ -1,6 +1,6 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
 
-const { authorize } = require('feathers-casl').hooks;
+const { authorize } = require('feathers-casl');
 const { defineAbilitiesFor } = require('./metrics.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
@@ -11,7 +11,7 @@ module.exports = {
       authenticate('jwt'),
       makeAbilities(defineAbilitiesFor)
     ],
-    find: [ authorize({ adapter: 'feathers-mongoose' }) ],
+    find: [ authorize({ adapter: '@feathersjs/mongodb' }) ],
     get: [],
     create: [],
     update: [],
@@ -20,7 +20,7 @@ module.exports = {
   },
 
   after: {
-    all: [ authorize({ adapter: 'feathers-mongoose' }) ],
+    all: [ authorize({ adapter: '@feathersjs/mongodb' }) ],
     find: [],
     get: [],
     create: [],

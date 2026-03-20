@@ -1,11 +1,17 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
-const { authorize } = require('feathers-casl').hooks;
+const { authorize } = require('feathers-casl');
+const { hooks: schemaHooks } = require('@feathersjs/schema');
 const { defineAbilitiesFor } = require('./campaign.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
 const campaignCreate = require('../../hooks/campaign-create');
 const searchQuery = require('../../hooks/search-query');
 const campaignRemoveParticipants = require('../../hooks/campaign-remove-participants');
+const { campaignDataResolver, campaignQueryResolver } = require('./campaign.resolvers');
+
+const validate = require('../../utils/validate-joi');
+const { campaignCreateSchema, campaignPatchSchema } = require('../../schemas/campaign.schema');
+const { joiOptions } = require('../../schemas/common');
 
 module.exports = {
   before: {
@@ -15,30 +21,39 @@ module.exports = {
     ],
     find: [
       searchQuery(),
-      authorize({ adapter: 'feathers-mongoose' })
+      schemaHooks.resolveQuery(campaignQueryResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     get: [
-      authorize({ adapter: 'feathers-mongoose' })
+      schemaHooks.resolveQuery(campaignQueryResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
+      validate.mongoose(campaignCreateSchema, joiOptions),
+      schemaHooks.resolveData(campaignDataResolver),
       campaignCreate(),
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     update: [
-      authorize({ adapter: 'feathers-mongoose' })
+      validate.mongoose(campaignCreateSchema, joiOptions),
+      schemaHooks.resolveData(campaignDataResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     patch: [
-      authorize({ adapter: 'feathers-mongoose' })
+      validate.mongoose(campaignPatchSchema, joiOptions),
+      schemaHooks.resolveData(campaignDataResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     remove: [
-      authorize({ adapter: 'feathers-mongoose' }),
+      schemaHooks.resolveQuery(campaignQueryResolver),
+      authorize({ adapter: '@feathersjs/mongodb' }),
       campaignRemoveParticipants()
     ]
   },
 
   after: {
     all: [
-      authorize({ adapter: 'feathers-mongoose' })
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     find: [],
     get: [],

@@ -1,5 +1,6 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
-const { authorize } = require('feathers-casl').hooks;
+const { authorize } = require('feathers-casl');
+const { hooks: schemaHooks } = require('@feathersjs/schema');
 const { defineAbilitiesFor } = require('./interview.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
@@ -16,36 +17,49 @@ const interviewReopened = require('../../hooks/interview-reopened');
 const interviewParticipantValidity = require('../../hooks/interview-participant-validity');
 
 const interviewSearch = require('../../hooks/interview-search');
+const { interviewDataResolver, interviewQueryResolver } = require('./interview.resolvers');
+
+const validate = require('../../utils/validate-joi');
+const { interviewCreateSchema, interviewPatchSchema } = require('../../schemas/interview.schema');
+const { joiOptions } = require('../../schemas/common');
 
 module.exports = {
   before: {
     all: [authenticate('jwt'), makeAbilities(defineAbilitiesFor), interviewAuthz()],
     find: [
       searchQuery(),
-      authorize({ adapter: 'feathers-mongoose' }),
+      schemaHooks.resolveQuery(interviewQueryResolver),
+      authorize({ adapter: '@feathersjs/mongodb' }),
       interviewSearch()
     ],
     get: [
-      authorize({ adapter: 'feathers-mongoose' })
+      schemaHooks.resolveQuery(interviewQueryResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
-      authorize({ adapter: 'feathers-mongoose' }),
+      validate.mongoose(interviewCreateSchema, joiOptions),
+      schemaHooks.resolveData(interviewDataResolver),
+      authorize({ adapter: '@feathersjs/mongodb' }),
       interviewCreate(),
       interviewEncrypt()
     ],
     update: [
-      authorize({ adapter: 'feathers-mongoose' }),
+      validate.mongoose(interviewCreateSchema, joiOptions),
+      schemaHooks.resolveData(interviewDataResolver),
+      authorize({ adapter: '@feathersjs/mongodb' }),
       interviewEncrypt(),
       interviewReopened()
     ],
     patch: [
-      authorize({ adapter: 'feathers-mongoose' }),
+      validate.mongoose(interviewPatchSchema, joiOptions),
+      schemaHooks.resolveData(interviewDataResolver),
+      authorize({ adapter: '@feathersjs/mongodb' }),
       interviewEncrypt(),
       interviewReopened()
     ],
     remove: [
-      authorize({ adapter: 'feathers-mongoose' })
-      // note: interviews can be orphans of their interview design
+      schemaHooks.resolveQuery(interviewQueryResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
     ]
   },
 

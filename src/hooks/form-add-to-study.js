@@ -8,6 +8,9 @@ module.exports = (options = {}) => {
     const studyService = context.app.service('study');
     const study = await studyService.get(context.result.study);
     logger.debug('Adding form to study: ' + study._id);
+    if (!study.forms) {
+      study.forms = [];
+    }
     study.forms.push(context.result._id);
     studyService.update(study._id, study);
     return context;

@@ -1,5 +1,6 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
-const { authorize } = require('feathers-casl').hooks;
+const { authorize } = require('feathers-casl');
+const { hooks: schemaHooks } = require('@feathersjs/schema');
 const { defineAbilitiesFor } = require('./participant.abilities');
 
 
@@ -16,6 +17,11 @@ const participantPasswordHash = require('../../hooks/participant-password-hash')
 const participantValidity = require('../../hooks/participant-validity');
 
 const participantSearch = require('../../hooks/participant-search');
+const { participantDataResolver, participantQueryResolver } = require('./participant.resolvers');
+
+const validate = require('../../utils/validate-joi');
+const { participantCreateSchema, participantPatchSchema } = require('../../schemas/participant.schema');
+const { joiOptions } = require('../../schemas/common');
 
 module.exports = {
   before: {
@@ -25,36 +31,45 @@ module.exports = {
     ],
     find: [
       searchQuery(),
-      authorize({ adapter: 'feathers-mongoose' }),
+      schemaHooks.resolveQuery(participantQueryResolver),
+      authorize({ adapter: '@feathersjs/mongodb' }),
       participantSearch()
     ],
     get: [
-      authorize({ adapter: 'feathers-mongoose' })
+      schemaHooks.resolveQuery(participantQueryResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
     create: [
+      validate.mongoose(participantCreateSchema, joiOptions),
+      schemaHooks.resolveData(participantDataResolver),
       participantCreate(),
-      authorize({ adapter: 'feathers-mongoose' }),
+      authorize({ adapter: '@feathersjs/mongodb' }),
       participantEncrypt(),
       participantPasswordHash()
     ],
     update: [
-      authorize({ adapter: 'feathers-mongoose' }),
+      validate.mongoose(participantCreateSchema, joiOptions),
+      schemaHooks.resolveData(participantDataResolver),
+      authorize({ adapter: '@feathersjs/mongodb' }),
       participantEncrypt(),
       participantPasswordHash()
     ],
     patch: [
-      authorize({ adapter: 'feathers-mongoose' }),
+      validate.mongoose(participantPatchSchema, joiOptions),
+      schemaHooks.resolveData(participantDataResolver),
+      authorize({ adapter: '@feathersjs/mongodb' }),
       participantEncrypt(),
       participantPasswordHash()
     ],
     remove: [
-      authorize({ adapter: 'feathers-mongoose' })
+      schemaHooks.resolveQuery(participantQueryResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
     ]
   },
 
   after: {
     all: [
-      authorize({ adapter: 'feathers-mongoose' }),
+      authorize({ adapter: '@feathersjs/mongodb' }),
       participantInterviewerAuthz(),
       protect(
         'password',

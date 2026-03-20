@@ -1,11 +1,17 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
-const { authorize } = require('feathers-casl').hooks;
+const { authorize } = require('feathers-casl');
+const { hooks: schemaHooks } = require('@feathersjs/schema');
 const { defineAbilitiesFor } = require('./task.abilities');
 
 const makeAbilities = require('../../hooks/make-abilities');
 const allowApiKey = require('../../hooks/allow-api-key');
 const searchQuery = require('../../hooks/search-query');
 const taskCreated = require('../../hooks/task-created');
+
+const validate = require('../../utils/validate-joi');
+const { taskCreateSchema, taskPatchSchema } = require('../../schemas/task.schema');
+const { taskDataResolver, taskQueryResolver } = require('./task.resolvers');
+const { joiOptions } = require('../../schemas/common');
 
 module.exports = {
   before: {
@@ -16,17 +22,36 @@ module.exports = {
     ],
     find: [
       searchQuery(),
-      authorize({ adapter: 'feathers-mongoose' })
+      schemaHooks.resolveQuery(taskQueryResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
     ],
-    get: [authorize({ adapter: 'feathers-mongoose' })],
-    create: [authorize({ adapter: 'feathers-mongoose' })],
-    update: [authorize({ adapter: 'feathers-mongoose' })],
-    patch: [authorize({ adapter: 'feathers-mongoose' })],
-    remove: [authorize({ adapter: 'feathers-mongoose' })]
+    get: [
+      schemaHooks.resolveQuery(taskQueryResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
+    ],
+    create: [
+      validate.mongoose(taskCreateSchema, joiOptions),
+      schemaHooks.resolveData(taskDataResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
+    ],
+    update: [
+      validate.mongoose(taskCreateSchema, joiOptions),
+      schemaHooks.resolveData(taskDataResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
+    ],
+    patch: [
+      validate.mongoose(taskPatchSchema, joiOptions),
+      schemaHooks.resolveData(taskDataResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
+    ],
+    remove: [
+      schemaHooks.resolveQuery(taskQueryResolver),
+      authorize({ adapter: '@feathersjs/mongodb' })
+    ]
   },
 
   after: {
-    all: [authorize({ adapter: 'feathers-mongoose' })],
+    all: [authorize({ adapter: '@feathersjs/mongodb' })],
     find: [],
     get: [],
     create: [taskCreated()],

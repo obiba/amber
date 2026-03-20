@@ -7,7 +7,7 @@ function isParticipantValid(participant) {
       return false;
     }
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -20,7 +20,7 @@ function isCampaignValid(campaign) {
       return false;
     }
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }

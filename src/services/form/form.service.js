@@ -1,14 +1,13 @@
 // Initializes the `form` service on path `/form`
 const { Form } = require('./form.class');
-const createModel = require('../../models/form.model');
 const hooks = require('./form.hooks');
 
 module.exports = function (app) {
   const options = {
-    Model: createModel(app),
     paginate: app.get('paginate'),
     multi: ['remove'],
-    whitelist: ['$nor', '$and', '$regex']
+    filters: { $nor: true, $and: true },
+    operators: ['$nor', '$and', '$regex']
   };
 
   // Initialize our service with any options it requires

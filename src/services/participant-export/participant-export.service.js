@@ -1,6 +1,6 @@
 // Initializes the `participant-export` service on path `/participant-export`
 const { Parser } = require('@json2csv/plainjs');
-const xlsx = require('xlsx');
+const xlsx = require('../../utils/excel');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -42,7 +42,7 @@ const doCsvResponse = (res) => {
   res.end();
 };
 
-const doExcelResponse = (res) => {
+const doExcelResponse = async (res) => {
   const tmpDir = mkTmpDir();
   const workbook = xlsx.utils.book_new();
   const parsed = toRows(res);
@@ -51,7 +51,7 @@ const doExcelResponse = (res) => {
   // dump to a tmp file
   const fname = 'participants-export.xlsx';
   const fpath = path.join(tmpDir, fname);
-  xlsx.writeFileXLSX(workbook, fpath);
+  await xlsx.writeFileXLSX(workbook, fpath);
   // stream the tmp file
   const xlsxStream = fs.createReadStream(fpath);
   xlsxStream.on('error', (err) => {

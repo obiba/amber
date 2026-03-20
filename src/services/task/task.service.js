@@ -1,14 +1,13 @@
 // Initializes the `task` service on path `/task`
 const { Task } = require('./task.class');
-const createModel = require('../../models/task.model');
 const hooks = require('./task.hooks');
 
 module.exports = function (app) {
   const options = {
-    Model: createModel(app),
     paginate: app.get('paginate'),
     multi: ['remove'],
-    whitelist: ['$nor', '$and', '$regex', '$ne']
+    filters: { $nor: true, $and: true, $ne: true },
+    operators: ['$nor', '$and', '$regex', '$ne']
   };
 
   // Initialize our service with any options it requires

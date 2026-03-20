@@ -686,7 +686,7 @@ exports.ParticipantsTasksHandler = class ParticipantsTasksHandler {
     return logs;
   }
 
-  // eslint-disable-next-line no-unused-vars
+   
   async findActiveInterviewDesigns(task) {
     const args = task.arguments || {};
     const itwdResult = await this.app.service('interview-design')

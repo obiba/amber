@@ -17,8 +17,8 @@ module.exports = (options = {}) => {
         const token = tokenWithScheme[1];
         if (token) {
           const text = Buffer.from(token, 'base64').toString('ascii');
-          const query = JSON.parse(text);
-          const participantData = {...query} || {};
+          const query = JSON.parse(text) || {};
+          const participantData = {...query};
           delete participantData.campaign;
     
           if(params && params.provider && !params.authentication) {

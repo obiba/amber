@@ -1,5 +1,7 @@
-const { Service } = require('feathers-mongoose');
+const { LazyMongoDBService } = require('../mongodb-service.class');
 
-exports.CaseReportForm = class CaseReportForm extends Service {
-  
+exports.CaseReportForm = class CaseReportForm extends LazyMongoDBService {
+  constructor(options, app) {
+    super(options, app, 'casereportforms');
+  }
 };

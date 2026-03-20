@@ -1,6 +1,6 @@
 // Application hooks that run for every service
 const logActivity = require('./hooks/log-activity');
-
+const setTimestamps = require('./hooks/set-timestamps');
 const userActivity = require('./hooks/user-activity');
 
 module.exports = {
@@ -8,9 +8,9 @@ module.exports = {
     all: [logActivity()],
     find: [],
     get: [],
-    create: [],
-    update: [],
-    patch: [],
+    create: [setTimestamps({ persistedOnly: true })],
+    update: [setTimestamps({ persistedOnly: true })],
+    patch: [setTimestamps({ persistedOnly: true })],
     remove: []
   },
 

@@ -1,7 +1,7 @@
 const logger = require('../logger');
 const { BadRequest } = require('@feathersjs/errors');
 const { MailBuilder } = require('../utils/mail');
-const { authenticator } = require('otplib');
+const { generateRandomCode } = require('../utils/totp');
 
 // eslint-disable-next-line no-unused-vars
 module.exports = (options = {}) => {
@@ -29,7 +29,7 @@ module.exports = (options = {}) => {
         const crypto = context.app.get('crypto');
         if (context.data.token === undefined) {
           // send the token by email
-          const code = authenticator.generate(user._id.toString());
+          const code = generateRandomCode(6);
           const otp = {
             token: code,
             timestamp: Date.now()
