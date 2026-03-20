@@ -24,7 +24,10 @@ const validateSchema = (schema, options = {}) => {
       const errors = {};
       error.details.forEach(detail => {
         const key = detail.path.join('.');
-        errors[key] = detail.message;
+        if (!errors[key]) {
+          errors[key] = [];
+        }
+        errors[key].push(detail.message);
       });
       throw new BadRequest('Validation failed', { errors });
     }

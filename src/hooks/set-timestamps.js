@@ -3,11 +3,20 @@
  * 
  * - On create: sets createdAt and updatedAt
  * - On update/patch: sets updatedAt only
+ * - Optional persistedOnly: only run on MongoDB adapter services
  */
 
-// eslint-disable-next-line no-unused-vars
+const { MongoDBService } = require('@feathersjs/mongodb');
+
+ 
 module.exports = (options = {}) => {
+  const { persistedOnly = false } = options;
+
   return (context) => {
+    if (persistedOnly && !(context.service instanceof MongoDBService)) {
+      return context;
+    }
+
     const now = new Date();
 
     if (context.method === 'create') {

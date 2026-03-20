@@ -49,11 +49,14 @@ module.exports = (options = {}) => {
 
     const query = context.params.query;
     if (query) {
+      const paginate = context.app && context.app.get('paginate');
+      const defaultLimit = paginate && paginate.default;
+
       if (query.$skip === undefined) {
         query.$skip = 0;
       }
-      if (query.$limit === undefined) {
-        query.$limit = 50;
+      if (query.$limit === undefined && defaultLimit !== undefined) {
+        query.$limit = defaultLimit;
       }
       context.params.query = rewriteQuery(query);
     }

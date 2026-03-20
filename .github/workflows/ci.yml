@@ -46,6 +46,3 @@ jobs:
       env:
         MONGODB_URL: mongodb://localhost:27017/amber-test
         NODE_ENV: test
-
-    - name: Build check
-      run: npm start -- --help || echo "No build step required"

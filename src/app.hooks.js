@@ -8,9 +8,9 @@ module.exports = {
     all: [logActivity()],
     find: [],
     get: [],
-    create: [setTimestamps()],
-    update: [setTimestamps()],
-    patch: [setTimestamps()],
+    create: [setTimestamps({ persistedOnly: true })],
+    update: [setTimestamps({ persistedOnly: true })],
+    patch: [setTimestamps({ persistedOnly: true })],
     remove: []
   },
 

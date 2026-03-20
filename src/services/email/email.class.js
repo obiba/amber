@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const { BadRequest } = require('@feathersjs/errors');
+const { MethodNotAllowed } = require('@feathersjs/errors');
 
 /**
  * Email service class using nodemailer directly.
@@ -11,11 +11,11 @@ class EmailService {
   }
 
   async find() {
-    throw new BadRequest('Method not allowed');
+    throw new MethodNotAllowed('Method not allowed');
   }
 
   async get() {
-    throw new BadRequest('Method not allowed');
+    throw new MethodNotAllowed('Method not allowed');
   }
 
   /**
@@ -31,15 +31,15 @@ class EmailService {
   }
 
   async update() {
-    throw new BadRequest('Method not allowed');
+    throw new MethodNotAllowed('Method not allowed');
   }
 
   async patch() {
-    throw new BadRequest('Method not allowed');
+    throw new MethodNotAllowed('Method not allowed');
   }
 
   async remove() {
-    throw new BadRequest('Method not allowed');
+    throw new MethodNotAllowed('Method not allowed');
   }
 }
 
