@@ -97,13 +97,27 @@ exports.Metrics = class Metrics {
     return agg;
   }
 
+  /**
+   * Convert string IDs in the query to ObjectId instances for MongoDB queries.
+    * This allows clients to send string IDs while still enabling efficient MongoDB queries,
+   */
   toMongoQuery (query) {
+    const mongoQuery = { ...query };
     ['study', 'form', 'caseReportForm', 'interviewDesign', 'campaign'].forEach(entity => {
-      if (query[entity]) {
-        query[entity] = ObjectId.createFromHexString(query[entity]);
+      const value = mongoQuery[entity];
+      if (!value) {
+        return;
+      }
+
+      if (value instanceof ObjectId) {
+        return;
+      }
+
+      if (typeof value === 'string' && /^[a-fA-F0-9]{24}$/.test(value)) {
+        mongoQuery[entity] = ObjectId.createFromHexString(value);
       }
     });
-    return query;
+    return mongoQuery;
   }
 
   async find (params) {

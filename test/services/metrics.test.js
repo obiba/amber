@@ -347,6 +347,23 @@ describe('\'metrics\' service', () => {
       assert.strictEqual(result.activated, true);
       assert.strictEqual(result.name, 'Test Study');
     });
+
+    it('should not mutate source query and should be idempotent across calls', () => {
+      const query = {
+        interviewDesign: '507f1f77bcf86cd799439011',
+        campaign: '507f1f77bcf86cd799439012'
+      };
+
+      const result1 = service.toMongoQuery(query);
+      const result2 = service.toMongoQuery(result1);
+
+      assert.strictEqual(typeof query.interviewDesign, 'string');
+      assert.strictEqual(typeof query.campaign, 'string');
+      assert.ok(result1.interviewDesign instanceof ObjectId);
+      assert.ok(result1.campaign instanceof ObjectId);
+      assert.ok(result2.interviewDesign instanceof ObjectId);
+      assert.ok(result2.campaign instanceof ObjectId);
+    });
   });
 
   describe('find', () => {
