@@ -97,7 +97,7 @@ describe('\'itw\' service', () => {
           steps: data.steps || [],
           data: data.data || {}
         }),
-        patch: async (id, data) => ({
+        _patch: async (id, data) => ({
           _id: id,
           code: 'P001',
           identifier: 'ID001',
@@ -352,7 +352,7 @@ describe('\'itw\' service', () => {
         ]
       };
 
-      mockServices.interview.patch = async (id, patchData) => {
+      mockServices.interview._patch = async (id, patchData) => {
         const step = patchData.steps.find(s => s.name === 'step2');
         assert.ok(step.actions);
         assert.ok(step.actions.length > 0);
@@ -402,7 +402,7 @@ describe('\'itw\' service', () => {
         ]
       };
 
-      mockServices.interview.patch = async (id, patchData) => {
+      mockServices.interview._patch = async (id, patchData) => {
         assert.ok(patchData.steps);
         assert.ok(!patchData.steps.some(s => s.name === 'step1'));
 
@@ -476,7 +476,7 @@ describe('\'itw\' service', () => {
         ]
       };
 
-      mockServices.interview.patch = async (id, patchData) => {
+      mockServices.interview._patch = async (id, patchData) => {
         assert.strictEqual(patchData.state, 'completed');
 
         return {
@@ -524,7 +524,7 @@ describe('\'itw\' service', () => {
         ]
       };
 
-      mockServices.interview.patch = async (id, patchData) => {
+      mockServices.interview._patch = async (id, patchData) => {
         assert.strictEqual(patchData.state, 'in_progress');
 
         return {
@@ -565,7 +565,7 @@ describe('\'itw\' service', () => {
         steps: []
       };
 
-      mockServices.interview.patch = async (id, patchData) => {
+      mockServices.interview._patch = async (id, patchData) => {
         assert.strictEqual(patchData.state, 'cancelled');
 
         return {
@@ -613,7 +613,7 @@ describe('\'itw\' service', () => {
         ]
       };
 
-      mockServices.interview.patch = async (id, patchData) => {
+      mockServices.interview._patch = async (id, patchData) => {
         const step = patchData.steps.find(s => s.name === 'step2');
         assert.strictEqual(step.actions[0].type, 'pause');
 

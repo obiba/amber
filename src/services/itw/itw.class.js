@@ -51,7 +51,7 @@ exports.Itw = class Itw extends ItwBase {
           step.actions = [
             {
               type: type,
-              user: params.user ? params.user._id : undefined,
+              user: params.user ? params.user._id : null,
               timestamp: new Date()
             }
           ];
@@ -59,7 +59,7 @@ exports.Itw = class Itw extends ItwBase {
         } else {
           const action = {
             type: step.data ? type : 'invalid',
-            user: params.user ? params.user._id : undefined,
+            user: params.user ? params.user._id : null,
             timestamp: new Date()
           };
           step.actions = patched.steps[idx].actions;
@@ -95,10 +95,8 @@ exports.Itw = class Itw extends ItwBase {
     }
 
     params.query = {};
-    const interviewUpdated = await itwService.patch(interview._id, patched, {
-      ...params,
-      provider: undefined // internal call - bypass authorization hooks
-    });
+    // internal call - bypass authorization hooks
+    const interviewUpdated = await itwService._patch(interview._id, patched, params);
     return this.digestInterview(interviewUpdated);
   }
 
