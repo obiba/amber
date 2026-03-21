@@ -80,7 +80,7 @@ Amber uses [dotenv](https://github.com/motdotla/dotenv) for environment variable
 * `SIGNUP_BLACKLIST`, the list of email domains that are NOT allowed to signup. Use '*' for wild card. Default is none.
 * `GMAIL`, the Gmail user name for the notification service
 * `GMAIL_PASSWORD`, the Gmail user password for the notification service
-* `SENDINBLUE_API_KEY`, the [Sendinblue](https://www.sendinblue.com/) API key for the notification service
+* `BREVO_API_KEY` (legacy: `SENDINBLUE_API_KEY`), the [Brevo (former Sendinblue)](https://www.brevo.com/) API key for the notification service
 * `SMTP_HOST`, the SMTP server host
 * `SMTP_PORT`, the SMTP server port (defaults to 587 if is secure is false or 465 if true) 
 * `SMTP_NAME`, the SMTP server name
