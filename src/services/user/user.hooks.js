@@ -73,7 +73,10 @@ module.exports = {
           validate.mongoose(userAdminCreateSchema, joiOptions)),
       passwordHasher,
       verifyHooks.addVerification(),
-      authorize({ adapter: '@feathersjs/mongodb' })
+      iff(
+        isAnonymous())
+        .else(
+          authorize({ adapter: '@feathersjs/mongodb' }))
     ],
     update: [
       authenticate('jwt'),
