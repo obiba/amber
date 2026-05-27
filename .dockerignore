@@ -1,0 +1,12 @@
+.git
+.github
+.serena
+.vscode
+.env
+.env.*
+node_modules
+test
+README.md
+LICENSE
+npm-debug.log*
+coverage
