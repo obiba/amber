@@ -1,7 +1,7 @@
 {
   "name": "amber",
   "description": "Electronic Data Capture system",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "homepage": "",
   "private": true,
   "main": "src",
@@ -65,7 +65,7 @@
     "helmet": "^4.6.0",
     "joi": "^17.0.0",
     "mongodb": "^6.0.0",
-    "nodemailer": "^7.0.12",
+    "nodemailer": "^8.0.9",
     "nodemailer-brevo-transport": "^2.2.1",
     "otplib": "^13.1.1",
     "qrcode": "^1.5.0",
@@ -85,6 +85,7 @@
     "config": "3.3.12",
     "glob": "^10.0.0",
     "rimraf": "^5.0.0",
-    "tar": "^7.0.0"
+    "tar": "^7.0.0",
+    "uuid": "^14.0.0"
   }
 }
