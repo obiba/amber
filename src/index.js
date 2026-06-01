@@ -1,4 +1,4 @@
- 
+
 require('dotenv').config();
 const os = require('os');
 const cluster = require('cluster');
@@ -8,12 +8,12 @@ const start = async () => {
 
   const app = require('./app');
   const port = app.get('port');
-  
+
   // In Feathers v5, app.listen() returns a Promise
   const server = await app.listen(port);
-  
+
   logger.info('Feathers application started on http://%s:%d', app.get('host'), port);
-  
+
   // in case there is no administrator user and seeding env variables are provided
   // seed an administrator user
   if (process.env.ADMINISTRATOR_EMAIL && process.env.ADMINISTRATOR_PWD) {
@@ -30,7 +30,9 @@ const start = async () => {
         firstname: 'Super',
         lastname: 'User',
         language: 'en',
-        role: 'administrator'
+        role: 'administrator',
+        with2fa: false,
+        totp2faRequired: false
       };
       logger.debug('Seeding with: %s', userInfo);
       try {
@@ -41,11 +43,11 @@ const start = async () => {
       }
     }
   }
-  
+
   process.on('unhandledRejection', (reason, p) =>
     logger.error('Unhandled Rejection at: Promise ', p, reason)
   );
-  
+
   return server;
 };
 
