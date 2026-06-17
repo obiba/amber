@@ -10,3 +10,6 @@ README.md
 LICENSE
 npm-debug.log*
 coverage
+Dockerfile
+.dockerignore
+Makefile

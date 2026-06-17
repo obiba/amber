@@ -1,4 +1,4 @@
-FROM node:24-alpine
+FROM node:24.11.0-alpine3.21
 
 ENV NODE_ENV=production
 
@@ -8,12 +8,13 @@ COPY package*.json ./
 
 RUN npm ci --omit=dev && npm cache clean --force
 
-COPY . .
-
-RUN chown -R node:node /usr/src/app
+COPY --chown=node:node . .
 
 USER node
 
 EXPOSE 3030
 
-CMD ["npm", "run", "start"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -qO/dev/null http://localhost:3030/ || exit 1
+
+CMD ["node", "src/"]
