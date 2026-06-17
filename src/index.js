@@ -4,18 +4,7 @@ const os = require('os');
 const cluster = require('cluster');
 const logger = require('./logger');
 
-const start = async () => {
-
-  const app = require('./app');
-  const port = app.get('port');
-
-  // In Feathers v5, app.listen() returns a Promise
-  const server = await app.listen(port);
-
-  logger.info('Feathers application started on http://%s:%d', app.get('host'), port);
-
-  // in case there is no administrator user and seeding env variables are provided
-  // seed an administrator user
+const seedAdministrator = async (app) => {
   if (process.env.ADMINISTRATOR_EMAIL && process.env.ADMINISTRATOR_PWD) {
     const users = await app.service('user').find({
       query: {
@@ -38,11 +27,21 @@ const start = async () => {
       try {
         await app.service('user').create(userInfo);
       } catch (error) {
-        // ignore
         logger.error(error);
       }
     }
   }
+};
+
+const start = async () => {
+
+  const app = require('./app');
+  const port = app.get('port');
+
+  // In Feathers v5, app.listen() returns a Promise
+  const server = await app.listen(port);
+
+  logger.info('Feathers application started on http://%s:%d', app.get('host'), port);
 
   process.on('unhandledRejection', (reason, p) =>
     logger.error('Unhandled Rejection at: Promise ', p, reason)
@@ -56,16 +55,29 @@ const clusterWorkerSize = process.env.CLUSTER_COUNT ? Math.min(process.env.CLUST
 
 if (clusterWorkerSize > 1) {
   if (cluster.isMaster) {
-    for (let i=0; i < clusterWorkerSize; i++) {
-      cluster.fork();
-    }
+    // Seed runs once in the master before any worker starts, avoiding the race
+    // condition where multiple workers simultaneously see zero admins and each
+    // try to create one.
+    const app = require('./app');
+    seedAdministrator(app).then(() => {
+      for (let i=0; i < clusterWorkerSize; i++) {
+        cluster.fork();
+      }
 
-    cluster.on('exit', function(worker) {
-      console.log('Worker', worker.id, ' has exited.');
+      cluster.on('exit', function(worker) {
+        console.log('Worker', worker.id, ' has exited.');
+      });
+    }).catch((err) => {
+      logger.error(err);
+      process.exit(1);
     });
   } else {
     start();
   }
 } else {
-  start();
+  const app = require('./app');
+  seedAdministrator(app).then(() => start()).catch((err) => {
+    logger.error(err);
+    process.exit(1);
+  });
 }
