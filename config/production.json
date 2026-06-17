@@ -10,5 +10,19 @@
       "amber_visit_url": "https://www.example.org/visit_example"
     }
   },
-  "encrypt_data": true
+  "encrypt_data": true,
+  "authentication": {
+    "oauth": {
+      "redirect": "https://www.example.org",
+      "_oidc_example": {
+        "key": "my-client-id",
+        "secret": "my-client-secret",
+        "issuer_url": "https://your-idp/realms/myrealm",
+        "authorize_url": "https://your-idp/realms/myrealm/protocol/openid-connect/auth",
+        "access_url": "https://your-idp/realms/myrealm/protocol/openid-connect/token",
+        "scope": ["openid", "email", "profile"],
+        "nonce": true
+      }
+    }
+  }
 }

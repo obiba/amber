@@ -1,6 +1,8 @@
 const { NotAuthenticated } = require('@feathersjs/errors');
 const { AuthenticationBaseStrategy } = require('@feathersjs/authentication');
 const { LocalStrategy } = require('@feathersjs/authentication-local');
+const { OAuthStrategy } = require('@feathersjs/authentication-oauth');
+const { Issuer } = require('openid-client');
 const { isParticipantValid, isCampaignValid } = require('./participant-validity');
 const { comparePassword } = require('./password-hasher');
 const { get } = require('lodash');
@@ -178,4 +180,40 @@ class WalkInParticipantStrategy extends ParticipantStrategy {
   }
 }
 
-module.exports = { AnonymousStrategy, ActiveLocalStrategy, ApiKeyStrategy, ParticipantStrategy, WalkInParticipantStrategy };
+class OidcStrategy extends OAuthStrategy {
+  // Caches the promise so concurrent calls during startup don't trigger multiple discoveries
+  async _getClient() {
+    if (!this._clientPromise) {
+      this._clientPromise = (async () => {
+        const { issuer_url, key, secret } = this.configuration;
+        if (!issuer_url) throw new Error('OidcStrategy requires issuer_url in oauth.oidc config');
+        const issuer = await Issuer.discover(issuer_url);
+        return new issuer.Client({ client_id: key, client_secret: secret });
+      })();
+    }
+    return this._clientPromise;
+  }
+
+  async getProfile(data, _params) {
+    const client = await this._getClient();
+    return client.userinfo(data.access_token);
+  }
+
+  async getEntityQuery(profile, _params) {
+    return { oidcId: profile.sub };
+  }
+
+  async getEntityData(profile, existingEntity, _params) {
+    const data = { oidcId: profile.sub };
+    if (profile.email) data.email = profile.email;
+    if (!existingEntity) {
+      if (profile.given_name) data.firstname = profile.given_name;
+      if (profile.family_name) data.lastname = profile.family_name;
+      if (profile.locale) data.language = profile.locale.slice(0, 5);
+      data.role = 'guest';
+    }
+    return data;
+  }
+}
+
+module.exports = { AnonymousStrategy, ActiveLocalStrategy, ApiKeyStrategy, ParticipantStrategy, WalkInParticipantStrategy, OidcStrategy };

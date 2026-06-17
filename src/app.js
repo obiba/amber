@@ -63,6 +63,17 @@ if (process.env.GOOGLE_KEY && process.env.GOOGLE_SECRET) {
     scope: ['email', 'profile', 'openid']
   };
 }
+if (process.env.OIDC_ISSUER_URL && process.env.OIDC_KEY && process.env.OIDC_SECRET) {
+  authenticationConfig.oauth.oidc = {
+    key: process.env.OIDC_KEY,
+    secret: process.env.OIDC_SECRET,
+    issuer_url: process.env.OIDC_ISSUER_URL,
+    authorize_url: process.env.OIDC_AUTHORIZE_URL,
+    access_url: process.env.OIDC_TOKEN_URL,
+    scope: ['openid', 'email', 'profile'],
+    nonce: true,
+  };
+}
 app.set('authentication', authenticationConfig);
 
 // Enable security, CORS
