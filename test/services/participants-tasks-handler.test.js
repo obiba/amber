@@ -1,6 +1,9 @@
 const assert = require('assert');
-const app = require('../../src/app');
+const appPromise = require('../../src/app');
+let app;
 const { ParticipantsTasksHandler } = require('../../src/services/participant/participants-tasks-handler.class');
+
+before(async function() { this.timeout(30000); app = await appPromise; });
 
 describe('ParticipantsTasksHandler', () => {
   let handler;

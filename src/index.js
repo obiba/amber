@@ -35,7 +35,7 @@ const seedAdministrator = async (app) => {
 
 const start = async () => {
 
-  const app = require('./app');
+  const app = await require('./app');
   const port = app.get('port');
 
   // In Feathers v5, app.listen() returns a Promise
@@ -58,8 +58,7 @@ if (clusterWorkerSize > 1) {
     // Seed runs once in the master before any worker starts, avoiding the race
     // condition where multiple workers simultaneously see zero admins and each
     // try to create one.
-    const app = require('./app');
-    seedAdministrator(app).then(() => {
+    require('./app').then((app) => seedAdministrator(app)).then(() => {
       for (let i=0; i < clusterWorkerSize; i++) {
         cluster.fork();
       }
@@ -75,8 +74,7 @@ if (clusterWorkerSize > 1) {
     start();
   }
 } else {
-  const app = require('./app');
-  seedAdministrator(app).then(() => start()).catch((err) => {
+  require('./app').then((app) => seedAdministrator(app)).then(() => start()).catch((err) => {
     logger.error(err);
     process.exit(1);
   });

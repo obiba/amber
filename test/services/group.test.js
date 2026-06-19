@@ -1,5 +1,8 @@
 const assert = require('assert');
-const app = require('../../src/app');
+const appPromise = require('../../src/app');
+let app;
+
+before(async function() { this.timeout(30000); app = await appPromise; });
 
 describe('\'group\' service', () => {
   let service;

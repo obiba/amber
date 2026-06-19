@@ -48,6 +48,10 @@
     "apiKey": {
       "allowedKeys": [ "CHANGEME" ],
       "header": "x-access-token"
+    },
+    "oauth": {
+      "origins": [],
+      "redirect": "/"
     }
   },
   "signup": {

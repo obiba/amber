@@ -1,9 +1,9 @@
 const assert = require('assert').strict;
 const axios = require('axios');
 const url = require('url');
-const app = require('../src/app');
+const appPromise = require('../src/app');
 
-const port = app.get('port') || 8998;
+let app, port;
 const getUrl = pathname => url.format({
   hostname: app.get('host') || 'localhost',
   protocol: 'http',
@@ -15,6 +15,9 @@ describe('Feathers application tests', () => {
   let server;
 
   before(async function() {
+    this.timeout(30000);
+    app = await appPromise;
+    port = app.get('port') || 8998;
     server = await app.listen(port);
   });
 

@@ -1,5 +1,6 @@
 const assert = require('assert');
-const app = require('../../src/app');
+const appPromise = require('../../src/app');
+let app;
 const { ObjectId } = require('mongodb');
 
 describe('\'case-report\' service', () => {
@@ -14,8 +15,9 @@ describe('\'case-report\' service', () => {
   let testCaseReportForm;
   let testCaseReport;
 
-  // Wait for MongoDB connection before all tests
+  // Wait for app init and MongoDB connection before all tests
   before(async () => {
+    app = await appPromise;
     await app.get('mongodbClient');
   });
 
