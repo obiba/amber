@@ -1,3 +1,4 @@
+const { randomBytes } = require('crypto');
 const { NotAuthenticated } = require('@feathersjs/errors');
 const { AuthenticationBaseStrategy } = require('@feathersjs/authentication');
 const { LocalStrategy } = require('@feathersjs/authentication-local');
@@ -180,7 +181,93 @@ class WalkInParticipantStrategy extends ParticipantStrategy {
   }
 }
 
-class OidcStrategy extends OAuthStrategy {
+// Base for all social OAuth providers.
+// Overrides createEntity/updateEntity to use internal service calls,
+// bypassing external hooks (reCAPTCHA, registration validation, CASL authorize).
+class BaseOAuthUserStrategy extends OAuthStrategy {
+  _randomPassword() {
+    // Satisfies the strong password regex: upper + lower + digit + special + entropy
+    return `Oa!1${randomBytes(12).toString('hex')}`;
+  }
+
+  _trimName(s, fallback) {
+    const v = (s || '').trim().slice(0, 30);
+    return v.length >= 2 ? v : (fallback || 'User').padEnd(2, '_').slice(0, 30);
+  }
+
+  async createEntity(profile, params) {
+    const data = await this.getEntityData(profile, null, params);
+    return this.entityService.create(data, {});
+  }
+
+  async updateEntity(entity, profile, params) {
+    const id = entity[this.entityId];
+    const data = await this.getEntityData(profile, entity, params);
+    return this.entityService.patch(id, data, {});
+  }
+
+  async getEntity(result, params) {
+    // Strip provider so the user-service get() is an internal call,
+    // bypassing authenticate/authorize hooks that require a JWT.
+    // The base implementation returns result directly when provider is absent.
+    const { provider, ...internalParams } = params;
+    return super.getEntity(result, internalParams);
+  }
+}
+
+class GithubStrategy extends BaseOAuthUserStrategy {
+  async getEntityQuery(profile, _params) {
+    return { githubId: profile.id };
+  }
+
+  async getEntityData(profile, existingEntity, _params) {
+    const data = { githubId: profile.id };
+    if (existingEntity) return data;
+
+    const parts = (profile.name || profile.login || '').trim().split(/\s+/);
+    const login = profile.login || 'OAuth';
+    data.email = profile.email || profile.notification_email;
+    data.firstname = this._trimName(parts[0], login);
+    data.lastname = this._trimName(parts.slice(1).join(' ') || parts[0], login);
+    if (profile.company) {
+      data.institution = (profile.company || '').trim().slice(0, 100);
+    }
+    if (profile.location) {
+      data.city = (profile.location || '').trim().slice(0, 30);
+    }
+    if (profile.bio) {
+      data.title = (profile.bio || '').trim().slice(0, 30);
+    }
+    if (profile.phone) {
+      data.phone = profile.phone.trim().slice(0, 30);
+    }
+    data.role = 'guest';
+    data.language = (profile.locale || '').slice(0, 5) || (profile.lang || '').slice(0, 5) || 'en';
+    data.password = this._randomPassword();
+    return data;
+  }
+}
+
+class GoogleStrategy extends BaseOAuthUserStrategy {
+  async getEntityQuery(profile, _params) {
+    return { googleId: profile.sub || profile.id };
+  }
+
+  async getEntityData(profile, existingEntity, _params) {
+    const data = { googleId: profile.sub || profile.id };
+    if (existingEntity) return data;
+
+    data.email = profile.email;
+    data.firstname = this._trimName(profile.given_name, profile.name);
+    data.lastname = this._trimName(profile.family_name, profile.name);
+    data.language = (profile.locale || '').slice(0, 5) || (profile.lang || '').slice(0, 5) || 'en';
+    data.role = 'guest';
+    data.password = this._randomPassword();
+    return data;
+  }
+}
+
+class OidcStrategy extends BaseOAuthUserStrategy {
   // Caches the promise so concurrent calls during startup don't trigger multiple discoveries
   async _getClient() {
     if (!this._clientPromise) {
@@ -205,15 +292,17 @@ class OidcStrategy extends OAuthStrategy {
 
   async getEntityData(profile, existingEntity, _params) {
     const data = { oidcId: profile.sub };
+    if (existingEntity) return data;
+
     if (profile.email) data.email = profile.email;
-    if (!existingEntity) {
-      if (profile.given_name) data.firstname = profile.given_name;
-      if (profile.family_name) data.lastname = profile.family_name;
-      if (profile.locale) data.language = profile.locale.slice(0, 5);
-      data.role = 'guest';
-    }
+    data.firstname = this._trimName(profile.given_name, profile.name);
+    data.lastname = this._trimName(profile.family_name, profile.name);
+    if (profile.locale) data.language = profile.locale.slice(0, 5);
+    data.role = 'guest';
+    data.language = (profile.locale || '').slice(0, 5) || (profile.lang || '').slice(0, 5) || 'en';
+    data.password = this._randomPassword();
     return data;
   }
 }
 
-module.exports = { AnonymousStrategy, ActiveLocalStrategy, ApiKeyStrategy, ParticipantStrategy, WalkInParticipantStrategy, OidcStrategy };
+module.exports = { AnonymousStrategy, ActiveLocalStrategy, ApiKeyStrategy, ParticipantStrategy, WalkInParticipantStrategy, BaseOAuthUserStrategy, GithubStrategy, GoogleStrategy, OidcStrategy };

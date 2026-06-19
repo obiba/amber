@@ -5,7 +5,9 @@ const authActivity = require('./hooks/auth-activity');
 const authEmailOtp = require('./hooks/auth-email-otp');
 const { iff } = require('feathers-hooks-common');
 
-const { AnonymousStrategy, ActiveLocalStrategy, ApiKeyStrategy, ParticipantStrategy, WalkInParticipantStrategy, OidcStrategy } = require('./utils/auth-strategies');
+const { AnonymousStrategy, ActiveLocalStrategy, ApiKeyStrategy, ParticipantStrategy, WalkInParticipantStrategy, BaseOAuthUserStrategy, GithubStrategy, GoogleStrategy, OidcStrategy } = require('./utils/auth-strategies');
+
+const NON_PROVIDER_KEYS = new Set(['redirect', 'origins', 'defaults']);
 
 
 
@@ -19,6 +21,16 @@ module.exports = app => {
   authentication.register('participant', new ParticipantStrategy());
   authentication.register('campaign', new WalkInParticipantStrategy());
   authentication.register('oidc', new OidcStrategy());
+
+  // Register strategies for configured OAuth providers; fall back to BaseOAuthUserStrategy
+  const OAUTH_STRATEGIES = { github: GithubStrategy, google: GoogleStrategy };
+  const oauthConfig = app.get('authentication').oauth || {};
+  Object.keys(oauthConfig)
+    .filter(k => !NON_PROVIDER_KEYS.has(k) && !k.startsWith('_') && k !== 'oidc')
+    .forEach(provider => {
+      const StrategyClass = OAUTH_STRATEGIES[provider] || BaseOAuthUserStrategy;
+      authentication.register(provider, new StrategyClass());
+    });
 
   app.use('/authentication', authentication);
   const authenticationConfig = app.get('authentication');

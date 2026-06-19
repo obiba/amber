@@ -50,6 +50,7 @@
       "header": "x-access-token"
     },
     "oauth": {
+      "origins": ["http://localhost:3030", "http://localhost:3080", "http://localhost:3090", "http://localhost:3070"],
       "redirect": "/"
     }
   },

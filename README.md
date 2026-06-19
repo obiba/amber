@@ -95,11 +95,11 @@ Amber uses [dotenv](https://github.com/motdotla/dotenv) for environment variable
 * `GITHUB_SECRET`, OAuth secret for Github
 * `GOOGLE_KEY`, OAuth key for Google
 * `GOOGLE_SECRET`, OAuth secret for Google
+* `OIDC_NAME`, OpenID Connect provider name
 * `OIDC_ISSUER_URL`, OpenID Connect issuer URL (used for OIDC discovery and UserInfo endpoint resolution, e.g. `https://your-idp/realms/myrealm`)
 * `OIDC_KEY`, OpenID Connect client ID
 * `OIDC_SECRET`, OpenID Connect client secret
-* `OIDC_AUTHORIZE_URL`, OpenID Connect authorization endpoint (found at `{OIDC_ISSUER_URL}/.well-known/openid-configuration`)
-* `OIDC_TOKEN_URL`, OpenID Connect token endpoint (found at `{OIDC_ISSUER_URL}/.well-known/openid-configuration`)
+* `OIDC_SCOPE`, OpenID Connect scope as comma separated names (e.g. openid,email,profile), defaults to issuer's supported scopes or ['openid', 'email', 'profile']
 * `ADMINISTRATOR_EMAIL`, user seeding when there is no administrator in the database
 * `ADMINISTRATOR_PWD`, user seeding when there is no administrator in the database
 * `LOG_LEVEL`, logger level (`error`, `warn`, `info`, `verbose`, `debug`, `silly`, etc. (see [winstonjs](https://github.com/winstonjs/winston))), default is `info`
