@@ -120,15 +120,16 @@ class WalkInParticipantStrategy extends ParticipantStrategy {
     if (!data.campaign) {
       throw new NotAuthenticated('No campaign provided for walk-in participant authentication');
     }
+    if (!data.data || typeof data.data !== 'object') {
+      throw new NotAuthenticated('Walk-in participant data is missing or not an object');
+    }
     const campaign = await this.app.service('campaign').get(data.campaign);
     if (campaign.walkInEnabled !== true) {
       throw new NotAuthenticated('Walk-in participants are not allowed for this campaign');
     }
+    const noDataInput = !data.data || Object.keys(data.data).length === 0;
     // check if walk-in data keys are provided
     if (campaign.walkInData && Object.keys(campaign.walkInData).length > 0) {
-      if (!data.data || typeof data.data !== 'object') {
-        throw new NotAuthenticated('Walk-in participant data is missing or not an object');
-      }
       const walkInDataKeys = Object.keys(campaign.walkInData);
       const newData = {};  
       for (const key of walkInDataKeys) {
@@ -145,25 +146,28 @@ class WalkInParticipantStrategy extends ParticipantStrategy {
     }
     // find if a participant already exists for this campaign with the same data
     const participantService = this.app.service('participant');
-    const existingParticipant = await participantService.find({
-      query: {
-        campaign: data.campaign,
-        activated: true,
-        // match true walk-ins: either null or not set
-        $or: [
-          { createdBy: { $eq: null } },
-          { createdBy: { $exists: false } }
-        ],
-        data: { $eq: data.data }, // match the provided data
-        $limit: 1
-      }
-    });
-    if (existingParticipant.total > 0) {
-      // if a participant already exists, return it
-      return super.authenticate({
-        code: existingParticipant.data[0].code, // use the existing participant code
-        password: data.password // if password is provided, it will be checked
+    // if data is empty, this is a new participant, otherwise check if a participant with the same data already exists
+    if (!noDataInput) {
+      const existingParticipant = await participantService.find({
+        query: {
+          campaign: data.campaign,
+          activated: true,
+          // match true walk-ins: either null or not set
+          $or: [
+            { createdBy: { $eq: null } },
+            { createdBy: { $exists: false } }
+          ],
+          data: { $eq: data.data }, // match the provided data
+          $limit: 1
+        }
       });
+      if (existingParticipant.total > 0) {
+        // if a participant already exists, return it
+        return super.authenticate({
+          code: existingParticipant.data[0].code, // use the existing participant code
+          password: data.password // if password is provided, it will be checked
+        });
+      }
     }
     // create a new participant with the provided data
     const participant = await participantService.create({
