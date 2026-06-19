@@ -20,15 +20,15 @@ module.exports = app => {
   authentication.register('apiKey', new ApiKeyStrategy());
   authentication.register('participant', new ParticipantStrategy());
   authentication.register('campaign', new WalkInParticipantStrategy());
-  authentication.register('oidc', new OidcStrategy());
-
-  // Register strategies for configured OAuth providers; fall back to BaseOAuthUserStrategy
+  // Register strategies for configured OAuth providers; OIDC providers detected by issuer_url
   const OAUTH_STRATEGIES = { github: GithubStrategy, google: GoogleStrategy };
   const oauthConfig = app.get('authentication').oauth || {};
   Object.keys(oauthConfig)
-    .filter(k => !NON_PROVIDER_KEYS.has(k) && !k.startsWith('_') && k !== 'oidc')
+    .filter(k => !NON_PROVIDER_KEYS.has(k) && !k.startsWith('_'))
     .forEach(provider => {
-      const StrategyClass = OAUTH_STRATEGIES[provider] || BaseOAuthUserStrategy;
+      const providerConfig = oauthConfig[provider];
+      const StrategyClass = providerConfig && providerConfig.issuer_url ? OidcStrategy
+        : OAUTH_STRATEGIES[provider] || BaseOAuthUserStrategy;
       authentication.register(provider, new StrategyClass());
     });
 

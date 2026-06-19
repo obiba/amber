@@ -58,6 +58,15 @@ module.exports = (async () => {
   if (process.env.OAUTH_ORIGINS) {
     authenticationConfig.oauth.origins = process.env.OAUTH_ORIGINS.split(',').map(o => o.trim());
   }
+  if (process.env.AMBER_STUDIO_URL && !authenticationConfig.oauth.origins.includes(process.env.AMBER_STUDIO_URL)) {
+    authenticationConfig.oauth.origins.push(process.env.AMBER_STUDIO_URL);
+  }
+  if (process.env.AMBER_COLLECT_URL && !authenticationConfig.oauth.origins.includes(process.env.AMBER_COLLECT_URL)) {
+    authenticationConfig.oauth.origins.push(process.env.AMBER_COLLECT_URL);
+  }
+  if (process.env.AMBER_VISIT_URL && !authenticationConfig.oauth.origins.includes(process.env.AMBER_VISIT_URL)) {
+    authenticationConfig.oauth.origins.push(process.env.AMBER_VISIT_URL);
+  }
   if (process.env.GITHUB_KEY && process.env.GITHUB_SECRET) {
     authenticationConfig.oauth.github = {
       key: process.env.GITHUB_KEY,
@@ -78,14 +87,16 @@ module.exports = (async () => {
     const token_url = issuer.metadata.token_endpoint;
     const scope = (process.env.OIDC_SCOPE ? process.env.OIDC_SCOPE.split(',').map(s => s.trim()) : null) || issuer.metadata.scopes_supported || ['openid', 'email', 'profile'];
     const name = process.env.OIDC_NAME || 'oidc';
+    const nonce = (process.env.OIDC_NONCE && (process.env.OIDC_NONCE === true || process.env.OIDC_NONCE === 'true' || process.env.OIDC_NONCE === 1 || process.env.OIDC_NONCE === '1')) || false;
     authenticationConfig.oauth[name] = {
+      oauth: 2,
       key: process.env.OIDC_KEY,
       secret: process.env.OIDC_SECRET,
       issuer_url: process.env.OIDC_ISSUER_URL,
       authorize_url: authorize_url,
       access_url: token_url,
       scope: scope,
-      nonce: true,
+      nonce: nonce,
     };
   }
   app.set('authentication', authenticationConfig);
