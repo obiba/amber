@@ -1,7 +1,10 @@
 const assert = require('assert');
-const app = require('../../src/app');
+const appPromise = require('../../src/app');
+let app;
 const { InterviewDesignI18nExport } = require('../../src/services/interview-design-i18n/interview-design-i18n.class');
 const { BadRequest } = require('@feathersjs/errors');
+
+before(async function() { this.timeout(30000); app = await appPromise; });
 
 describe('\'interview-design-i18n\' service', () => {
   let service;

@@ -1,5 +1,6 @@
 const assert = require('assert');
-const app = require('../../src/app');
+const appPromise = require('../../src/app');
+let app;
 
 describe('\'crfs\' service', () => {
   let testAdmin; // eslint-disable-line no-unused-vars
@@ -10,8 +11,9 @@ describe('\'crfs\' service', () => {
   let testCaseReportForm2;
   let testCaseReportForm3; // paused state
 
-  // Wait for MongoDB connection before all tests
+  // Wait for app init and MongoDB connection before all tests
   before(async () => {
+    app = await appPromise;
     await app.get('mongodbClient');
   });
 

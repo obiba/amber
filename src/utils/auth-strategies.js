@@ -210,7 +210,7 @@ class BaseOAuthUserStrategy extends OAuthStrategy {
     // Strip provider so the user-service get() is an internal call,
     // bypassing authenticate/authorize hooks that require a JWT.
     // The base implementation returns result directly when provider is absent.
-    const { provider, ...internalParams } = params;
+    const { provider: _provider, ...internalParams } = params;
     return super.getEntity(result, internalParams);
   }
 }

@@ -1,7 +1,10 @@
 const assert = require('assert');
-const app = require('../../src/app');
+const appPromise = require('../../src/app');
+let app;
 const { Task } = require('../../src/services/task/task.class');
 const { LazyMongoDBService } = require('../../src/services/mongodb-service.class');
+
+before(async function() { this.timeout(30000); app = await appPromise; });
 
 describe('\'task\' service', () => {
   let service;

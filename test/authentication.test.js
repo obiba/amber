@@ -3,11 +3,13 @@ const assert = require('assert');
 // Disable OTP for testing
 process.env.OTP_TIMEOUT = '0';
 
-const app = require('../src/app');
+const appPromise = require('../src/app');
+let app;
 
 describe('authentication', () => {
-  // Wait for MongoDB connection before all tests
+  // Wait for app init and MongoDB connection before all tests
   before(async () => {
+    app = await appPromise;
     await app.get('mongodbClient');
   });
 

@@ -1,8 +1,11 @@
 const assert = require('assert');
-const app = require('../../src/app');
+const appPromise = require('../../src/app');
+let app;
 const { Metrics } = require('../../src/services/metrics/metrics.class');
 const { BadRequest } = require('@feathersjs/errors');
 const { ObjectId } = require('mongodb');
+
+before(async function() { this.timeout(30000); app = await appPromise; });
 
 describe('\'metrics\' service', () => {
   let service;
