@@ -85,7 +85,7 @@ module.exports = (async () => {
     const issuer = await Issuer.discover(process.env.OIDC_ISSUER_URL);
     const authorize_url = issuer.metadata.authorization_endpoint;
     const token_url = issuer.metadata.token_endpoint;
-    const scope = (process.env.OIDC_SCOPE ? process.env.OIDC_SCOPE.split(',').map(s => s.trim()) : null) || issuer.metadata.scopes_supported || ['openid', 'email', 'profile'];
+    const scope = (process.env.OIDC_SCOPE ? process.env.OIDC_SCOPE.split(/[\s,]+/).filter(s => s) : null) || issuer.metadata.scopes_supported || ['openid', 'email', 'profile'];
     const name = process.env.OIDC_NAME || 'oidc';
     const nonce = (process.env.OIDC_NONCE && (process.env.OIDC_NONCE === true || process.env.OIDC_NONCE === 'true' || process.env.OIDC_NONCE === 1 || process.env.OIDC_NONCE === '1')) || false;
     authenticationConfig.oauth[name] = {

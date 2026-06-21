@@ -217,6 +217,38 @@ class BaseOAuthUserStrategy extends OAuthStrategy {
     const { provider: _provider, ...internalParams } = params;
     return super.getEntity(result, internalParams);
   }
+
+  getRoleFromProfile(profile) {
+    // TODO improve role mapping from profile, e.g. using a mapping table in the config
+    let role = null;
+    const prefix = process.env.APP_NAME ? process.env.APP_NAME.toLowerCase() : 'amber';
+    if (profile.groups && Array.isArray(profile.groups)) {
+      if (profile.groups.includes(`${prefix}-administrator`)) {
+        role = 'administrator';
+      } else if (profile.groups.includes(`${prefix}-manager`)) {
+        role = 'manager';
+      } else if (profile.groups.includes(`${prefix}-interviewer`)) {
+        role = 'interviewer';
+      } else {
+        role = 'guest';
+      }
+    }
+    if (!role && profile.roles && Array.isArray(profile.roles)) {
+      if (profile.roles.includes(`${prefix}-administrator`)) {
+        role = 'administrator';
+      } else if (profile.roles.includes(`${prefix}-manager`)) {
+        role = 'manager';
+      } else if (profile.roles.includes(`${prefix}-interviewer`)) {
+        role = 'interviewer';
+      } else {
+        role = 'guest';
+      }
+    }
+    if (!role) {
+      role = 'guest';
+    }
+    return role;
+  }
 }
 
 class GithubStrategy extends BaseOAuthUserStrategy {
@@ -245,7 +277,7 @@ class GithubStrategy extends BaseOAuthUserStrategy {
     if (profile.phone) {
       data.phone = profile.phone.trim().slice(0, 30);
     }
-    data.role = 'guest';
+    data.role = this.getRoleFromProfile(profile);
     data.language = (profile.locale || '').slice(0, 5) || (profile.lang || '').slice(0, 5) || 'en';
     data.password = this._randomPassword();
     return data;
@@ -265,7 +297,7 @@ class GoogleStrategy extends BaseOAuthUserStrategy {
     data.firstname = this._trimName(profile.given_name, profile.name);
     data.lastname = this._trimName(profile.family_name, profile.name);
     data.language = (profile.locale || '').slice(0, 5) || (profile.lang || '').slice(0, 5) || 'en';
-    data.role = 'guest';
+    data.role = this.getRoleFromProfile(profile);
     data.password = this._randomPassword();
     return data;
   }
@@ -302,7 +334,7 @@ class OidcStrategy extends BaseOAuthUserStrategy {
     data.firstname = this._trimName(profile.given_name, profile.name);
     data.lastname = this._trimName(profile.family_name, profile.name);
     if (profile.locale) data.language = profile.locale.slice(0, 5);
-    data.role = 'guest';
+    data.role = this.getRoleFromProfile(profile);
     data.language = (profile.locale || '').slice(0, 5) || (profile.lang || '').slice(0, 5) || 'en';
     data.password = this._randomPassword();
     return data;

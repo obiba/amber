@@ -99,7 +99,7 @@ Amber uses [dotenv](https://github.com/motdotla/dotenv) for environment variable
 * `OIDC_ISSUER_URL`, OpenID Connect issuer URL (used for OIDC discovery and UserInfo endpoint resolution, e.g. `https://your-idp/realms/myrealm`)
 * `OIDC_KEY`, OpenID Connect client ID
 * `OIDC_SECRET`, OpenID Connect client secret
-* `OIDC_SCOPE`, OpenID Connect scope as comma separated names (e.g. openid,email,profile), defaults to issuer's supported scopes or ['openid', 'email', 'profile']
+* `OIDC_SCOPE`, OpenID Connect scope as comma or space separated names (e.g. openid email profile), defaults to issuer's supported scopes or ['openid', 'email', 'profile']
 * `OIDC_NONCE`, OpenID Connect nonce usage, either true or 1, default is false
 * `ADMINISTRATOR_EMAIL`, user seeding when there is no administrator in the database
 * `ADMINISTRATOR_PWD`, user seeding when there is no administrator in the database
