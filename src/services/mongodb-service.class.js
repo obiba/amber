@@ -1,4 +1,5 @@
 const { MongoDBService } = require('@feathersjs/mongodb');
+const { ObjectId } = require('mongodb');
 
 /**
  * Base class for MongoDB services that provides lazy model loading.
@@ -17,6 +18,32 @@ class LazyMongoDBService extends MongoDBService {
       this.Model = db.collection(this.collectionName);
     }
     return this.Model;
+  }
+
+  filterQuery(id, params) {
+    const result = super.filterQuery(id, params);
+    const idField = this.id;
+    const queryId = result.query[idField];
+    if (queryId !== null && queryId !== undefined && typeof queryId === 'object' && !(queryId instanceof ObjectId)) {
+      const converted = { ...queryId };
+      let changed = false;
+      if (Array.isArray(queryId.$in)) {
+        converted.$in = queryId.$in.map(v => this.getObjectId(v));
+        changed = true;
+      }
+      if (Array.isArray(queryId.$nin)) {
+        converted.$nin = queryId.$nin.map(v => this.getObjectId(v));
+        changed = true;
+      }
+      if (queryId.$ne !== undefined) {
+        converted.$ne = this.getObjectId(queryId.$ne);
+        changed = true;
+      }
+      if (changed) {
+        result.query[idField] = converted;
+      }
+    }
+    return result;
   }
 
   async _find(params) {
