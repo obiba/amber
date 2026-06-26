@@ -81,23 +81,26 @@ module.exports = (async () => {
     };
   }
   if (process.env.OIDC_ISSUER_URL && process.env.OIDC_KEY && process.env.OIDC_SECRET) {
-    // get authorize and token URLs from well-known endpoint
-    const issuer = await Issuer.discover(process.env.OIDC_ISSUER_URL);
-    const authorize_url = issuer.metadata.authorization_endpoint;
-    const token_url = issuer.metadata.token_endpoint;
-    const scope = (process.env.OIDC_SCOPE ? process.env.OIDC_SCOPE.split(/[\s,]+/).filter(s => s) : null) || issuer.metadata.scopes_supported || ['openid', 'email', 'profile'];
-    const name = process.env.OIDC_NAME || 'oidc';
-    const nonce = (process.env.OIDC_NONCE && (process.env.OIDC_NONCE === true || process.env.OIDC_NONCE === 'true' || process.env.OIDC_NONCE === 1 || process.env.OIDC_NONCE === '1')) || false;
-    authenticationConfig.oauth[name] = {
-      oauth: 2,
-      key: process.env.OIDC_KEY,
-      secret: process.env.OIDC_SECRET,
-      issuer_url: process.env.OIDC_ISSUER_URL,
-      authorize_url: authorize_url,
-      access_url: token_url,
-      scope: scope,
-      nonce: nonce,
-    };
+    try {
+      const issuer = await Issuer.discover(process.env.OIDC_ISSUER_URL);
+      const authorize_url = issuer.metadata.authorization_endpoint;
+      const token_url = issuer.metadata.token_endpoint;
+      const scope = (process.env.OIDC_SCOPE ? process.env.OIDC_SCOPE.split(/[\s,]+/).filter(s => s) : null) || issuer.metadata.scopes_supported || ['openid', 'email', 'profile'];
+      const name = process.env.OIDC_NAME || 'oidc';
+      const nonce = (process.env.OIDC_NONCE && (process.env.OIDC_NONCE === true || process.env.OIDC_NONCE === 'true' || process.env.OIDC_NONCE === 1 || process.env.OIDC_NONCE === '1')) || false;
+      authenticationConfig.oauth[name] = {
+        oauth: 2,
+        key: process.env.OIDC_KEY,
+        secret: process.env.OIDC_SECRET,
+        issuer_url: process.env.OIDC_ISSUER_URL,
+        authorize_url: authorize_url,
+        access_url: token_url,
+        scope: scope,
+        nonce: nonce,
+      };
+    } catch (err) {
+      logger.warn('OIDC discovery failed for %s — OIDC login unavailable: %s', process.env.OIDC_ISSUER_URL, err.message);
+    }
   }
   app.set('authentication', authenticationConfig);
 
