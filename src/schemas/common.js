@@ -60,8 +60,13 @@ const formSchemaDefinition = Joi.object({
   idMask: Joi.string().allow('', null),
   idValidation: Joi.string().allow('', null),
   idValidationMessage: Joi.string().allow('', null),
+  // legacy format: items and their i18n translations
   items: Joi.array().items(Joi.object()),
-  i18n: Joi.object()
+  i18n: Joi.object(),
+  // JSON Forms format (@obiba/quasar-ui-json-form): JSON schema, UI schema and translations
+  schema: Joi.object(),
+  uischema: Joi.object(),
+  translations: Joi.object()
 });
 
 // Default Joi validation options
