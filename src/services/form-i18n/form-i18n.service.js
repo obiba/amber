@@ -17,7 +17,7 @@ const toRows = (res) => {
     header: [],
     rows: [],
   };
-  const i18n = res.data.schema.i18n;
+  const i18n = (res.data.schema.i18n || res.data.schema.translations);
   if (i18n) {
     const locales = Object.keys(i18n);
     if (locales.length > 0) {
@@ -74,7 +74,7 @@ const doExcelResponse = async (res) => {
 const doJsonResponse = (res) => {
   res.attachment(`${res.data.name}-i18n-export.json`);
   res.type('application/json');
-  res.json(res.data.schema.i18n);
+  res.json((res.data.schema.i18n || res.data.schema.translations));
 };
 
 module.exports = function (app) {

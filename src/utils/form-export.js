@@ -1,6 +1,69 @@
 /* eslint-disable no-unused-vars */
 const { BadRequest } = require('@feathersjs/errors');
 
+/** the options of the UI schema controls, by scope */
+const controlOptions = (element, rval = {}) => {
+  if (element && typeof element === 'object') {
+    if (typeof element.scope === 'string') rval[element.scope] = element.options || {};
+    (element.elements || []).forEach(child => controlOptions(child, rval));
+  }
+  return rval;
+};
+
+/** a JSON schema property as a legacy Amber item, for the data dictionary */
+const toItem = (name, property, scope, options) => {
+  const many = property.type === 'array' && property.items && typeof property.items === 'object';
+  const prop = many ? property.items : property;
+  const item = { name, label: property.title, description: property.description };
+  if (prop.type === 'object' && prop.properties && prop.format !== 'geo') {
+    item.items = toItems(prop, scope, options);
+    return item;
+  }
+  // the legacy checkbox groups are not repeatable variables: kept so for the existing tables
+  if (many && (options[scope] || {}).format !== 'checkbox') item.multiple = true;
+  const choices = prop.oneOf || prop.anyOf;
+  if (Array.isArray(choices) && choices.every(c => c && c.const !== undefined)) {
+    item.options = choices.map(c => ({ value: c.const, label: c.title }));
+  } else if (Array.isArray(prop.enum)) {
+    item.options = prop.enum.map(value => ({ value }));
+  } else if (options[scope] && Array.isArray(options[scope].values)) {
+    // typeahead
+    item.options = options[scope].values.map(v => (v && typeof v === 'object' ? v : { value: v }));
+  }
+  if (prop.format === 'geo') {
+    const opts = options[scope] || {};
+    const geometries = (many && opts.items && opts.items.options ? opts.items.options : opts).geometries;
+    item.type = 'map';
+    if (Array.isArray(geometries) && geometries.length === 1) item.geometryType = geometries[0];
+  } else if (prop.type === 'boolean') {
+    item.type = 'toggle';
+  } else if (prop.type === 'number' || prop.type === 'integer') {
+    // as the legacy number, slider and rating items
+    item.type = 'number';
+  } else if (prop.format === 'date') {
+    item.type = 'date';
+  } else if (prop.format === 'date-time') {
+    item.type = 'datetime';
+  } else {
+    item.type = 'text';
+  }
+  return item;
+};
+
+const toItems = (schema, scope, options) => Object.entries(schema.properties || {})
+  .map(([name, property]) => toItem(name, property || {}, `${scope}/properties/${name}`, options));
+
+/**
+ * The items of a form schema: the legacy ones, or the JSON Forms ones (the
+ * schema `uischema` is set) made from the JSON schema properties.
+ */
+const formItems = (schema) => {
+  if (!schema || !schema.uischema) return (schema && schema.items) || [];
+  return toItems(schema.schema || {}, '#', controlOptions(schema.uischema));
+};
+
+
+
 exports.FormDataExport = class FormDataExport {
   constructor (options, app) {
     this.options = options || {};
@@ -12,6 +75,10 @@ exports.FormDataExport = class FormDataExport {
    * Initiate the data collection export.
    * @returns an export data object
    */
+  formItems(schema) {
+    return formItems(schema);
+  }
+
   initExport() {
     return {
       exportResults: {},
@@ -47,10 +114,10 @@ exports.FormDataExport = class FormDataExport {
         });
       }
 
-      schema.items.forEach(item => {
+      this.formItems(schema).forEach(item => {
         const vars = this.makeVariables(item, {
           entityType: entityType,
-          i18n: schema.i18n,
+          i18n: schema.i18n || schema.translations,
           repeated: multipleOptions.multiple
         });
         if (Array.isArray(vars)) {
@@ -139,7 +206,7 @@ exports.FormDataExport = class FormDataExport {
    */
   async flattenData (exportData, form, revision, data, multiple, groupId) {
     const formRevision = await this.getFormRevision(exportData, form, revision);
-    const flattenData = this.flattenByItems(formRevision.schema.items, data);
+    const flattenData = this.flattenByItems(this.formItems(formRevision.schema), data);
     if (multiple) {
       flattenData[this.exportSettings.identifier_variable] = flattenData['_id'];
       flattenData['_id'] = groupId;
@@ -291,7 +358,7 @@ exports.FormDataExport = class FormDataExport {
   }
 
   makeAttributes (key, i18n) {
-    if (i18n) {
+    if (i18n && Object.keys(i18n).length > 0) {
       return Object.keys(i18n).map(locale => { 
         return {
           value: i18n[locale][key] ? i18n[locale][key] : key,
