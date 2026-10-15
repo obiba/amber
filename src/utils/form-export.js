@@ -19,8 +19,7 @@ const toItem = (name, property, scope, options) => {
     item.items = toItems(prop, scope, options);
     return item;
   }
-  // the legacy checkbox groups are not repeatable variables: kept so for the existing tables
-  if (many && (options[scope] || {}).format !== 'checkbox') item.multiple = true;
+  if (many) item.multiple = true;
   const choices = prop.oneOf || prop.anyOf;
   if (Array.isArray(choices) && choices.every(c => c && c.const !== undefined)) {
     item.options = choices.map(c => ({ value: c.const, label: c.title }));
@@ -312,7 +311,7 @@ exports.FormDataExport = class FormDataExport {
       } else if (['map'].includes(item.type)) {
         variable.valueType = item.geometryType ? item.geometryType.toLowerCase() : 'point';
       }
-      if (item.multiple) {
+      if (item.multiple || item.type === 'checkboxgroup') {
         variable.isRepeatable = true;
       }
       variable.attributes = [];
