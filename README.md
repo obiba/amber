@@ -169,10 +169,10 @@ The configuration is defined in `config/default.json` and can be overridden by e
 |-----|---------|-------------|
 | `authentication.participant.service` | `participant` | Feathers service used to look up participants |
 | `authentication.participant.hashSize` | `10` | bcrypt hash rounds for participant passwords |
-| `authentication.participant.passwordLength` | `8` | Length of the auto-generated participant access code |
+| `authentication.participant.passwordLength` | `8` | Minimum length of the participant personal password |
 | `authentication.campaign.service` | `participant` | Feathers service used for campaign-based participant auth |
 | `authentication.campaign.hashSize` | `10` | bcrypt hash rounds for campaign passwords |
-| `authentication.campaign.passwordLength` | `8` | Length of the auto-generated campaign access code |
+| `authentication.campaign.passwordLength` | `8` | Not used |
 
 #### API Key Strategy
 
