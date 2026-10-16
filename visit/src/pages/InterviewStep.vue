@@ -132,8 +132,7 @@
 import { useCookies } from 'vue3-cookies'
 import { useQuasar } from 'quasar'
 import { marked } from 'marked'
-import { AmberForm, makeSchemaFormTr, getPageCount, getToc, getTocElement, isJsonForm } from '@obiba/quasar-ui-amber'
-import { ruleEngine } from '@obiba/quasar-ui-json-form'
+import { AmberForm, makeSchemaFormTr, getPageCount, getToc, getTocElement, isPageHidden } from '@obiba/quasar-ui-amber'
 import { Notify, scroll } from 'quasar'
 import { settings as _settings } from '../boot/settings'
 import { locales } from '../boot/i18n'
@@ -260,27 +259,10 @@ function lastPage() {
   return Math.max(getPageCount(step.value.schema) - 1, 0)
 }
 
-/** whether a UI schema element shows nothing: its visible rule fails, or all its children are hidden */
-function isElementHidden(element: any): boolean {
-  const property = typeof element.scope === 'string'
-    ? element.scope.split('/').slice(1).filter((k: string) => k !== 'properties')
-      .reduce((s: any, k: string) => s?.properties?.[k], step.value.schema.schema)
-    : undefined
-  const rule = element.rules?.visible || property?.rules?.visible
-  // as in the renderers, a rule that fails to evaluate keeps the element visible
-  if (typeof rule === 'string' && rule.length > 0 && ruleEngine.evaluate(rule, formData.value, true) !== true) return true
-  return Array.isArray(element.elements) && element.elements.every(isElementHidden)
-}
-
-function isPageHidden(p: number): boolean {
-  // ponytail: JSON Forms only, legacy (Blitzar) forms show their empty pages
-  return isJsonForm(step.value.schema) && isElementHidden(step.value.schema.uischema.elements[p])
-}
-
 /** the closest page in a direction (1 or -1) that is not hidden, undefined when none */
 function targetPage(dir: number): number | undefined {
   for (let p = page() + dir; p >= 0 && p <= lastPage(); p += dir) {
-    if (!isPageHidden(p)) return p
+    if (!isPageHidden(step.value.schema, p, formData.value)) return p
   }
   return undefined
 }

@@ -105,8 +105,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { marked } from 'marked'
-import { AmberForm, makeSchemaFormTr, getPageCount, getToc, getTocElement, isJsonForm } from '@obiba/quasar-ui-amber'
-import { ruleEngine } from '@obiba/quasar-ui-json-form'
+import { AmberForm, makeSchemaFormTr, getPageCount, getToc, getTocElement, isPageHidden } from '@obiba/quasar-ui-amber'
 import { Notify, scroll } from 'quasar'
 import { t } from '../boot/i18n'
 import { settings } from '../boot/settings'
@@ -219,28 +218,11 @@ const onScroll = (id) => {
   }
 }
 
-// whether a UI schema element shows nothing: its visible rule fails, or all its children are hidden
-const isElementHidden = (element) => {
-  const property = typeof element.scope === 'string'
-    ? element.scope.split('/').slice(1).filter(k => k !== 'properties')
-      .reduce((s, k) => s?.properties?.[k], crf.value.schema.schema)
-    : undefined
-  const rule = element.rules?.visible || property?.rules?.visible
-  // as in the renderers, a rule that fails to evaluate keeps the element visible
-  if (typeof rule === 'string' && rule.length > 0 && ruleEngine.evaluate(rule, formData.value, true) !== true) return true
-  return Array.isArray(element.elements) && element.elements.every(isElementHidden)
-}
-
-const isPageHidden = (p) => {
-  // ponytail: JSON Forms only, legacy (Blitzar) forms show their empty pages
-  return isJsonForm(crf.value.schema) && isElementHidden(crf.value.schema.uischema.elements[p])
-}
-
 // the closest page in a direction (1 or -1) that is not hidden, undefined when none
 const targetPage = (dir) => {
   const last = getPageCount(crf.value.schema) - 1
   for (let p = (formData.value.__step ?? 0) + dir; p >= 0 && p <= last; p += dir) {
-    if (!isPageHidden(p)) return p
+    if (!isPageHidden(crf.value.schema, p, formData.value)) return p
   }
   return undefined
 }
