@@ -115,3 +115,5 @@ data/
 .serena/
 plans
 AGENTS.md
+
+install-state.gz
