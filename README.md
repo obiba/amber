@@ -39,4 +39,4 @@ make down
 | visit | http://localhost:3070 |
 | mongo | localhost:27017 (set `MONGO_PORT` to change) |
 
-Administrator: `admin@example.org` / `Password123!`. Override any variable in a `.env` file at the repo root.
+Administrator: `admin@example.org` / `P@ssw0rd`. Override any variable in a `.env` file at the repo root.

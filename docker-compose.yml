@@ -17,7 +17,7 @@ services:
       - CLIENT_URLS=http://localhost:3080,http://localhost:3090,http://localhost:3070
       - MONGODB_URL=mongodb://mongo:27017/amber
       - ADMINISTRATOR_EMAIL=${ADMINISTRATOR_EMAIL:-admin@example.org}
-      - ADMINISTRATOR_PWD=${ADMINISTRATOR_PWD:-Password123!}
+      - ADMINISTRATOR_PWD=${ADMINISTRATOR_PWD:-P@ssw0rd}
       - AMBER_STUDIO_URL=http://localhost:3080
       - AMBER_COLLECT_URL=http://localhost:3090
       - AMBER_VISIT_URL=http://localhost:3070
