@@ -1,0 +1,42 @@
+{
+  "theme": {
+    "front": {
+      "bg": "bg-dark text-white",
+      "card": "ac-card"
+    },
+    "header": "bg-dark text-white",
+    "footer": "bg-dark text-white"
+  },
+  "lock": {
+    "enabled": true,
+    "shuffle": false
+  },
+  "links": [
+    {
+      "title": "main.docs",
+      "caption": "amberdoc.obiba.org",
+      "icon": "school",
+      "link": "https://amberdoc.obiba.org/en/latest/collect-user-guide/"
+    }
+  ],
+  "licenses": [
+    {
+      "value": "mit",
+      "label": "license.mit"
+    }
+  ],
+  "i18n": {
+    "en": {
+      "locales": {
+        "en": "English",
+        "fr": "Français"
+      }
+    },
+    "fr": {
+      "locales": {
+        "en": "English",
+        "fr": "Français"
+      }
+    }
+  }
+}
