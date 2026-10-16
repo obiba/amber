@@ -132,7 +132,8 @@
 import { useCookies } from 'vue3-cookies'
 import { useQuasar } from 'quasar'
 import { marked } from 'marked'
-import { AmberForm, makeSchemaFormTr, getPageCount, getToc, getTocElement } from '@obiba/quasar-ui-amber'
+import { AmberForm, makeSchemaFormTr, getPageCount, getToc, getTocElement, isJsonForm } from '@obiba/quasar-ui-amber'
+import { ruleEngine } from '@obiba/quasar-ui-json-form'
 import { Notify, scroll } from 'quasar'
 import { settings as _settings } from '../boot/settings'
 import { locales } from '../boot/i18n'
@@ -180,7 +181,7 @@ const toc = computed<{ id: string; label: string }[]>(() => getToc(step.value.sc
 const idLabel = computed(() => (step.value.schema.idLabel ? tr(step.value.schema.idLabel) : 'ID'))
 
 const isFinalStep = computed(
-  () => isMulti() && page() >= lastPage()
+  () => isMulti() && targetPage(1) === undefined
 )
 
 const modeOptions = computed(() => [
@@ -259,6 +260,31 @@ function lastPage() {
   return Math.max(getPageCount(step.value.schema) - 1, 0)
 }
 
+/** whether a UI schema element shows nothing: its visible rule fails, or all its children are hidden */
+function isElementHidden(element: any): boolean {
+  const property = typeof element.scope === 'string'
+    ? element.scope.split('/').slice(1).filter((k: string) => k !== 'properties')
+      .reduce((s: any, k: string) => s?.properties?.[k], step.value.schema.schema)
+    : undefined
+  const rule = element.rules?.visible || property?.rules?.visible
+  // as in the renderers, a rule that fails to evaluate keeps the element visible
+  if (typeof rule === 'string' && rule.length > 0 && ruleEngine.evaluate(rule, formData.value, true) !== true) return true
+  return Array.isArray(element.elements) && element.elements.every(isElementHidden)
+}
+
+function isPageHidden(p: number): boolean {
+  // ponytail: JSON Forms only, legacy (Blitzar) forms show their empty pages
+  return isJsonForm(step.value.schema) && isElementHidden(step.value.schema.uischema.elements[p])
+}
+
+/** the closest page in a direction (1 or -1) that is not hidden, undefined when none */
+function targetPage(dir: number): number | undefined {
+  for (let p = page() + dir; p >= 0 && p <= lastPage(); p += dir) {
+    if (!isPageHidden(p)) return p
+  }
+  return undefined
+}
+
 function updateProgress() {
   progress.value = lastPage() ? page() / lastPage() : 1
 }
@@ -287,11 +313,11 @@ function formatErrorMessages() {
 }
 
 function canPrevious() {
-  return isMulti() && page() > 0
+  return isMulti() && targetPage(-1) !== undefined
 }
 
 function canNext() {
-  return isMulti() && page() < lastPage()
+  return isMulti() && targetPage(1) !== undefined
 }
 
 function toggleMode(value: string) {
@@ -317,7 +343,7 @@ function onValidate() {
 function previousStep() {
   if (!canPrevious()) return
   updateFormData()
-  mergeStepData({ data: { __page: page() - 1 } })
+  mergeStepData({ data: { __page: targetPage(-1) } })
   updateProgress()
   errorsRemain.value = false
   errors.value = []
@@ -331,7 +357,7 @@ function nextStep() {
   if (errorsRemain.value) {
     Notify.create({ message: t('validation_errors', { errors: formatErrorMessages() }), html: true, color: 'negative' })
   } else {
-    mergeStepData({ data: { __page: page() + 1 } })
+    mergeStepData({ data: { __page: targetPage(1) } })
     updateProgress()
     window.scrollTo(0, 0)
   }

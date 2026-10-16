@@ -105,7 +105,8 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { marked } from 'marked'
-import { AmberForm, makeSchemaFormTr, getPageCount, getToc, getTocElement } from '@obiba/quasar-ui-amber'
+import { AmberForm, makeSchemaFormTr, getPageCount, getToc, getTocElement, isJsonForm } from '@obiba/quasar-ui-amber'
+import { ruleEngine } from '@obiba/quasar-ui-json-form'
 import { Notify, scroll } from 'quasar'
 import { t } from '../boot/i18n'
 import { settings } from '../boot/settings'
@@ -196,7 +197,7 @@ const idLabel = computed(() => {
 })
 
 const isFinalStep = computed(() => {
-  return isMulti() && formData.value.__step === getPageCount(crf.value.schema) - 1
+  return isMulti() && targetPage(1) === undefined
 })
 
 // Methods
@@ -216,6 +217,32 @@ const onScroll = (id) => {
     const duration = 200
     setVerticalScrollPosition(target, offset, duration)
   }
+}
+
+// whether a UI schema element shows nothing: its visible rule fails, or all its children are hidden
+const isElementHidden = (element) => {
+  const property = typeof element.scope === 'string'
+    ? element.scope.split('/').slice(1).filter(k => k !== 'properties')
+      .reduce((s, k) => s?.properties?.[k], crf.value.schema.schema)
+    : undefined
+  const rule = element.rules?.visible || property?.rules?.visible
+  // as in the renderers, a rule that fails to evaluate keeps the element visible
+  if (typeof rule === 'string' && rule.length > 0 && ruleEngine.evaluate(rule, formData.value, true) !== true) return true
+  return Array.isArray(element.elements) && element.elements.every(isElementHidden)
+}
+
+const isPageHidden = (p) => {
+  // ponytail: JSON Forms only, legacy (Blitzar) forms show their empty pages
+  return isJsonForm(crf.value.schema) && isElementHidden(crf.value.schema.uischema.elements[p])
+}
+
+// the closest page in a direction (1 or -1) that is not hidden, undefined when none
+const targetPage = (dir) => {
+  const last = getPageCount(crf.value.schema) - 1
+  for (let p = (formData.value.__step ?? 0) + dir; p >= 0 && p <= last; p += dir) {
+    if (!isPageHidden(p)) return p
+  }
+  return undefined
 }
 
 const updateProgress = () => {
@@ -246,7 +273,7 @@ const formatErrorMessages = () => {
 }
 
 const canPrevious = () => {
-  return isMulti() && formData.value.__step > 0
+  return isMulti() && targetPage(-1) !== undefined
 }
 
 const toggleMode = (value) => {
@@ -259,7 +286,7 @@ const previousStep = () => {
   updateFormData()
   recordStore.mergeCaseReportData({
     id: caseReportId.value,
-    data: { __step: formData.value.__step - 1 }
+    data: { __step: targetPage(-1) }
   })
   updateProgress()
   errorsRemain.value = false
@@ -268,7 +295,7 @@ const previousStep = () => {
 }
 
 const canNext = () => {
-  return isMulti() && formData.value.__step < getPageCount(crf.value.schema) - 1
+  return isMulti() && targetPage(1) !== undefined
 }
 
 const nextStep = () => {
@@ -286,7 +313,7 @@ const nextStep = () => {
   } else {
     recordStore.mergeCaseReportData({
       id: caseReportId.value,
-      data: { __step: formData.value.__step + 1 }
+      data: { __step: targetPage(1) }
     })
     updateProgress()
     window.scrollTo(0, 0)
