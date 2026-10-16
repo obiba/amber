@@ -1,0 +1,33 @@
+<template>
+  <q-page>
+    <q-toolbar class="q-pa-md" :class="settings.theme.header2">
+      <q-breadcrumbs class="q-mr-md">
+        <q-breadcrumbs-el icon="home" to="/" />
+        <q-breadcrumbs-el :label="t('studies.title')" to="/studies"/>
+        <q-breadcrumbs-el :label="studyStore.study?.name" :to="'/study/' + studyStore.study?._id" />
+        <q-breadcrumbs-el :label="t('study.interviews')"/>
+      </q-breadcrumbs>
+    </q-toolbar>
+    <q-separator/>
+
+    <div class="q-ma-md">
+      <div class="text-h5 q-mb-md">{{t('study.interview_records')}}</div>
+      <div class="note note-info text-body2 text-secondary">
+        <span v-html="t('study.interview_records_hint')"/>
+      </div>
+    </div>
+
+    <interviews/>
+
+  </q-page>
+</template>
+
+<script setup>
+import { useI18n } from 'vue-i18n'
+import Interviews from '@/components/interviews/Interviews.vue'
+import { useStudyStore } from '@/stores/study'
+import { settings } from '@/boot/settings'
+
+const studyStore = useStudyStore()
+const { t } = useI18n()
+</script>

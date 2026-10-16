@@ -1,0 +1,490 @@
+<template>
+  <q-page>
+    <q-toolbar class="q-pa-md" :class="settings.theme.header2">
+      <q-breadcrumbs class="q-mr-md">
+        <q-breadcrumbs-el icon="home" to="/" />
+        <q-breadcrumbs-el :label="t('studies.title')" to="/studies"/>
+        <q-breadcrumbs-el :label="studyStore.study?.name" :to="'/study/' + studyId" />
+        <q-breadcrumbs-el :label="t('study.forms')" :to="'/study/' + studyId + '/forms'"/>
+        <q-breadcrumbs-el :label="studyForm.name" />
+      </q-breadcrumbs>
+    </q-toolbar>
+    <q-separator/>
+
+    <div class="q-ma-md">
+      <div class="row">
+        <div class="q-mr-md text-h5">
+          {{ t('study.form') }}
+        </div>
+        <q-btn
+          v-if="!isReadOnly"
+          @click='onEdit'
+          :title="t('edit_settings')"
+          icon="settings"
+          color="grey-7"
+          flat
+          dense
+          round
+          class="on-right">
+        </q-btn>
+        <q-btn
+          v-if="!isReadOnly"
+          @click='save'
+          :title="t(changeDetected === 0 ? 'save_done' : (changeDetected < 0 ? 'saving' : 'save'))"
+          :icon="saveIcon"
+          :disable="changeDetected < 0"
+          color="grey-7"
+          flat
+          dense
+          round>
+        </q-btn>
+      </div>
+      <div class="text-body2 text-secondary q-mb-sm">
+        <span v-html="t('study.form_hint')"/>
+      </div>
+      <div class="row q-mb-md">
+        <div class="col col-md-6 col-xs-12">
+          <q-list bordered separator class="q-mt-md">
+            <q-item>
+              <q-item-section style="max-width: 200px;">
+                <q-item-label side class="text-overline">{{ t('name') }}</q-item-label>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ studyForm.name }}</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section style="max-width: 200px;">
+                <q-item-label side class="text-overline">{{ t('description') }}</q-item-label>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ studyForm.description }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-ma-md">
+      <q-tabs
+        v-model="tab"
+        dense
+        class="text-grey"
+        active-color="primary"
+        indicator-color="primary"
+        align="justify"
+      >
+        <q-tab name="schema" :label="t('form.schema')" />
+        <q-tab name="revisions" :label="t('form.revisions')" />
+      </q-tabs>
+
+      <q-separator />
+
+      <q-tab-panels v-model="tab">
+
+        <q-tab-panel name="schema" class="q-pa-none">
+
+          <div class="row q-ma-sm">
+            <q-btn
+              v-if="isJson"
+              @click='innerTab = "settings"'
+              :label="t('form.settings')"
+              icon="tune"
+              size="sm"
+              color="teal"
+              :outline="innerTab !== 'settings'"
+              class="q-mr-sm" />
+            <q-btn
+              @click='innerTab = "items"'
+              :label="t('form.items')"
+              icon="category"
+              size="sm"
+              color="teal"
+              :outline="innerTab !== 'items'" />
+            <q-btn
+              v-if="!isJson"
+              @click='innerTab = "translations"'
+              :label="t('form.translations')"
+              icon="translate"
+              size="sm"
+              color="teal"
+              :outline="innerTab !== 'translations'"
+              class="on-right" />
+              <q-space />
+            <q-btn
+              v-if="!isJson && !isReadOnly"
+              @click='showConvert = true'
+              :label="t('form.convert.action')"
+              :title="t('form.convert.action_hint')"
+              icon="auto_fix_high"
+              flat
+              size="sm" />
+            <q-btn
+              @click='onExport'
+              :label="t('export')"
+              icon="file_download"
+              flat
+              size="sm">
+              <template v-slot:loading>
+              <q-spinner-facebook />
+              </template>
+            </q-btn>
+            <q-btn
+              v-if="!isReadOnly"
+              @click='onImport'
+              :label="t('import')"
+              icon="file_upload"
+              flat
+              size="sm">
+              <template v-slot:loading>
+              <q-spinner-facebook />
+              </template>
+            </q-btn>
+            <q-btn
+              v-if="!isReadOnly"
+              @click='onTag'
+              :label="t('tag')"
+              :disable="disableTag"
+              icon="sell"
+              flat
+              size="sm"
+              >
+              <template v-slot:loading>
+              <q-spinner-facebook />
+              </template>
+            </q-btn>
+          </div>
+
+          <q-separator/>
+          <q-tab-panels
+            v-model="innerTab"
+          >
+            <q-tab-panel v-if="isJson" name="settings" style="padding: 0;">
+              <form-settings :key="reload" v-model="studyFormData.schema" />
+            </q-tab-panel>
+
+            <q-tab-panel name="items" style="padding: 0;">
+              <q-json-form-builder v-if="isJson" :key="reload" v-model="builderModel" no-caps no-import no-export class="q-mt-md" />
+              <form-items v-else :key="reload" v-model="studyFormData" />
+            </q-tab-panel>
+
+            <q-tab-panel v-if="!isJson" name="translations">
+              <form-translations :key="reload" v-model="studyFormData" />
+            </q-tab-panel>
+          </q-tab-panels>
+        </q-tab-panel>
+
+        <q-tab-panel name="revisions">
+          <form-revisions :form="studyFormData" @reinstate="onReinstate"/>
+        </q-tab-panel>
+      </q-tab-panels>
+    </div>
+    <q-dialog v-model='showEditDefinition' persistent>
+      <q-card :style="$q.screen.lt.sm ? 'min-width: 200px' : 'min-width: 400px'">
+        <q-card-section class="row items-center">
+          <div class="col-12">
+            <q-input
+              v-model='studyFormData.name'
+              :label="t('name')"
+              lazy-rules
+              class='q-mb-sm'
+              @blur="v$.studyFormData.name.$touch"
+              :error="v$.studyFormData.name.$error"
+              :hint="t('required')">
+              <template v-slot:error>
+              <div v-for="error in v$.studyFormData.name.$errors" :key="error.$uid">
+                  {{error.$message}}
+              </div>
+              </template>
+            </q-input>
+            <q-input
+              v-model='studyFormData.description'
+              :label="t('description')"
+              autogrow
+              lazy-rules
+              class='q-mb-sm'/>
+           </div>
+        </q-card-section>
+        <q-separator />
+        <q-card-actions align="right" class="bg-grey-3">
+          <q-btn :label="t('cancel')" flat v-close-popup />
+          <q-btn
+            @click='save(true)'
+            :disable='disableSave'
+            :label="t('save')"
+            type='submit'
+            color='primary'
+            v-close-popup
+          >
+           <template v-slot:loading>
+              <q-spinner-facebook />
+            </template>
+          </q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model='showImportSchema' persistent>
+      <q-card :style="$q.screen.lt.sm ? 'min-width: 200px' : 'min-width: 400px'">
+        <q-card-section class="row items-center">
+          <div class="col-12">
+            <q-file
+              v-model="importSchemaFile"
+              :label="t('form.import_schema')"
+              :hint="t('form.import_schema_hint')"
+              class="q-ma-sm"
+              accept=".json"
+            />
+          </div>
+        </q-card-section>
+        <q-separator />
+        <q-card-actions align="right" class="bg-grey-3">
+          <q-btn :label="t('cancel')" flat v-close-popup />
+          <q-btn
+            @click='importSchema'
+            :disable='disableImportSchema'
+            :label="t('import')"
+            type='submit'
+            color='primary'
+            v-close-popup
+          >
+           <template v-slot:loading>
+              <q-spinner-facebook />
+            </template>
+          </q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <form-convert v-if="!isJson && studyFormData.schema" v-model="showConvert" :schema="studyFormData.schema" @convert="onConvert" />
+
+    <q-dialog v-model='showTag' persistent>
+      <q-card :style="$q.screen.lt.sm ? 'min-width: 200px' : 'min-width: 400px'">
+        <q-card-section class="row items-center">
+           <div class="col-12">
+            <q-input
+              v-model='publicationComment'
+              :label="t('comment')"
+              :hint="t('form.tag_comment_hint')"
+              lazy-rules
+              class="q-ma-sm"
+            />
+          </div>
+        </q-card-section>
+        <q-separator />
+        <q-card-actions align="right" class="bg-grey-3">
+          <q-btn :label="t('cancel')" flat v-close-popup />
+          <q-btn
+            @click='tag'
+            :label="t('tag')"
+            type='submit'
+            color='primary'
+            v-close-popup
+          >
+           <template v-slot:loading>
+              <q-spinner-facebook />
+            </template>
+          </q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+  </q-page>
+</template>
+
+<script setup>
+import { ref, computed, toRaw, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import useVuelidate from '@vuelidate/core'
+import { required, minLength, maxLength } from '../boot/vuelidate'
+import { useFormStore } from '@/stores/form'
+import { useStudyStore } from '@/stores/study'
+import { useAuth } from '@/composables/useAuth'
+import { useFormUtils } from '../composables/useFormUtils'
+import FormItems from '@/components/forms/FormItems.vue'
+import FormTranslations from '@/components/forms/FormTranslations.vue'
+import FormRevisions from '@/components/forms/FormRevisions.vue'
+import FormSettings from '@/components/forms/FormSettings.vue'
+import FormConvert from '@/components/forms/FormConvert.vue'
+import { QJsonFormBuilder } from '@obiba/quasar-ui-json-form/builder'
+import { isJsonForm } from '@obiba/quasar-ui-amber'
+import { settings } from '@/boot/settings'
+
+const { t } = useI18n()
+
+const route = useRoute()
+const formStore = useFormStore()
+const studyStore = useStudyStore()
+const { isReadOnly } = useAuth()
+const { generateIds, deleteIds } = useFormUtils()
+
+// data
+const tab = ref('schema')
+const innerTab = ref('items')
+const importSchemaFile = ref(null)
+const reload = ref(0)
+const saveIntervalId = ref(null)
+const changeDetected = ref(0)
+const showEditDefinition = ref(false)
+const showImportSchema = ref(false)
+const showTag = ref(false)
+const showConvert = ref(false)
+const publicationComment = ref(null)
+const studyFormData = ref({})
+const originalSchemaStr = ref(null)
+
+// Store refs
+const studyForm = computed(() => formStore.form)
+
+// validations
+const rules = {
+  studyFormData: {
+    name: {
+      required,
+      minLength: minLength(2),
+      maxLength: maxLength(30)
+    }
+  }
+}
+const v$ = useVuelidate(rules, { studyFormData })
+
+// computed
+const studyId = computed(() => route.params.id)
+const isJson = computed(() => isJsonForm(studyFormData.value.schema))
+// the part of a JSON Forms schema edited by the builder, next to the form-level settings
+const builderModel = computed({
+  get () {
+    const { schema, uischema, translations } = studyFormData.value.schema
+    return { schema, uischema, translations }
+  },
+  set (val) {
+    Object.assign(studyFormData.value.schema, val)
+  }
+})
+// the sub-tabs differ between the formats (import, reinstate or conversion)
+watch(isJson, () => { innerTab.value = 'items' })
+const disableImportSchema = computed(() => importSchemaFile.value === null)
+const disableTag = computed(() => changeDetected.value !== 0)
+const disableSave = computed(() => v$.value.studyFormData.$invalid)
+const saveIcon = computed(() => {
+  if (changeDetected.value < 0) {
+    return 'cloud_sync'
+  }
+  if (changeDetected.value === 0) {
+    return 'cloud_done'
+  }
+  return 'cloud_upload'
+})
+
+// methods
+async function initStudyFormData () {
+  await formStore.getForm(route.params.fid)
+  studyFormData.value = JSON.parse(JSON.stringify(studyForm.value))
+  generateIds(studyFormData.value.schema.items)
+  originalSchemaStr.value = JSON.stringify(studyFormData.value.schema)
+  await studyStore.getStudy(studyForm.value.study)
+}
+
+async function save (notification) {
+  v$.value.$reset()
+  changeDetected.value = -1
+  originalSchemaStr.value = JSON.stringify(studyFormData.value.schema)
+  const toSave = toRaw(studyFormData.value)
+  return formStore.updateForm(toSave, undefined, notification).then(() => {
+    changeDetected.value = 0
+  })
+}
+
+function onExport () {
+  const data = JSON.parse(JSON.stringify(studyFormData.value.schema))
+  delete data._id
+  delete data.name
+  deleteIds(data.items)
+  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' })
+  const a = document.createElement('a')
+  a.download = studyFormData.value.name + '-schema.json'
+  a.href = window.URL.createObjectURL(blob)
+  a.dataset.downloadurl = ['application/json', a.download, a.href].join(':')
+  a.click()
+  a.remove()
+}
+
+function onImport () {
+  showImportSchema.value = true
+  importSchemaFile.value = null
+}
+
+function onEdit () {
+  showEditDefinition.value = true
+}
+
+function onTag () {
+  showTag.value = true
+  publicationComment.value = null
+}
+
+function onReinstate () {
+  studyFormData.value = JSON.parse(JSON.stringify(studyForm.value))
+  originalSchemaStr.value = JSON.stringify(studyFormData.value.schema)
+  reload.value++
+}
+
+function importSchema () {
+  if (importSchemaFile.value) {
+    const reader = new FileReader()
+    reader.readAsText(importSchemaFile.value, 'UTF-8')
+    reader.onload = evt => {
+      const schema = JSON.parse(evt.target.result)
+      studyFormData.value.schema = schema
+      if (studyFormData.value.schema.items) {
+        generateIds(studyFormData.value.schema.items)
+      }
+      save(true).then(() => onReinstate())
+    }
+    reader.onerror = evt => {
+      console.error(evt)
+    }
+  }
+}
+
+function onConvert (schema) {
+  studyFormData.value.schema = schema
+  save(true).then(() => onReinstate())
+}
+
+function tag () {
+  const toSave = {
+    form: studyFormData.value._id,
+    study: studyFormData.value.study
+  }
+  if (publicationComment.value) {
+    toSave.comment = publicationComment.value
+  }
+  formStore.createFormRevision(toSave)
+}
+
+// mounted
+onMounted(() => {
+  // check for changes every 2 seconds
+  saveIntervalId.value = setInterval(() => {
+    if (!isReadOnly.value) {
+      if (changeDetected.value >= 0 && originalSchemaStr.value !== JSON.stringify(studyFormData.value.schema)) {
+        changeDetected.value++
+        // auto save every 4s
+        if (changeDetected.value > 2) {
+          save(false)
+        }
+      }
+    }
+  }, 2000)
+  initStudyFormData()
+})
+
+onBeforeUnmount(() => {
+  if (saveIntervalId.value) {
+    clearInterval(saveIntervalId.value)
+  }
+})
+</script>

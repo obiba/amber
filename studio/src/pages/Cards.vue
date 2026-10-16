@@ -1,0 +1,91 @@
+<template>
+  <q-page class="q-pa-sm">
+    <div class="row q-col-gutter-lg">
+      <div class="col-lg-4 col-md-4 col-xs-12 col-sm-12">
+        <q-card>
+          <q-img
+            src="https://cdn.quasar.dev/img/parallax1.jpg"
+          />
+          <q-separator></q-separator>
+          <q-card-section class="text-h6 text-secondary q-pa-md">
+            Bar XYZ
+          </q-card-section>
+          <q-separator></q-separator>
+
+          <q-card-section class="text-h6 text-secondary q-pa-md">
+            Gas Station
+          </q-card-section>
+          <q-card-section>
+            <div class="text-h5 q-mt-sm q-mb-xs text-secondary">Title</div>
+            <div>
+              {{ text }}
+            </div>
+          </q-card-section>
+          <q-card-actions>
+            <q-btn label="Go Somewhere" class="text-capitalize" color="indigo-7"/>
+          </q-card-actions>
+        </q-card>
+
+        <basic-card class="q-mt-lg"></basic-card>
+
+        <card-cafe class="q-mt-lg"></card-cafe>
+      </div>
+      <div class="col-lg-4 col-md-4 col-xs-12 col-sm-12">
+
+        <basic-card></basic-card>
+
+        <card-item class="q-mt-lg" :name="profileCardData.name" :des="profileCardData.des"
+                   :avatar="profileCardData.avatar"></card-item>
+
+        <card-profile class="q-mt-lg" :name="profileCardData.name" :des="profileCardData.des"
+                      :avatar="profileCardData.avatar"></card-profile>
+
+        <card-profile-dark class="q-mt-lg" :name="profileData.name" :des="profileData.des"
+                           :text="profileData.text"></card-profile-dark>
+      </div>
+      <div class="col-lg-4 col-md-4 col-xs-12 col-sm-12">
+
+        <card-company class="q-mt-lg" :background_image="backgroundImg2"></card-company>
+
+        <basic-card class="q-mt-lg"></basic-card>
+
+        <card-company class="q-mt-lg" :background_image="backgroundImg1"></card-company>
+
+        <card-profile-dark class="q-mt-lg" :name="profileData.name" :des="profileData.des"
+                           :text="profileData.text"></card-profile-dark>
+      </div>
+    </div>
+  </q-page>
+</template>
+
+<script setup>
+import { defineAsyncComponent } from 'vue'
+
+const CardItem = defineAsyncComponent(() => import('@/components/cards/CardItem'))
+const CardCafe = defineAsyncComponent(() => import('@/components/cards/CardCafe'))
+const CardCompany = defineAsyncComponent(() => import('@/components/cards/CardCompany'))
+const CardProfileDark = defineAsyncComponent(() => import('@/components/cards/CardProfileDark'))
+const CardProfile = defineAsyncComponent(() => import('@/components/cards/CardProfile'))
+const BasicCard = defineAsyncComponent(() => import('@/components/cards/CardBasic'))
+
+const text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
+
+const profileCardData = {
+  name: 'Pratik Patel',
+  des: 'Solutions Developer',
+  avatar: 'https://cdn.quasar.dev/img/boy-avatar.png'
+}
+
+const profileData = {
+  name: 'Pratik Patel',
+  des: '--- Solution Developer, Pune',
+  text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
+}
+
+const backgroundImg1 = 'linear-gradient(to top, #30cfd0 0%, #330867 100%)'
+const backgroundImg2 = 'linear-gradient(87deg, rgb(45, 206, 137), rgb(45, 206, 204)) !important'
+</script>
+
+<style scoped>
+
+</style>
