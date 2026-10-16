@@ -21,3 +21,15 @@ build push clean:
 	@for a in $(apps); do $(MAKE) -C $$a $@ || exit 1; done
 
 .PHONY: version bump tag build push clean
+
+# Local dev stack (docker-compose.yml)
+up:
+	docker compose up -d --build
+
+down:
+	docker compose down
+
+logs:
+	docker compose logs -f
+
+.PHONY: up down logs
