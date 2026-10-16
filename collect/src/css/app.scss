@@ -7,6 +7,21 @@ a {
     background-color: transparent;
 }
 
+.json-form-wrapper {
+  padding: 40px;
+  margin-bottom: 20px;
+  background-color: white;
+  border: 1px solid $border;
+  border-radius: 6px;
+  font-size: larger;
+  .q-input-field {
+    margin-top: 1.5rem;
+    padding:2rem;
+    border: 1px solid $border;
+    background-color: $grey-1;
+  }
+}
+
 .blitz-form .q-field__messages div[role="alert"] {
     display: none;
 }
@@ -125,10 +140,10 @@ a {
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-.no-spinner input[type=number]::-webkit-inner-spin-button, 
-.no-spinner input[type=number]::-webkit-outer-spin-button { 
-    -webkit-appearance: none; 
-     margin: 0; 
+.no-spinner input[type=number]::-webkit-inner-spin-button,
+.no-spinner input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+     margin: 0;
 }
 
 .no-spinner input[type=number] {
