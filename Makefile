@@ -1,31 +1,35 @@
-tag=snapshot
-image=obiba/amber:$(tag)
+apps = api studio collect visit
 
-build:
-	docker build -t $(image) .
+# Show the version of each app
+version:
+	@for a in $(apps); do printf '%-8s ' $$a; node -p "require('./$$a/package.json').version"; done
 
-run:
-	docker run -p 3030:3030 \
-		-e APP_NAME=${APP_NAME} \
-		-e APP_URL=${AMBER_URL} \
-		-e APP_SECRET_KEY=${APP_SECRET_KEY} \
-		-e APP_SECRET_IV=${APP_SECRET_IV} \
-		-e ENCRYPT_DATA=true \
-		-e CLIENT_URLS=${CLIENT_URLS} \
-		-e MONGODB_URL=mongodb://${MONGO_USER}:${MONGO_PWD}@mongo:27017/amber?authSource=admin \
-		-e ADMINISTRATOR_EMAIL=${ADMINISTRATOR_EMAIL} \
-		-e ADMINISTRATOR_PWD=${ADMINISTRATOR_PWD} \
-		-e AMBER_STUDIO_URL=${AMBER_STUDIO_URL} \
-		-e AMBER_COLLECT_URL=${AMBER_COLLECT_URL} \
-		-e AMBER_VISIT_URL=${AMBER_VISIT_URL} \
-		-e RECAPTCHA_SECRET_KEY=${RECAPTCHA_SECRET_KEY} \
-		-e SENDINBLUE_API_KEY=${SENDINBLUE_API_KEY} \
-		-e FROM_EMAIL=${FROM_EMAIL} \
-		$(image)
+# Set the same version in all apps: make bump v=2.2.0 (or v=patch|minor|major, applied to api's version)
+bump:
+	@test -n "$(v)" || (echo "usage: make bump v=<x.y.z|patch|minor|major>" && exit 1)
+	@cd api && npm version $(v) --no-git-tag-version >/dev/null
+	@nv=$$(node -p "require('./api/package.json').version"); \
+	for a in studio collect visit; do (cd $$a && npm pkg set version=$$nv); done; \
+	echo "Version set to $$nv"
 
-push:
-	docker push $(image)
+# Commit and tag the current version (then push with: git push --follow-tags)
+tag:
+	@nv=$$(node -p "require('./api/package.json').version"); \
+	git commit -am "$$nv" && git tag -a "$$nv" -m "$$nv"
 
-clean:
-	docker rm $(docker ps -a -q --filter ancestor=$(image)) || true
-	docker rmi $(image) || true
+build push clean:
+	@for a in $(apps); do $(MAKE) -C $$a $@ || exit 1; done
+
+.PHONY: version bump tag build push clean
+
+# Local dev stack (docker-compose.yml)
+up:
+	docker compose up -d --build
+
+down:
+	docker compose down
+
+logs:
+	docker compose logs -f
+
+.PHONY: up down logs

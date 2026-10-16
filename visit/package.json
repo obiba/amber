@@ -1,0 +1,63 @@
+{
+  "name": "amber-visit",
+  "version": "2.0.1",
+  "description": "Interview data collection for Amber",
+  "productName": "Amber Visit",
+  "author": "Yannick Marcon <yannick.marcon@obiba.org>",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "lint": "eslint --ext .js,.vue ./",
+    "format": "prettier --write \"**/*.{js,vue,scss,html,md,json}\" --ignore-path .gitignore",
+    "test": "echo \"No test specified\" && exit 0",
+    "dev": "quasar dev",
+    "build": "quasar build",
+    "postinstall": "quasar prepare"
+  },
+  "dependencies": {
+    "@blitzar/form": "git+https://github.com/obiba/blitzar.git#tag=v1.0.13-obiba&workspace=packages/form",
+    "@blitzar/types": "git+https://github.com/obiba/blitzar.git#tag=v1.0.13-obiba&workspace=packages/types",
+    "@blitzar/utils": "git+https://github.com/obiba/blitzar.git#tag=v1.0.13-obiba&workspace=packages/utils",
+    "@feathersjs/client": "^5.0.8",
+    "@feathersjs/feathers": "5.0.11",
+    "@fontsource-variable/instrument-sans": "^5.3.0",
+    "@fontsource-variable/sora": "^5.3.0",
+    "@obiba/quasar-ui-amber": "^1.3.0",
+    "@obiba/quasar-ui-json-form": "^0.10.1",
+    "@quasar/cli": "^5.0.8",
+    "@quasar/extras": "^1.16.13",
+    "@vuelidate/core": "^2.0.3",
+    "@vuelidate/validators": "^2.0.4",
+    "axios": "^1.17.0",
+    "feathers-hooks-common": "^8.0.0",
+    "feathers-pinia": "^3.0.4",
+    "marked": "^9.1.1",
+    "merge-anything": "^5.1.7",
+    "pinia": "^3.0.4",
+    "pinia-plugin-persistedstate": "^3.2.0",
+    "quasar": "^2.32.2",
+    "secure-ls": "^1.2.6",
+    "unplugin-auto-import": "^21.1.0",
+    "vue": "^3.0.0",
+    "vue-i18n": "^11.2.2",
+    "vue-recaptcha-v3": "^2.0.1",
+    "vue-router": "^5.3.1",
+    "vue3-cookies": "^1.0.6"
+  },
+  "devDependencies": {
+    "@quasar/app-vite": "^3.8.3",
+    "@typescript-eslint/parser": "^8.62.0",
+    "autoprefixer": "^10.4.2",
+    "eslint": "^8.10.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-vue": "^9.0.0",
+    "postcss": "^8.4.14",
+    "prettier": "^2.5.1",
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": "^24 || ^22.22.0",
+    "npm": ">= 6.13.4",
+    "yarn": ">= 1.21.1"
+  }
+}

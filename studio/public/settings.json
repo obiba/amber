@@ -1,0 +1,52 @@
+{
+  "theme": {
+    "front": {
+      "bg": "bg-base text-secondary",
+      "card": "bg-white"
+    },
+    "header": "bg-dark text-white",
+    "header2": "bg-base",
+    "drawer": "",
+    "page": ""
+  },
+  "licenses": [
+    {
+      "value": "mit",
+      "label": "license.mit"
+    }
+  ],
+  "i18n": {
+    "en": {
+      "locales": {
+        "en": "English",
+        "fr": "Français",
+        "da": "Dansk",
+        "sv": "Svenska",
+        "et": "Eesti",
+        "nl": "Nederlands/Vlaams",
+        "pt": "Português",
+        "de": "Deutsch",
+        "it": "Italiano",
+        "fi": "Suomalainen",
+        "ru": "Русский",
+        "el": "Ελληνικά"
+      }
+    },
+    "fr": {
+      "locales": {
+        "en": "English",
+        "fr": "Français",
+        "da": "Dansk",
+        "sv": "Svenska",
+        "et": "Eesti",
+        "nl": "Nederlands/Vlaams",
+        "pt": "Português",
+        "de": "Deutsch",
+        "it": "Italiano",
+        "fi": "Suomalainen",
+        "ru": "Русский",
+        "el": "Ελληνικά"
+      }
+    }
+  }
+}

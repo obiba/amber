@@ -1,0 +1,58 @@
+# Local development stack: builds images from this repo's folders.
+# Usage: docker compose up -d --build
+# Override any ${VAR} with a .env file next to this one.
+services:
+  api:
+    build: ./api
+    ports:
+      - "3030:3030"
+    depends_on:
+      - mongo
+    environment:
+      - APP_NAME=${APP_NAME:-Amber}
+      - APP_URL=http://localhost:3030
+      - APP_SECRET_KEY=${APP_SECRET_KEY:-dev-secret-key}
+      - APP_SECRET_IV=${APP_SECRET_IV:-}
+      - ENCRYPT_DATA=${ENCRYPT_DATA:-false}
+      - CLIENT_URLS=http://localhost:3080,http://localhost:3090,http://localhost:3070
+      - MONGODB_URL=mongodb://mongo:27017/amber
+      - ADMINISTRATOR_EMAIL=${ADMINISTRATOR_EMAIL:-admin@example.org}
+      - ADMINISTRATOR_PWD=${ADMINISTRATOR_PWD:-P@ssw0rd}
+      - AMBER_STUDIO_URL=http://localhost:3080
+      - AMBER_COLLECT_URL=http://localhost:3090
+      - AMBER_VISIT_URL=http://localhost:3070
+      - RECAPTCHA_SECRET_KEY=${RECAPTCHA_SECRET_KEY:-}
+      - BREVO_API_KEY=${BREVO_API_KEY:-}
+      - FROM_EMAIL=${FROM_EMAIL:-}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+
+  studio:
+    build: ./studio
+    ports:
+      - "3080:80"
+    environment: &app-env
+      - AMBER_URL=http://localhost:3030
+      - RECAPTCHA_SITE_KEY=${RECAPTCHA_SITE_KEY:-}
+      - PATH_PREFIX=/
+
+  collect:
+    build: ./collect
+    ports:
+      - "3090:80"
+    environment: *app-env
+
+  visit:
+    build: ./visit
+    ports:
+      - "3070:80"
+    environment: *app-env
+
+  mongo:
+    image: mongo:7
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

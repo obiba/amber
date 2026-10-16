@@ -1,0 +1,17 @@
+{
+  "name": "amber-collect-pwa",
+  "version": "1.0.0",
+  "description": "Amber Collect PWA Folder",
+  "private": true,
+  "type": "module",
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
+  "dependencies": {
+    "register-service-worker": "^1.7.2"
+  },
+  "devDependencies": {
+    "workbox-build": "^7.4.1",
+    "workbox-precaching": "^7.4.1"
+  }
+}
