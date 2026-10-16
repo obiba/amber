@@ -1,4 +1,4 @@
-name: Publish Docker image
+name: Publish Docker images
 
 on:
   release:
@@ -6,11 +6,21 @@ on:
 
 jobs:
   push_to_registry:
-    name: Push Docker image to Docker Hub
+    name: Push ${{ matrix.image }} to Docker Hub
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - app: api
+            image: obiba/amber
+          - app: studio
+            image: obiba/amber-studio
+          - app: collect
+            image: obiba/amber-collect
+          - app: visit
+            image: obiba/amber-visit
     env:
       REGISTRY: index.docker.io
-      IMAGE_NAME: obiba/amber-collect
     permissions:
       id-token: write
       contents: read
@@ -30,7 +40,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.IMAGE_NAME }}
+          images: ${{ matrix.image }}
           tags: |
             type=match,pattern=(\d+\.\d+\.\d+),group=1
             type=match,pattern=(\d+\.\d+),group=1
@@ -39,16 +49,15 @@ jobs:
         id: push
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./${{ matrix.app }}
+          file: ./${{ matrix.app }}/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-      
-      
+
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
         with:
-          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-name: ${{ env.REGISTRY }}/${{ matrix.image }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: false
