@@ -8,6 +8,7 @@ const caseReportCreate = require('../../hooks/case-report-create');
 const searchQuery = require('../../hooks/search-query');
 const caseReportEncrypt = require('../../hooks/case-report-encrypt');
 const caseReportDecrypt = require('../../hooks/case-report-decrypt');
+const caseReportFiles = require('../../hooks/case-report-files');
 const { caseReportDataResolver, caseReportQueryResolver } = require('./case-report.resolvers');
 
 const validate = require('../../utils/validate-joi');
@@ -34,6 +35,7 @@ module.exports = {
       schemaHooks.resolveData(caseReportDataResolver),
       caseReportCreate(),
       authorize({ adapter: '@feathersjs/mongodb' }),
+      caseReportFiles(),
       caseReportEncrypt()
     ],
     update: [
@@ -60,10 +62,10 @@ module.exports = {
     ],
     find: [caseReportDecrypt()],
     get: [caseReportDecrypt()],
-    create: [],
+    create: [caseReportFiles()],
     update: [],
     patch: [],
-    remove: []
+    remove: [caseReportFiles()]
   },
 
   error: {

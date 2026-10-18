@@ -210,6 +210,11 @@
   "amber_visit_url": "http://localhost:3070",
   "api_url": "http://localhost:3030/",
   "recaptcha_secret_key": "",
+  "files": {
+    "maxSize": 20971520,
+    "accept": [],
+    "pendingDays": 7
+  },
   "export": {
     "entity_type": "Participant",
     "identifier_variable": "id"

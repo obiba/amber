@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 const { BadRequest } = require('@feathersjs/errors');
+const { getFiles } = require('./files');
 
 /** the options of the UI schema controls, by scope */
 const controlOptions = (element, rval = {}) => {
@@ -15,6 +16,15 @@ const toItem = (name, property, scope, options) => {
   const many = property.type === 'array' && property.items && typeof property.items === 'object';
   const prop = many ? property.items : property;
   const item = { name, label: property.title, description: property.description };
+  if (property.format === 'file' || property.format === 'files') {
+    // a file reference (or a list of them)
+    const opts = options[scope] || {};
+    const accept = opts.accept || opts.acceptedFileTypes;
+    item.type = 'file';
+    if (property.format === 'files') item.multiple = true;
+    if (accept) item.accept = [].concat(accept).join(',');
+    return item;
+  }
   if (prop.type === 'object' && prop.properties && prop.format !== 'geo') {
     item.items = toItems(prop, scope, options);
     return item;
@@ -129,6 +139,7 @@ exports.FormDataExport = class FormDataExport {
       exportData.exportResults[key] = { 
         data: [], 
         fields: [],
+        files: [],
         formRevision: formRevision,
         variables: variables
       };
@@ -140,11 +151,14 @@ exports.FormDataExport = class FormDataExport {
     // unique field names
     exportData.exportResults[key].fields = fields.filter((item, pos) => fields.indexOf(item) === pos);
     exportData.exportResults[key].data.push(exportResult.data);
+    exportData.exportResults[key].files.push(...exportResult.files);
   }
 
   async extractExportData(exportData, form, revision, data, multiple, groupId) {
     const flattenData = await this.flattenData(exportData, form, revision, data, multiple, groupId);
+    const files = await this.resolveFiles(flattenData);
     return { 
+      files: files,
       data: flattenData, 
       fields: Object.keys(flattenData),
       formRevision: await this.getFormRevision(exportData, form, revision)
@@ -252,12 +266,36 @@ exports.FormDataExport = class FormDataExport {
               rval[prefix + key] = value;
             }
           });
+        } else if (item.type === 'file') {
+          rval[item.name] = {
+            __files: [].concat(data[item.name] || []).map(f => f && typeof f === 'object' ? f.id : f).filter(id => id),
+            multiple: item.multiple === true
+          };
         } else {
           rval[item.name] = this.marshallValue(data[item.name]);
         }
       });
     }
     return rval;
+  }
+
+  /**
+   * Replace the file references of a row by `<id>/<fileName>`, the path of the file in a zip export.
+   * @param {Object} row The flattened data
+   * @returns the GridFS files of the row
+   */
+  async resolveFiles (row) {
+    const refs = Object.entries(row).filter(([, value]) => value && value.__files);
+    if (refs.length === 0) return [];
+    const files = await getFiles(this.app, refs.flatMap(([, value]) => value.__files));
+    refs.forEach(([key, value]) => {
+      const paths = value.__files.map(id => {
+        const file = files.find(f => f._id.toString() === String(id));
+        return file ? `${id}/${file.filename}` : String(id);
+      });
+      row[key] = value.multiple ? paths : paths[0];
+    });
+    return files;
   }
 
   marshallValue (value) {
@@ -310,6 +348,8 @@ exports.FormDataExport = class FormDataExport {
         variable.valueType = 'boolean';
       } else if (['map'].includes(item.type)) {
         variable.valueType = item.geometryType ? item.geometryType.toLowerCase() : 'point';
+      } else if (item.type === 'file') {
+        variable.mimeType = item.accept || 'application/octet-stream';
       }
       if (item.multiple || item.type === 'checkboxgroup') {
         variable.isRepeatable = true;

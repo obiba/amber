@@ -25,7 +25,10 @@ module.exports = function (app) {
   const iv  = crypto.createHash('sha512').update(String(app.get('encrypt_iv')), 'utf-8').digest('hex').substring(0, 16);
   const cryptoConfig = {
     encrypt: makeEncrypt(key, iv),
-    decrypt: makeDecrypt(key, iv)
+    decrypt: makeDecrypt(key, iv),
+    // streams, with a random iv per file (the static iv must not be reused across files)
+    cipher: (fileIv) => crypto.createCipheriv(algorithm, key, fileIv),
+    decipher: (fileIv) => crypto.createDecipheriv(algorithm, key, fileIv)
   };
   app.set('crypto', cryptoConfig);
 };
