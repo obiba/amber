@@ -30,25 +30,13 @@ export const fileQueue = makeFileQueue({
   },
 });
 
-const strings = (value, set = new Set()) => {
-  if (typeof value === "string") set.add(value);
-  else if (value && typeof value === "object") Object.values(value).forEach((v) => strings(v, set));
-  return set;
-};
-
-/**
- * Delete the queued files that are no longer referenced by the data (by their local or server id).
- * Only when no step form is open: a form can hold a file that is not in the data yet.
- */
-export async function deleteUnreferencedFiles(data) {
-  const ids = strings(data);
-  try {
-    for (const entry of await store.getAll()) {
-      if (!ids.has(entry.id) && !(entry.serverId && ids.has(entry.serverId))) {
-        await store.delete(entry.id);
-      }
+/** forgets the server ids of the queued files of the data (local ids), so that they are uploaded again */
+export async function resetUploads(data) {
+  const json = JSON.stringify(data);
+  for (const entry of await store.getAll()) {
+    if (entry.serverId && json.includes(JSON.stringify(entry.id))) {
+      delete entry.serverId;
+      await store.put(entry);
     }
-  } catch (err) {
-    console.error(err);
   }
 }

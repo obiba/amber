@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { ref, computed, toHandlers } from "vue";
 import { feathersClient } from "../feathers-client";
-import { fileQueue, setFilesAuthHeaders, deleteUnreferencedFiles } from "../file-queue";
+import { fileQueue, setFilesAuthHeaders, resetUploads } from "../file-queue";
 
 export const useInterviewStore = defineStore(
   "itw",
@@ -23,7 +23,8 @@ export const useInterviewStore = defineStore(
     const instructed = ref(false); // instructions were shown
     const rendering = ref({}); // the visibility/enability of the steps
     const fillingDate = ref(null); // the interview filling date
-    let savingPending = false; // the pending records are being saved
+    let saving = Promise.resolve(); // the saves, one at a time
+    const unsaved = new Set(); // the steps changed and not saved yet, besides the ones that could not be saved (tosave)
 
     // the files are uploaded with the participant credentials, or the interviewer token
     setFilesAuthHeaders(async () =>
@@ -43,6 +44,61 @@ export const useInterviewStore = defineStore(
         rval.push(step.data ? { ...step, data: await fileQueue.flush(step.data) } : step);
       }
       return rval;
+    }
+
+    /** the uploaded files were deleted (pending for too long) or attached by a save whose response was lost */
+    const isInvalidFile = (err) => err.code === 400 && /^Not a valid file:/.test(err.message);
+
+    /**
+     * Save the changed steps, and the ones that could not be saved before, with the interview fields.
+     * One save at a time, and the steps changed meanwhile are kept: a late response does not overwrite them.
+     * @param {Array} names the names of the changed steps
+     * @param {Object} fields the interview fields to patch
+     * @returns the saved interview
+     */
+    function saveSteps(names, fields = {}) {
+      names.forEach((name) => unsaved.add(name));
+      const run = saving.then(async () => {
+        tosave.value.forEach((name) => unsaved.add(name));
+        const sent = itw.value.steps.filter((step) => unsaved.has(step.name));
+        if (sent.length === 0) return itw.value;
+        const id = itw.value._id;
+        const stepObjs = sent.map((step) => {
+          if (!step.form || !step.revision) {
+            const stepDesign = getStepDesign(step.name);
+            return { ...step, form: stepDesign.form, revision: stepDesign.revision };
+          }
+          return step;
+        });
+        const patch = async () => itwService.patch(id, { ...fields, steps: await flushFiles(stepObjs) }, makePayload());
+        const response = await patch()
+          .catch(async (err) => {
+            if (!isInvalidFile(err)) throw err;
+            // upload the files again, once
+            await resetUploads(stepObjs);
+            return patch();
+          })
+          .catch((err) => {
+            tosave.value = [...unsaved];
+            throw err;
+          });
+        if (itw.value?._id !== id) return response;
+        // the steps that were not changed meanwhile are saved
+        sent.forEach((step) => {
+          if (itw.value.steps.includes(step)) unsaved.delete(step.name);
+        });
+        tosave.value = tosave.value.filter((name) => unsaved.has(name));
+        const kept = itw.value.steps.filter((step) => unsaved.has(step.name));
+        setInterview({
+          ...response,
+          steps: [...(response.steps || []).filter((step) => !unsaved.has(step.name)), ...kept],
+        });
+        evalRendering();
+        fileQueue.purge([itw.value.steps, record.value?.data]).catch((err) => console.error(err));
+        return response;
+      });
+      saving = run.catch(() => {});
+      return run;
     }
 
     const isAuthenticated = computed(() => {
@@ -295,8 +351,8 @@ export const useInterviewStore = defineStore(
           });
         rec.data.participant = design.value.participant.data;
         record.value = rec;
-        // no step form is open yet
-        deleteUnreferencedFiles([itw.value.steps, rec.data]);
+        // the queued files of the abandoned forms
+        fileQueue.purge([itw.value.steps, rec.data]).catch((err) => console.error(err));
       });
     }
 
@@ -340,7 +396,6 @@ export const useInterviewStore = defineStore(
      * @param {boolean} recording Keep on recording
      */
     async function saveRecord(state, recording) {
-      const payload = makePayload();
       const stepDesign = getStepDesign(record.value.name);
       const stepObj = {
         name: record.value.name,
@@ -373,23 +428,11 @@ export const useInterviewStore = defineStore(
           itw.value.steps.splice(idx, 1, stepObj);
         }
       }
-      const stepObjs = [stepObj];
+      const names = [stepObj.name];
 
+      // a step that could not be saved is in tosave, saved later
       if (recording) {
-        return flushFiles(stepObjs)
-          .then((steps) => itwService.patch(itw.value._id, { steps }, payload))
-          .then((response) => {
-            tosave.value = [];
-            setInterview(response);
-          })
-          .catch((err) => {
-            // handle save error
-            stepObjs.forEach((step) => {
-              if (!tosave.value.includes(step.name)) {
-                tosave.value.push(step.name);
-              }
-            });
-          });
+        return saveSteps(names).catch(() => {});
       } else {
         // update iterview and step states
         const itwState = evalRendering();
@@ -398,33 +441,18 @@ export const useInterviewStore = defineStore(
         const toReset = Object.keys(rendering.value).filter(
           (name) => !rendering.value[name].visible
         );
-        if (toReset.length > 0) {
-          itw.value.steps
-            .filter((step) => toReset.includes(step.name))
-            .forEach((step) => {
-              step.state = null;
-              step.data = null;
-              stepObjs.push(step);
-            });
-        }
+        // replaced, not modified: a save in progress knows that they changed
+        itw.value.steps = itw.value.steps.map((step) => {
+          if (!toReset.includes(step.name)) return step;
+          names.push(step.name);
+          return { ...step, state: null, data: null };
+        });
 
-        return flushFiles(stepObjs)
-          .then((steps) => itwService.patch(itw.value._id, { state: itwState, steps }, payload))
-          .then((response) => {
+        return saveSteps(names, { state: itwState })
+          .then(() => {
             record.value = null;
-            tosave.value = [];
-            setInterview(response);
-            evalRendering();
-            deleteUnreferencedFiles(itw.value.steps);
           })
-          .catch((err) => {
-            // handle save error
-            stepObjs.forEach((step) => {
-              if (!tosave.value.includes(step.name)) {
-                tosave.value.push(step.name);
-              }
-            });
-          });
+          .catch(() => {});
       }
     }
 
@@ -450,34 +478,8 @@ export const useInterviewStore = defineStore(
      * @returns
      */
     async function savePendingRecords() {
-      if (tosave.value.length > 0 && !savingPending) {
-        savingPending = true;
-        const stepObjs = itw.value.steps
-          .filter((step) => tosave.value.includes(step.name))
-          .map((step) => {
-            if (!step.form || !step.revision) {
-              const stepDesign = getStepDesign(step.name);
-              return {
-                ...step,
-                form: stepDesign.form,
-                revision: stepDesign.revision,
-              };
-            }
-            return step;
-          });
-        const payload = makePayload();
-        return flushFiles(stepObjs)
-          .then((steps) => itwService.patch(itw.value._id, { state: itw.value.state, steps }, payload))
-          .then((response) => {
-            setInterview(response);
-            evalRendering();
-            tosave.value = [];
-            // a step form can hold files that are not in the data yet
-            if (!record.value) deleteUnreferencedFiles(itw.value.steps);
-          })
-          .finally(() => {
-            savingPending = false;
-          });
+      if (tosave.value.length > 0) {
+        return saveSteps([], { state: itw.value.state });
       }
     }
 
@@ -520,6 +522,7 @@ export const useInterviewStore = defineStore(
         itw.value = null;
         fillingDate.value = null;
         tosave.value = [];
+        unsaved.clear();
         instructed.value = false;
         rendering.value = {};
       }
