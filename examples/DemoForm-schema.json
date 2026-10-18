@@ -438,6 +438,24 @@
           }
         }
       },
+      "FILES": {
+        "type": "object",
+        "properties": {
+          "FILE": {
+            "type": "string",
+            "format": "file",
+            "title": "File",
+            "description": "Attach one file, such as a scanned consent form. Only images and PDF documents are accepted."
+          },
+          "FILES": {
+            "type": "array",
+            "format": "files",
+            "title": "Files",
+            "description": "Attach up to 3 files, such as photos or medical reports.",
+            "maxItems": 3
+          }
+        }
+      },
       "OTHERS": {
         "type": "object",
         "properties": {
@@ -755,7 +773,7 @@
       {
         "type": "Section",
         "label": "Welcome to the Demo Form",
-        "description": "This form demonstrates all the **different types of questionnaire items** that can be included in a form.\n\n* text and numeric inputs\n* date and time inputs\n* select inputs\n* geographical data inputs\n* lists of repeated items\n* sections, groups, horizontal, grid, tabs and stepper layouts\n* validation, condition rules\n* computed values\n* ...\n\nVisit the [Form items documentation](https://amberdoc.obiba.org/en/latest/studio-user-guide/content/items/index.html) for more details."
+        "description": "This form demonstrates all the **different types of questionnaire items** that can be included in a form.\n\n* text and numeric inputs\n* date and time inputs\n* select inputs\n* geographical data inputs\n* file uploads\n* lists of repeated items\n* sections, groups, horizontal, grid, tabs and stepper layouts\n* validation, condition rules\n* computed values\n* ...\n\nVisit the [Form items documentation](https://amberdoc.obiba.org/en/latest/studio-user-guide/content/items/index.html) for more details."
       },
       {
         "type": "Section",
@@ -1288,6 +1306,24 @@
             "options": {
               "height": 240
             }
+          }
+        ]
+      },
+      {
+        "type": "Group",
+        "label": "Files",
+        "description": "Upload files, stored with the record.",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/FILES/properties/FILE",
+            "options": {
+              "accept": "image/*,application/pdf"
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/FILES/properties/FILES"
           }
         ]
       },
