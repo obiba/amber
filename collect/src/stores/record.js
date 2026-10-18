@@ -175,7 +175,8 @@ export const useRecordStore = defineStore('record', () => {
     const result = await caseReportService
       .saveCaseReport(caseReport)
       .catch(err => {
-        const errorCode = err.code
+        // an HTTP status: a network error (feathers client or file upload) has a string code (ERR_NETWORK...)
+        const errorCode = typeof err.code === 'number' ? err.code : undefined
         if (!payload.silent) {
           if (errorCode) {
             console.error(err)
