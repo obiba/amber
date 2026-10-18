@@ -25,7 +25,7 @@
     "@fontsource-variable/instrument-sans": "^5.3.0",
     "@fontsource-variable/sora": "^5.3.0",
     "@obiba/quasar-ui-amber": "^1.4.0",
-    "@obiba/quasar-ui-json-form": "^0.10.2",
+    "@obiba/quasar-ui-json-form": "^0.11.0",
     "@quasar/extras": "^2.0.0",
     "@vuelidate/core": "^2.0.0-alpha.32",
     "@vuelidate/validators": "^2.0.0-alpha.25",

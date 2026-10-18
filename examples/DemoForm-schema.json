@@ -1809,7 +1809,7 @@
           },
           {
             "type": "Label",
-            "text": "A label can be shown under a condition: this one appears once a first name is entered in the *Horizontal layout* page.",
+            "text": "A label can be shown under a condition and show the answers: hello **{{LAYOUTS.FIRST_NAME}} {{LAYOUTS.LAST_NAME}}**! (first name entered in the *Horizontal layout* page)",
             "rules": {
               "visible": "isNotEmpty(LAYOUTS.FIRST_NAME)"
             }

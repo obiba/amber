@@ -651,9 +651,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@obiba/quasar-ui-json-form@npm:^0.10.2":
-  version: 0.10.2
-  resolution: "@obiba/quasar-ui-json-form@npm:0.10.2"
+"@obiba/quasar-ui-json-form@npm:^0.11.0":
+  version: 0.11.0
+  resolution: "@obiba/quasar-ui-json-form@npm:0.11.0"
   dependencies:
     "@jsonforms/core": "npm:^3.7.0"
     "@jsonforms/vue": "npm:^3.7.0"
@@ -667,7 +667,7 @@ __metadata:
     quasar: ^2.0.0
     vue: ^3.0.0
     vue-i18n: ^11.2.2
-  checksum: 10c0/018fb686927a2de88bc7f9926886d0aa5c6defdab3081365c2181dcf137a9e024fce99b0c51fc936ac20dfc0afcdbab3e37c3e31a1184a1c5d789c03b1f7145f
+  checksum: 10c0/216661b775b4f51093368b09512ef53ad894e490125ca501e47c06f77a2aa1498f4d82b47e341d16f0ebe1897398f93b36b7903d1efd92ad68f172ee2edc3972
   languageName: node
   linkType: hard
 
@@ -1913,7 +1913,7 @@ __metadata:
     "@fontsource-variable/instrument-sans": "npm:^5.3.0"
     "@fontsource-variable/sora": "npm:^5.3.0"
     "@obiba/quasar-ui-amber": "npm:^1.4.0"
-    "@obiba/quasar-ui-json-form": "npm:^0.10.2"
+    "@obiba/quasar-ui-json-form": "npm:^0.11.0"
     "@quasar/app-vite": "npm:^3.8.3"
     "@quasar/cli": "npm:^5.0.8"
     "@quasar/extras": "npm:^1.16.13"
