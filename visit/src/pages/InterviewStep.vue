@@ -58,7 +58,7 @@
             <div class="col-md-6 col-sm-8 col-xs-12 q-mt-sm q-mb-sm">
               <div>
                 <AmberForm ref="form" :key="remountCounter" :schema="step.schema" v-model="formData" :locale="locale"
-                  :page="isMulti() ? page() : undefined" :lang="lang" apply-defaults />
+                  :page="isMulti() ? page() : undefined" :lang="lang" :file-upload="fileQueue.fileUpload" apply-defaults />
               </div>
               <div v-if="isMulti()" style="height: 200px" v-touch-swipe.mouse="handleSwipe"></div>
               <!-- <div class="bg-black text-white q-mt-lg q-pa-md">
@@ -136,6 +136,7 @@ import { AmberForm, makeSchemaFormTr, getPageCount, getToc, getTocElement, isPag
 import { Notify, scroll } from 'quasar'
 import { settings as _settings } from '../boot/settings'
 import { locales } from '../boot/i18n'
+import { fileQueue } from '../file-queue'
 
 const { getScrollTarget, setVerticalScrollPosition } = scroll
 

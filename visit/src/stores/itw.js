@@ -1,5 +1,7 @@
 import { defineStore } from "pinia";
 import { ref, computed, toHandlers } from "vue";
+import { feathersClient } from "../feathers-client";
+import { fileQueue, setFilesAuthHeaders, deleteUnreferencedFiles } from "../file-queue";
 
 export const useInterviewStore = defineStore(
   "itw",
@@ -21,6 +23,27 @@ export const useInterviewStore = defineStore(
     const instructed = ref(false); // instructions were shown
     const rendering = ref({}); // the visibility/enability of the steps
     const fillingDate = ref(null); // the interview filling date
+    let savingPending = false; // the pending records are being saved
+
+    // the files are uploaded with the participant credentials, or the interviewer token
+    setFilesAuthHeaders(async () =>
+      cred.value
+        ? { Authorization: `${scheme.value || "participant"} ${cred.value}` }
+        : { Authorization: `Bearer ${await feathersClient.authentication.getAccessToken()}` }
+    );
+
+    /**
+     * Upload the queued files of the steps data, and reference them by their server ids.
+     * @param {Array} stepObjs
+     * @returns the steps to be saved
+     */
+    async function flushFiles(stepObjs) {
+      const rval = [];
+      for (const step of stepObjs) {
+        rval.push(step.data ? { ...step, data: await fileQueue.flush(step.data) } : step);
+      }
+      return rval;
+    }
 
     const isAuthenticated = computed(() => {
       if (authStore.isAuthenticated) return true;
@@ -272,6 +295,8 @@ export const useInterviewStore = defineStore(
           });
         rec.data.participant = design.value.participant.data;
         record.value = rec;
+        // no step form is open yet
+        deleteUnreferencedFiles([itw.value.steps, rec.data]);
       });
     }
 
@@ -351,8 +376,8 @@ export const useInterviewStore = defineStore(
       const stepObjs = [stepObj];
 
       if (recording) {
-        return itwService
-          .patch(itw.value._id, { steps: stepObjs }, payload)
+        return flushFiles(stepObjs)
+          .then((steps) => itwService.patch(itw.value._id, { steps }, payload))
           .then((response) => {
             tosave.value = [];
             setInterview(response);
@@ -383,13 +408,14 @@ export const useInterviewStore = defineStore(
             });
         }
 
-        return itwService
-          .patch(itw.value._id, { state: itwState, steps: stepObjs }, payload)
+        return flushFiles(stepObjs)
+          .then((steps) => itwService.patch(itw.value._id, { state: itwState, steps }, payload))
           .then((response) => {
             record.value = null;
             tosave.value = [];
             setInterview(response);
             evalRendering();
+            deleteUnreferencedFiles(itw.value.steps);
           })
           .catch((err) => {
             // handle save error
@@ -424,7 +450,8 @@ export const useInterviewStore = defineStore(
      * @returns
      */
     async function savePendingRecords() {
-      if (tosave.value.length > 0) {
+      if (tosave.value.length > 0 && !savingPending) {
+        savingPending = true;
         const stepObjs = itw.value.steps
           .filter((step) => tosave.value.includes(step.name))
           .map((step) => {
@@ -439,16 +466,17 @@ export const useInterviewStore = defineStore(
             return step;
           });
         const payload = makePayload();
-        return itwService
-          .patch(
-            itw.value._id,
-            { state: itw.value.state, steps: stepObjs },
-            payload
-          )
+        return flushFiles(stepObjs)
+          .then((steps) => itwService.patch(itw.value._id, { state: itw.value.state, steps }, payload))
           .then((response) => {
             setInterview(response);
             evalRendering();
             tosave.value = [];
+            // a step form can hold files that are not in the data yet
+            if (!record.value) deleteUnreferencedFiles(itw.value.steps);
+          })
+          .finally(() => {
+            savingPending = false;
           });
       }
     }
