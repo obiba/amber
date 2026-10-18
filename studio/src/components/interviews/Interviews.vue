@@ -248,6 +248,20 @@
           <q-btn dense flat icon="close" v-close-popup>
           </q-btn>
         </q-bar>
+        <q-card-section v-if="interviewFiles.length > 0">
+          <div class="text-subtitle1">{{ t('interview.files') }}</div>
+          <q-list dense>
+            <q-item v-for="file in interviewFiles" :key="file.step + file.path + file.id">
+              <q-item-section>
+                <q-item-label>{{ file.fileName || file.id }}</q-item-label>
+                <q-item-label caption>{{ file.step }}.{{ file.path }}</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-btn flat dense round size="sm" icon="download" :title="t('interview.download_file')" @click="onDownloadFile(file)" />
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
         <q-card-section>
           <div class="bg-black text-white q-pa-md">
             <pre>{{ modelDataStr }}</pre>
@@ -362,6 +376,8 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { interviewService } from '../../services/interview'
+import { formRevisionService } from '../../services/form'
+import { downloadFile, fileRefs } from '@/services/utils/files'
 import { date, Notify } from 'quasar'
 import { useInterviewStore } from '@/stores/interview'
 import { useStudyStore } from '@/stores/study'
@@ -384,6 +400,7 @@ const fromDate = ref('')
 const toDate = ref('')
 const maximizedToggle = ref(false)
 const modelData = ref({})
+const interviewFiles = ref([])
 const selectedInterview = ref({})
 const selectedFillingDate = ref(null)
 const showInterview = ref(false)
@@ -612,6 +629,24 @@ function onShow (studyInterview) {
   })
   modelData.value.participant = studyInterview.data
   maximizedToggle.value = false
+  // the files of the steps, found with the controls of their form
+  interviewFiles.value = []
+  studyInterview.steps.filter(step => step.form && step.data).forEach((step) => {
+    formRevisionService.getFormRevision(step.form, step.revision)
+      .then(res => {
+        if (res.data.length > 0 && selectedInterview.value === studyInterview) {
+          interviewFiles.value.push(...fileRefs(res.data[0].schema, step.data).map(ref => ({ ...ref, step: step.name })))
+        }
+      })
+      .catch(err => console.error(err))
+  })
+}
+
+function onDownloadFile (file) {
+  downloadFile(file).catch(err => {
+    console.error(err)
+    Notify.create({ message: err.message, color: 'negative' })
+  })
 }
 
 function onShowEditFillingDate (studyInterview) {

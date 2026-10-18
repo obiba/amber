@@ -165,7 +165,7 @@
             </q-tab-panel>
 
             <q-tab-panel name="items" style="padding: 0;">
-              <q-json-form-builder v-if="isJson" :key="reload" v-model="builderModel" no-caps no-import no-export class="q-mt-md" />
+              <q-json-form-builder v-if="isJson" :key="reload" v-model="builderModel" :config="builderConfig" no-caps no-import no-export class="q-mt-md" />
               <form-items v-else :key="reload" v-model="studyFormData" />
             </q-tab-panel>
 
@@ -311,8 +311,12 @@ import FormConvert from '@/components/forms/FormConvert.vue'
 import { QJsonFormBuilder } from '@obiba/quasar-ui-json-form/builder'
 import { isJsonForm } from '@obiba/quasar-ui-amber'
 import { settings } from '@/boot/settings'
+import { previewFileUpload } from '@/services/utils/files'
 
 const { t } = useI18n()
+
+// the preview of the file controls does not upload the files
+const builderConfig = { fileUpload: previewFileUpload }
 
 const route = useRoute()
 const formStore = useFormStore()

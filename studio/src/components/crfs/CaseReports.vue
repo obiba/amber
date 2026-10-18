@@ -226,7 +226,7 @@
                 </q-list>
               </q-btn-dropdown>
               <q-separator  class="q-mt-md"/>
-              <AmberForm :key='remountCounter' :schema='selectedFormRevision.schema' v-model='modelData' :locale='locale' debug/>
+              <AmberForm :key='remountCounter' :schema='selectedFormRevision.schema' v-model='modelData' :locale='locale' :file-upload='fileUpload' debug/>
             </q-tab-panel>
 
             <q-tab-panel name="data" class="q-pl-none q-pr-none">
@@ -327,8 +327,15 @@ import { useCaseReportStore } from '@/stores/caseReport'
 import { useStudyStore } from '@/stores/study'
 import { useFormStore } from '@/stores/form'
 import { AmberForm } from '@obiba/quasar-ui-amber'
+import { downloadFile } from '@/services/utils/files'
 
 const { t } = useI18n()
+
+// the files of a case report are downloaded with the user token; they are attached on its creation only
+const fileUpload = {
+  upload: async () => { throw new Error(t('study.case_report_files_upload_unsupported')) },
+  download: downloadFile
+}
 const route = useRoute()
 const { isReadOnly } = useAuth()
 const caseReportStore = useCaseReportStore()

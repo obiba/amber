@@ -36,7 +36,7 @@
             <q-btn :label="t('form.convert.copy_data')" icon="content_copy" flat size="sm" @click="onCopyData" />
           </div>
           <q-card bordered flat class="q-pa-md">
-            <AmberForm :key="'legacy' + remountCounter" :schema="schema" v-model="legacyData" :locale="locale" apply-defaults debug />
+            <AmberForm :key="'legacy' + remountCounter" :schema="schema" v-model="legacyData" :locale="locale" :file-upload="previewFileUpload" apply-defaults debug />
           </q-card>
         </div>
         <div class="col-md-6 col-xs-12">
@@ -44,7 +44,7 @@
             <div class="text-subtitle1">{{ t('form.convert.converted') }}</div>
           </div>
           <q-card bordered flat class="q-pa-md">
-            <AmberForm :key="'json' + remountCounter" :schema="result.form" v-model="jsonData" :locale="locale" apply-defaults />
+            <AmberForm :key="'json' + remountCounter" :schema="result.form" v-model="jsonData" :locale="locale" :file-upload="previewFileUpload" apply-defaults />
           </q-card>
         </div>
         <div class="col-12">
@@ -67,6 +67,7 @@
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { AmberForm } from '@obiba/quasar-ui-amber'
+import { previewFileUpload } from '@/services/utils/files'
 import { convertForm } from '../../utils/convertForm'
 
 // converts a legacy form schema, previewing both forms side by side on the same data
