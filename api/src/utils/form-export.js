@@ -273,7 +273,8 @@ exports.FormDataExport = class FormDataExport {
   }
 
   /**
-   * Replace the file references of a row by `<id>/<fileName>`, the path of the file in a zip export.
+   * Replace the file references of a row by `files/<id>/<fileName>`, the path of the file relative to
+   * the `data.csv` file of its table in a zip export (as Opal imports it).
    * @param {Object} row The flattened data
    * @returns the GridFS files of the row
    */
@@ -284,7 +285,7 @@ exports.FormDataExport = class FormDataExport {
     refs.forEach(([key, value]) => {
       const paths = value.__files.map(id => {
         const file = files.find(f => f._id.toString() === String(id));
-        return file ? `${id}/${file.filename}` : String(id);
+        return file ? `files/${id}/${file.filename}` : String(id);
       });
       row[key] = value.multiple ? paths : paths[0];
     });
