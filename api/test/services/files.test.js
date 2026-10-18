@@ -247,9 +247,9 @@ describe('\'files\' service', () => {
     const cr = await createCaseReport(emails[1], { doc: doc.id, photos: [photo] });
     const result = await app.service('case-report-export').find({ ...as(emails[0]), query: { $limit: 10, caseReportForm: crf._id.toString() } });
     const table = Object.values(result.export)[0];
-    const row = table.data.find(r => r._id === cr._id.toString() || r.doc === `${doc.id}/hello.txt`);
-    assert.strictEqual(row.doc, `${doc.id}/hello.txt`);
-    assert.deepStrictEqual(row.photos, [`${photo.id}/photo.png`]);
+    const row = table.data.find(r => r._id === cr._id.toString() || r.doc === `files/${doc.id}/hello.txt`);
+    assert.strictEqual(row.doc, `files/${doc.id}/hello.txt`);
+    assert.deepStrictEqual(row.photos, [`files/${photo.id}/photo.png`]);
     assert.strictEqual(table.files.length, 2);
     const variable = table.variables.find(v => v.name === 'photos');
     assert.strictEqual(variable.mimeType, 'application/octet-stream');
