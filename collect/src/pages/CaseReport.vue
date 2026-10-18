@@ -25,12 +25,12 @@
         </div>
         <div class="q-pa-md">
           <div class="row">
-            <div v-if="!$q.screen.lt.sm" class="col-md-4 col-sm-2"
-              :class="(canPrevious() && isMulti()) ? 'text-grey-5 text-center q-mt-xl cursor-pointer' : ''"
-              @click="previousStep">
-              <q-icon v-if="canPrevious()" :name="$q.lang.rtl ? 'arrow_forward' : 'arrow_back'" size="xl" color="white" class="bg-primary rounded-borders fixed" />
+            <div v-if="!$q.screen.lt.sm" class="col-md-3 col-sm-2 text-center">
+              <q-icon v-if="canPrevious()" :name="$q.lang.rtl ? 'arrow_forward' : 'arrow_back'" size="xl"
+                color="primary" class="fixed q-mt-xl bg-amber-soft q-pa-md cursor-pointer"
+                style="border-radius: 50%; margin-left: -50px" @click="previousStep" />
             </div>
-            <div class="col-md-4 col-sm-8 col-xs-12 q-mt-sm q-mb-sm">
+            <div class="col-md-6 col-sm-8 col-xs-12 q-mt-sm q-mb-sm">
               <div>
                 <AmberForm ref="form" :key="remountCounter" :schema="crf.schema" v-model="formData" :locale="currentLocale"
                   :page="isMulti() ? formData.__step : undefined" :lang="lang" apply-defaults @update:model-value="onFormDataUpdated" />
@@ -39,10 +39,10 @@
                 <pre>{{ JSON.stringify(formData, null, '  ') }}</pre>
               </div-->
             </div>
-            <div v-if="!$q.screen.lt.sm" class="col-md-4 col-sm-2"
-              :class="(canNext() && isMulti()) ? 'text-grey-5 text-center q-mt-xl cursor-pointer' : ''"
-              @click="nextStep">
-              <q-icon v-if="canNext()" :name="$q.lang.rtl ? 'arrow_back' : 'arrow_forward'" size="xl" color="white" class="bg-primary rounded-borders fixed" />
+            <div v-if="!$q.screen.lt.sm" class="col-md-3 col-sm-2 text-center">
+              <q-icon v-if="canNext()" :name="$q.lang.rtl ? 'arrow_back' : 'arrow_forward'" size="xl"
+                color="primary" class="fixed q-mt-xl bg-amber-soft q-pa-md cursor-pointer"
+                style="border-radius: 50%; margin-left: -25px" @click="nextStep" />
             </div>
           </div>
         </div>

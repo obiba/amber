@@ -52,7 +52,7 @@
           <div class="row">
             <div v-if="!$q.screen.lt.sm" class="col-md-3 col-sm-2 text-center">
               <q-icon v-if="canPrevious()" :name="$q.lang.rtl ? 'arrow_forward' : 'arrow_back'" size="xl"
-                color="white" class="print-hide fixed q-mt-xl bg-accent q-pa-md cursor-pointer"
+                color="primary" class="print-hide fixed q-mt-xl bg-accent q-pa-md cursor-pointer"
                 style="border-radius: 50%; margin-left: -50px" @click="previousStep" />
             </div>
             <div class="col-md-6 col-sm-8 col-xs-12 q-mt-sm q-mb-sm">
@@ -66,7 +66,7 @@
               </div> -->
             </div>
             <div v-if="!$q.screen.lt.sm" class="col-md-3 col-sm-2 text-center">
-              <q-icon v-if="canNext()" :name="$q.lang.rtl ? 'arrow_back' : 'arrow_forward'" size="xl" color="white"
+              <q-icon v-if="canNext()" :name="$q.lang.rtl ? 'arrow_back' : 'arrow_forward'" size="xl" color="primary"
                 class="print-hide fixed q-mt-xl bg-accent q-pa-md cursor-pointer"
                 style="border-radius: 50%; margin-left: -25px" @click="nextStep" />
               <q-icon v-else name="cloud_upload" size="xl" color="white"
