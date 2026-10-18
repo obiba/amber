@@ -64,6 +64,9 @@ describe('\'itw\' service', () => {
           }]
         })
       },
+      'form-revision': {
+        find: async () => ({ total: 1, data: [{ schema: { items: [] } }] })
+      },
       interview: {
         find: async (params) => {
           if (params.query && params.query.code === 'P001') {
@@ -120,7 +123,8 @@ describe('\'itw\' service', () => {
       service: (name) => mockServices[name],
       get: (key) => {
         const config = {
-          paginate: { max: 1000, default: 10 }
+          paginate: { max: 1000, default: 10 },
+          mongodbClient: app.get('mongodbClient')
         };
         return config[key];
       }

@@ -1,5 +1,6 @@
 const { BadRequest } = require('@feathersjs/errors');
 const { ItwBase } = require('../../utils/itw');
+const { checkStepsFiles, syncStepsFiles } = require('../../utils/files');
 
 /**
  * Get or create the interview for the requesting participant (either by the
@@ -33,6 +34,8 @@ exports.Itw = class Itw extends ItwBase {
   async patch (id, data, params) {
     const { interview, interviewDesign } = await this.getOrCreateInterview(params);
     const itwService = this.app.service('interview');
+    const owner = params.user ? params.user._id : params.participant._id;
+    const stepsFileIds = await checkStepsFiles(this.app, interview, (data.steps || []).filter(step => step.state !== null), owner);
 
     const patched = {};
     if (data.steps) {
@@ -97,6 +100,7 @@ exports.Itw = class Itw extends ItwBase {
     params.query = {};
     // internal call - bypass authorization hooks
     const interviewUpdated = await itwService._patch(interview._id, patched, params);
+    await syncStepsFiles(this.app, interviewUpdated, stepsFileIds);
     return this.digestInterview(interviewUpdated);
   }
 

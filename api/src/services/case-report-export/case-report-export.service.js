@@ -7,6 +7,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 var archiver = require('archiver');
+const { appendFiles } = require('../../utils/files');
 const { GeneralError } = require('@feathersjs/errors');
 
 const toCSV = (data, fields) => {
@@ -110,7 +111,7 @@ const doExcelResponse = async (res) => {
   xlsxStream.pipe(res);
 };
 
-const doZipResponse = (res) => {
+const doZipResponse = async (res) => {
   const tmpDir = mkTmpDir();
   // write data
   for (const key in res.data.export) {
@@ -183,6 +184,9 @@ const doZipResponse = (res) => {
   //this is the streaming magic
   archive.pipe(res);
   archive.directory(tmpDir, '');
+  for (const key in res.data.export) {
+    await appendFiles(res.app, archive, makeTableName(res.data.export[key].caseReportForm, res.data.export[key].formRevision), res.data.export[key].files);
+  }
   archive.finalize();
 };
 
@@ -211,14 +215,14 @@ module.exports = function (app) {
   };
 
   // Initialize our service with any options it requires
-  app.use('/case-report-export', new CaseReportExport(options, app), (req, res) => {
+  app.use('/case-report-export', new CaseReportExport(options, app), (req, res, next) => {
     const accept = req.get('Accept');
     if (accept === 'text/csv' || accept === 'text/plain') {
       doCsvResponse(res);
     } else if (accept === 'application/vnd.openxmlformatsofficedocument.spreadsheetml.sheet' || accept === 'application/vnd.ms-excel') {
       doExcelResponse(res);
     } else if (accept === 'application/zip' || accept === 'application/octet-stream') {
-      doZipResponse(res);
+      doZipResponse(res).catch(next);
     } else {
       doJsonResponse(res);
     }

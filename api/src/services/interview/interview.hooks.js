@@ -9,6 +9,7 @@ const interviewCreate = require('../../hooks/interview-create');
 const interviewCompleted = require('../../hooks/interview-completed');
 const interviewEncrypt = require('../../hooks/interview-encrypt');
 const interviewDecrypt = require('../../hooks/interview-decrypt');
+const interviewFiles = require('../../hooks/interview-files');
 
 const interviewAuthz = require('../../hooks/interview-authz');
 
@@ -54,6 +55,7 @@ module.exports = {
       validate.mongoose(interviewPatchSchema, joiOptions),
       schemaHooks.resolveData(interviewDataResolver),
       authorize({ adapter: '@feathersjs/mongodb' }),
+      interviewFiles(),
       interviewEncrypt(),
       interviewReopened()
     ],
@@ -74,9 +76,10 @@ module.exports = {
     ],
     patch: [
       interviewDecrypt(),
-      interviewCompleted()
+      interviewCompleted(),
+      interviewFiles()
     ],
-    remove: []
+    remove: [interviewFiles()]
   },
 
   error: {

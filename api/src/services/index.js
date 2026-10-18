@@ -25,6 +25,7 @@ const interviewDesignI18N = require('./interview-design-i18n/interview-design-i1
 const itw = require('./itw/itw.service.js');
 const interviewExport = require('./interview-export/interview-export.service.js');
 const task = require('./task/task.service.js');
+const files = require('./files/files.service.js');
  
 module.exports = function (app) {
   app.configure(user);
@@ -54,4 +55,5 @@ module.exports = function (app) {
   app.configure(itw);
   app.configure(interviewExport);
   app.configure(task);
+  app.configure(files);
 };

@@ -37,6 +37,19 @@ module.exports = (async () => {
     app.set('encrypt_iv', process.env.APP_SECRET_IV);
   }
 
+  // Files
+  const filesConfig = { ...app.get('files') };
+  if (process.env.FILES_MAX_SIZE) {
+    filesConfig.maxSize = parseInt(process.env.FILES_MAX_SIZE);
+  }
+  if (process.env.FILES_ACCEPT) {
+    filesConfig.accept = process.env.FILES_ACCEPT.split(',').map(t => t.trim()).filter(t => t);
+  }
+  if (process.env.FILES_PENDING_DAYS) {
+    filesConfig.pendingDays = parseFloat(process.env.FILES_PENDING_DAYS);
+  }
+  app.set('files', filesConfig);
+
   // Authentication
   let authenticationConfig = app.get('authentication');
   if (process.env.APP_NAME) {
@@ -127,8 +140,10 @@ module.exports = (async () => {
 
   // Enable compression, favicon and body parsing
   app.use(compress());
-  app.use(json({limit: '25mb'}));
-  app.use(urlencoded({ limit: '25mb', extended: true }));
+  // the files upload body is streamed by the files service, whatever its type
+  const parseBody = (type) => (req) => !req.path.startsWith('/files') && !!req.is(type);
+  app.use(json({ limit: '25mb', type: parseBody('application/json') }));
+  app.use(urlencoded({ limit: '25mb', extended: true, type: parseBody('application/x-www-form-urlencoded') }));
   // Resolve public path relative to app root
   const publicPath = path.resolve(__dirname, app.get('public'));
   app.use(favicon(path.join(publicPath, 'favicon.ico')));
