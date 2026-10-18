@@ -198,6 +198,7 @@ export default {
       completed: 'Completed'
     },
     export_case_reports_hint: 'Export case reports',
+    case_report_files_remove_unsupported: 'Files cannot be removed from a recorded case report.',
     case_report_files_upload_unsupported: 'Files cannot be added to a recorded case report.',
     all_forms: '(all)',
     designs: 'Designs',

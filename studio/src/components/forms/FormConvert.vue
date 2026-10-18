@@ -64,10 +64,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { AmberForm } from '@obiba/quasar-ui-amber'
-import { previewFileUpload } from '@/services/utils/files'
+import { createPreviewFileUpload } from '@/services/utils/files'
 import { convertForm } from '../../utils/convertForm'
 
 // converts a legacy form schema, previewing both forms side by side on the same data
@@ -81,6 +81,8 @@ const error = ref(null)
 const legacyData = ref({})
 const jsonData = ref({})
 const remountCounter = ref(0)
+const previewFileUpload = createPreviewFileUpload()
+onBeforeUnmount(previewFileUpload.clear)
 const locale = ref(appLocale.value)
 
 const show = computed({
@@ -110,6 +112,7 @@ watch(show, (value) => {
   error.value = null
   legacyData.value = {}
   jsonData.value = {}
+  previewFileUpload.clear()
   if (!locales.value.includes(locale.value) && locales.value.length > 0) locale.value = locales.value[0]
   remountCounter.value++
 }, { immediate: true })

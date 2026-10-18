@@ -376,7 +376,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { interviewService } from '../../services/interview'
-import { formRevisionService } from '../../services/form'
+import { formRevisionService, formService } from '../../services/form'
 import { downloadFile, fileRefs } from '@/services/utils/files'
 import { date, Notify } from 'quasar'
 import { useInterviewStore } from '@/stores/interview'
@@ -401,6 +401,7 @@ const toDate = ref('')
 const maximizedToggle = ref(false)
 const modelData = ref({})
 const interviewFiles = ref([])
+let interviewFilesToken = 0
 const selectedInterview = ref({})
 const selectedFillingDate = ref(null)
 const showInterview = ref(false)
@@ -629,17 +630,35 @@ function onShow (studyInterview) {
   })
   modelData.value.participant = studyInterview.data
   maximizedToggle.value = false
-  // the files of the steps, found with the controls of their form
+  // the files of the steps, found with the controls of their form, in the order of the steps
+  const token = ++interviewFilesToken
   interviewFiles.value = []
-  studyInterview.steps.filter(step => step.form && step.data).forEach((step) => {
-    formRevisionService.getFormRevision(step.form, step.revision)
-      .then(res => {
-        if (res.data.length > 0 && selectedInterview.value === studyInterview) {
-          interviewFiles.value.push(...fileRefs(res.data[0].schema, step.data).map(ref => ({ ...ref, step: step.name })))
-        }
+  Promise.all(studyInterview.steps.filter(step => step.form && step.data).map(step =>
+    getStepSchema(step.form, step.revision)
+      .then(schema => fileRefs(schema, step.data).map(ref => ({ ...ref, step: step.name })))
+      .catch(err => {
+        console.error(err)
+        return []
       })
-      .catch(err => console.error(err))
+  )).then(files => {
+    if (token === interviewFilesToken) interviewFiles.value = files.flat()
   })
+}
+
+// the schema of a form revision, or of the form when not found (as the server does), cached by revision
+const stepSchemas = {}
+function getStepSchema (form, revision) {
+  const key = `${form}:${revision}`
+  if (!revision || !stepSchemas[key]) {
+    const schema = formRevisionService.getFormRevision(form, revision)
+      .then(res => res.total > 0 ? res.data[0].schema : formService.getForm(form).then(f => f.schema))
+    if (!revision) return schema
+    stepSchemas[key] = schema.catch(err => {
+      delete stepSchemas[key]
+      throw err
+    })
+  }
+  return stepSchemas[key]
 }
 
 function onDownloadFile (file) {

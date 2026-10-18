@@ -229,10 +229,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { date } from 'quasar'
 import { AmberForm } from '@obiba/quasar-ui-amber'
-import { previewFileUpload } from '@/services/utils/files'
+import { createPreviewFileUpload } from '@/services/utils/files'
 import { useFormStore } from '@/stores/form'
 import { useAuth } from '@/composables/useAuth'
 import { useI18n } from 'vue-i18n'
@@ -243,6 +243,9 @@ const emit = defineEmits(['reinstate'])
 const formStore = useFormStore()
 const { isReadOnly } = useAuth()
 const { t } = useI18n()
+
+const previewFileUpload = createPreviewFileUpload()
+onBeforeUnmount(previewFileUpload.clear)
 
 // Refs
 const remountCounter = ref(0)
@@ -338,6 +341,7 @@ function onView (formRevision) {
   showViewRevision.value = true
   selectedRevision.value = formRevision
   modelData.value = {}
+  previewFileUpload.clear()
   remountCounter.value++
   viewTab.value = 'form'
 }

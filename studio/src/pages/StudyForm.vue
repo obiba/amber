@@ -311,11 +311,12 @@ import FormConvert from '@/components/forms/FormConvert.vue'
 import { QJsonFormBuilder } from '@obiba/quasar-ui-json-form/builder'
 import { isJsonForm } from '@obiba/quasar-ui-amber'
 import { settings } from '@/boot/settings'
-import { previewFileUpload } from '@/services/utils/files'
+import { createPreviewFileUpload } from '@/services/utils/files'
 
 const { t } = useI18n()
 
 // the preview of the file controls does not upload the files
+const previewFileUpload = createPreviewFileUpload()
 const builderConfig = { fileUpload: previewFileUpload }
 
 const route = useRoute()
@@ -432,6 +433,7 @@ function onTag () {
 function onReinstate () {
   studyFormData.value = JSON.parse(JSON.stringify(studyForm.value))
   originalSchemaStr.value = JSON.stringify(studyFormData.value.schema)
+  previewFileUpload.clear()
   reload.value++
 }
 
@@ -487,6 +489,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  previewFileUpload.clear()
   if (saveIntervalId.value) {
     clearInterval(saveIntervalId.value)
   }

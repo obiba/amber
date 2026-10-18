@@ -20,8 +20,12 @@ export async function getFormRevision (form, revision) {
   const formData = {
     query: {
       form: form,
-      revision: revision
+      $sort: { revision: -1 }
     }
+  }
+  // the latest revision when not specified
+  if (revision) {
+    formData.query.revision = revision
   }
 
   return feathersClient.service('form-revision').find(formData)
