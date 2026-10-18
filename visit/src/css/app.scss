@@ -67,10 +67,33 @@ a.q-btn {
   border-radius: 6px;
   font-size: larger;
   .q-input-field {
+    // the card is drawn behind the content, inset by the gutter of a
+    // `q-col-gutter-*` row: Quasar makes the gutter with the padding of the
+    // columns, which would otherwise be inside the card
+    --gutter-x: 0px;
+    --gutter-y: 0px;
+    position: relative;
+    z-index: 0;
     margin-top: 1.5rem;
-    padding: 2rem;
-    border: 1px solid $border;
-    background-color: $grey-1;
+    padding: calc(2rem + var(--gutter-y)) 2rem 2rem calc(2rem + var(--gutter-x));
+    &::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      inset: var(--gutter-y) 0 0 var(--gutter-x);
+      border: 1px solid $border;
+      background-color: $grey-1;
+    }
+  }
+  @each $name, $size in $flex-gutter {
+    .q-col-gutter-#{$name} > .q-input-field,
+    .q-col-gutter-x-#{$name} > .q-input-field {
+      --gutter-x: #{$size};
+    }
+    .q-col-gutter-#{$name} > .q-input-field,
+    .q-col-gutter-y-#{$name} > .q-input-field {
+      --gutter-y: #{$size};
+    }
   }
   .q-form-description {
     margin-top: 1rem;
