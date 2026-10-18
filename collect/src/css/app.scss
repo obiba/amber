@@ -16,9 +16,14 @@ a {
   font-size: larger;
   .q-input-field {
     margin-top: 1.5rem;
-    padding:2rem;
+    padding: 2rem;
     border: 1px solid $border;
     background-color: $grey-1;
+  }
+  .q-form-description {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    line-height: 1.5rem;
   }
 }
 
