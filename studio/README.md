@@ -35,7 +35,7 @@ Environment variable when running the app in production:
 
 ### Settings
 
-* Override Docker's file `/app/settings.json` file to apply your own CSS classes or add some translations.
+* Override Docker's file `/app/settings.json` (or `/app/public/settings.json`) to apply your own CSS classes or add some translations. Modifications are applied to new app instances, without container restart.
 
 ### Form conversion dry run
 

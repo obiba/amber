@@ -36,5 +36,13 @@ if [ -d /app/public ]; then
   cp -r /app/public/* /usr/share/nginx/html/
 fi
 
+# settings file is linked (not copied), so that its modifications apply without restart
+for f in /app/settings.json /app/public/settings.json; do
+  if [ -f "${f}" ]; then
+    ln -sf "${f}" "${WWW_DIR}/settings.json"
+    break
+  fi
+done
+
 # execute the web server
 exec nginx -g 'daemon off;'

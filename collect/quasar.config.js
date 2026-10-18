@@ -120,7 +120,13 @@ export default defineConfig(function (ctx) {
           maximumFileSizeToCacheInBytes: 5000000,
           cleanupOutdatedCaches: true,
           skipWaiting: true,
-          clientsClaim: true
+          clientsClaim: true,
+          // runtime config files are fetched from the network first, so that they can be modified after build
+          globIgnores: [...(cfg.globIgnores || []), '**/settings.json', '**/env.js'],
+          runtimeCaching: [{
+            urlPattern: ({ url }) => /\/(settings\.json|env\.js)$/.test(url.pathname),
+            handler: 'NetworkFirst'
+          }]
         })
       }
     },
