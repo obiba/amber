@@ -5,6 +5,7 @@
 - interview with interdependent steps
 - campaign investigators and support interviewers
 - self-administered or assisted interviews
+- offline (pwa): once logged in, the interview can go on offline, the steps and their files are saved when back online
 
 ## Install the dependencies
 
@@ -33,7 +34,7 @@ yarn format
 ### Build the app for production
 
 ```bash
-yarn quasar build
+yarn quasar build --mode pwa
 ```
 
 Environment variable for building the app in production:
