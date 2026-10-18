@@ -1140,17 +1140,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@obiba/quasar-ui-amber@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "@obiba/quasar-ui-amber@npm:1.3.0"
+"@obiba/quasar-ui-amber@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "@obiba/quasar-ui-amber@npm:1.5.0"
   dependencies:
     dompurify: "npm:^3.0.6"
     vue: "npm:^3.3.8"
     vue3-openlayers: "npm:^0.1.63"
   peerDependencies:
     "@blitzar/form": "*"
-    "@obiba/quasar-ui-json-form": ">=0.10.0"
-  checksum: 10c0/3124a43de4cb877329033a289880dbe14f304aac3b10c8f2ec71be3428a3d80b3f8eb1cbfb2a6719876112a4016ac218f0faf3ac2018214fc8c2d261c60344c4
+    "@obiba/quasar-ui-json-form": ">=0.11.0"
+  checksum: 10c0/b0bd926bbd8f5e6c81e74b0c882a6d93a8e6627798364c651479020a4ca8c8ac79410b43aafac38e9cb2b89a88280a6b14909390c062a0715293e749e2e1702d
   languageName: node
   linkType: hard
 
@@ -2883,7 +2883,7 @@ __metadata:
     "@feathersjs/rest-client": "npm:^5.0.33"
     "@fontsource-variable/instrument-sans": "npm:^5.3.0"
     "@fontsource-variable/sora": "npm:^5.3.0"
-    "@obiba/quasar-ui-amber": "npm:^1.3.0"
+    "@obiba/quasar-ui-amber": "npm:^1.5.0"
     "@obiba/quasar-ui-json-form": "npm:^0.11.0"
     "@quasar/app-vite": "npm:^3.8.3"
     "@quasar/cli": "npm:^5.0.8"

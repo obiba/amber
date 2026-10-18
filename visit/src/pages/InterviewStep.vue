@@ -175,7 +175,7 @@ const hasLocales = computed(() => locales.length > 1 && localeOptions.value.leng
 const stepName = computed(() => route.params.name as string)
 const caseReportLicense = computed(() => step.value.schema?.license as string | undefined)
 
-const toc = computed<{ id: string; label: string }[]>(() => getToc(step.value.schema, { tr }))
+const toc = computed<{ id: string; label: string }[]>(() => getToc(step.value.schema, { tr, data: formData.value }))
 
 const idLabel = computed(() => (step.value.schema.idLabel ? tr(step.value.schema.idLabel) : 'ID'))
 

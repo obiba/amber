@@ -189,7 +189,7 @@ const caseReportLicense = computed(() => {
   return license
 })
 
-const toc = computed(() => getToc(crf.value.schema, { locale: currentLocale.value }))
+const toc = computed(() => getToc(crf.value.schema, { locale: currentLocale.value, data: formData.value }))
 
 const idLabel = computed(() => {
   return crf.value.schema.idLabel ? tr(crf.value.schema.idLabel) : 'ID'
