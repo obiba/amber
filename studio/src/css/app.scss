@@ -18,6 +18,10 @@
 
 /* @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap'); */
 
+body {
+  font-weight: 450;
+}
+
 a {
   color: $primary;
   text-decoration: none;
@@ -43,7 +47,8 @@ p:last-of-type {
 
 .q-table {
   th {
-    background-color: #f2f7f6;
+    background-color: $grey-3;
+    font-weight: bold;
   }
   tr:nth-child(even) {
     background-color: #f2f7f6;
@@ -51,6 +56,16 @@ p:last-of-type {
   tr:nth-child(odd) {
     background-color: white;
   }
+}
+
+code {
+  color: $primary;
+  background-color: #f2f7f6;
+  font-size: smaller;
+  padding: 2px 4px;
+  border-radius: 4px;
+  border: 1px solid #dbe6e4;
+  white-space: nowrap;
 }
 
 .bg-base {
