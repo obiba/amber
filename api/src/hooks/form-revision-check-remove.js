@@ -2,6 +2,7 @@
 // For more information on hooks see: http://docs.feathersjs.com/api/hooks.html
 
 const { FeathersError } = require('@feathersjs/errors');
+const { toObjectId } = require('../resolvers');
 
 class FormRevisionRemoveError extends FeathersError {
   constructor(message, data) {
@@ -56,10 +57,10 @@ module.exports = (options = {}) => {
     }
 
     async function checkInterviews(formRevision) {
-      const result = await context.app.service('case-report').find({
+      const result = await context.app.service('interview').find({
         query: {
           $limit: 0,
-          'steps.form': formRevision.form.toString(),
+          'steps.form': toObjectId(formRevision.form),
           'steps.revision': formRevision.revision
         }
       });
@@ -80,7 +81,7 @@ module.exports = (options = {}) => {
       const result = await context.app.service('interview-design').find({
         query: {
           $limit: 0,
-          'steps.form': formRevision.form.toString(),
+          'steps.form': toObjectId(formRevision.form),
           'steps.revision': formRevision.revision
         }
       });
