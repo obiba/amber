@@ -131,12 +131,22 @@ export default defineConfig(function (ctx) {
     },
 
     // https://quasar.dev/quasar-cli-vite/developing-pwa/configuring-pwa
+    // (manifest is read from /src-pwa/manifest.json)
     pwa: {
       workboxMode: "GenerateSW", // 'GenerateSW' or 'InjectManifest'
-      injectPWAMetaTags: true,
+      injectPWAMetaTags: false, // icons and theme-color are declared in index.html
       swFilename: "sw.js",
       manifestFilename: "manifest.json",
       useCredentialsForManifestTag: false,
+
+      extendPWAGenerateSWOptions(cfg) {
+        Object.assign(cfg, {
+          maximumFileSizeToCacheInBytes: 5000000,
+          cleanupOutdatedCaches: true,
+          skipWaiting: true,
+          clientsClaim: true,
+        });
+      },
     },
 
     // Full list of options: https://quasar.dev/quasar-cli-vite/developing-cordova-apps/configuring-cordova

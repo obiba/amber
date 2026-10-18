@@ -1,5 +1,5 @@
 #
-# Amber Studio Dockerfile
+# Amber Visit Dockerfile
 #
 
 # develop stage
@@ -11,13 +11,13 @@ COPY . .
 # build stage
 FROM develop-stage AS build-stage
 RUN yarn
-RUN yarn quasar build
+RUN yarn quasar build --mode pwa
 
 # production stage
 FROM nginx:alpine AS production-stage
 RUN mkdir -p /etc/nginx/templates
 COPY ./nginx/default.conf.template /etc/nginx/templates/default.conf.template
-COPY --from=build-stage /app/dist/spa /usr/share/nginx/html
+COPY --from=build-stage /app/dist/pwa /usr/share/nginx/html
 EXPOSE 80
 
 RUN apk add --no-cache bash

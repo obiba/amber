@@ -14,6 +14,8 @@ server {
         sub_filter './icons/' '${PATH_PREFIX}icons/';
         sub_filter './favicon.ico' '${PATH_PREFIX}favicon.ico';
         sub_filter './env.js' '${PATH_PREFIX}env.js';
+        sub_filter '"/icons/' '"${PATH_PREFIX}icons/';
+        sub_filter '"/manifest' '"${PATH_PREFIX}manifest';
         sub_filter_once off;
         sub_filter_types application/javascript text/css;
     }
