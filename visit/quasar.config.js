@@ -145,6 +145,13 @@ export default defineConfig(function (ctx) {
           cleanupOutdatedCaches: true,
           skipWaiting: true,
           clientsClaim: true,
+          // runtime config files are fetched from the network first, so that they can be modified after build
+          globIgnores: [...(cfg.globIgnores || []), "**/settings.json", "**/env.js"],
+          runtimeCaching: [{
+            urlPattern: ({ url }) => /\/(settings\.json|env\.js)$/.test(url.pathname),
+            handler: "NetworkFirst",
+            options: { cacheName: "runtime-config", networkTimeoutSeconds: 3 }
+          }],
         });
       },
     },

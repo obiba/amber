@@ -18,6 +18,12 @@ server {
         sub_filter_types application/javascript text/css;
     }
 
+    # runtime config files: always revalidated, so that modifications apply to new app instances
+    location ~ ^/(settings\.json|env\.js)$ {
+        root   /usr/share/nginx/html;
+        add_header Cache-Control "no-cache";
+    }
+
     #error_page  404              /404.html;
 
     # redirect server error pages to the static page /50x.html
