@@ -85,6 +85,10 @@ a.q-btn {
       background-color: $grey-1;
     }
   }
+  // groups after a visible element (not in the steps layout, where the other pages are hidden)
+  :not(.hidden) ~ .q-group-renderer {
+    margin-top: 2rem;
+  }
   @each $name, $size in $flex-gutter {
     .q-col-gutter-#{$name} > .q-input-field,
     .q-col-gutter-x-#{$name} > .q-input-field {
