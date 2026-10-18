@@ -31,6 +31,9 @@ fi
 export PATH_PREFIX
 envsubst '${PATH_PREFIX}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf
 
+# remove the settings link of a previous run, otherwise cp would write through it
+rm -f "${WWW_DIR}/settings.json"
+
 # public files initialization
 if [ -d /app/public ]; then
   cp -r /app/public/* /usr/share/nginx/html/

@@ -35,7 +35,7 @@ Environment variable when running the app in production:
 
 ### Settings
 
-* Override Docker's file `/app/settings.json` (or `/app/public/settings.json`) to apply your own CSS classes or add some translations. Modifications are applied to new app instances, without container restart.
+* Override Docker's file `/app/settings.json` (or `/app/public/settings.json`) to apply your own CSS classes or add some translations. Modifications are applied to new app instances, without container restart. Mount a directory (e.g. `-v ./public:/app/public`) rather than the file alone: a single-file bind mount keeps pointing at the original file when an editor (vim, `sed -i`...) saves by replacing it, so the modifications would not be seen by the container.
 
 ## License
 

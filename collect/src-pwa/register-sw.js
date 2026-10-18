@@ -13,7 +13,11 @@ register(import.meta.env.QUASAR_SERVICE_WORKER_FILE, {
   // registrationOptions: { scope: './' },
 
   ready (/* registration */) {
-    console.log('Service worker is active.')
+    // the runtime config files are only cached once the service worker controls the page,
+    // so warm the cache now for the app to boot offline on its next launch
+    const prefix = window.env?.PATH_PREFIX || '/'
+    const urls = [...new Set(['env.js', `${prefix}env.js`, `${prefix}settings.json`])]
+    caches.open('runtime-config').then((cache) => urls.forEach((url) => cache.add(url).catch(() => {})))
   },
 
   registered (/* registration */) {

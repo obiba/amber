@@ -125,7 +125,8 @@ export default defineConfig(function (ctx) {
           globIgnores: [...(cfg.globIgnores || []), '**/settings.json', '**/env.js'],
           runtimeCaching: [{
             urlPattern: ({ url }) => /\/(settings\.json|env\.js)$/.test(url.pathname),
-            handler: 'NetworkFirst'
+            handler: 'NetworkFirst',
+            options: { cacheName: 'runtime-config', networkTimeoutSeconds: 3 }
           }]
         })
       }
