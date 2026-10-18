@@ -1140,23 +1140,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@obiba/quasar-ui-amber@npm:^1.5.0":
-  version: 1.5.0
-  resolution: "@obiba/quasar-ui-amber@npm:1.5.0"
+"@obiba/quasar-ui-amber@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "@obiba/quasar-ui-amber@npm:1.6.0"
   dependencies:
     dompurify: "npm:^3.0.6"
     vue: "npm:^3.3.8"
     vue3-openlayers: "npm:^0.1.63"
   peerDependencies:
     "@blitzar/form": "*"
-    "@obiba/quasar-ui-json-form": ">=0.11.0"
-  checksum: 10c0/b0bd926bbd8f5e6c81e74b0c882a6d93a8e6627798364c651479020a4ca8c8ac79410b43aafac38e9cb2b89a88280a6b14909390c062a0715293e749e2e1702d
+    "@obiba/quasar-ui-json-form": ">=0.12.0"
+  checksum: 10c0/53180aa427ff1e73024c51aed5612ee397508de64ba89ac5994c5a30b378c39df7b8f501a8a9aa8727d50ab7c99bf7216e437a1cbc47e298741f27659b8376c1
   languageName: node
   linkType: hard
 
-"@obiba/quasar-ui-json-form@npm:^0.11.0":
-  version: 0.11.0
-  resolution: "@obiba/quasar-ui-json-form@npm:0.11.0"
+"@obiba/quasar-ui-json-form@npm:^0.12.0":
+  version: 0.12.0
+  resolution: "@obiba/quasar-ui-json-form@npm:0.12.0"
   dependencies:
     "@jsonforms/core": "npm:^3.7.0"
     "@jsonforms/vue": "npm:^3.7.0"
@@ -1170,7 +1170,7 @@ __metadata:
     quasar: ^2.0.0
     vue: ^3.0.0
     vue-i18n: ^11.2.2
-  checksum: 10c0/216661b775b4f51093368b09512ef53ad894e490125ca501e47c06f77a2aa1498f4d82b47e341d16f0ebe1897398f93b36b7903d1efd92ad68f172ee2edc3972
+  checksum: 10c0/6b13d58022d1f399c01052d63c268a69fa6c3145d5147538438f176ff6023220efa94cd3b70f743414a971c33735042db59865981c917ef7aa737f8b44f39bb5
   languageName: node
   linkType: hard
 
@@ -2883,8 +2883,8 @@ __metadata:
     "@feathersjs/rest-client": "npm:^5.0.33"
     "@fontsource-variable/instrument-sans": "npm:^5.3.0"
     "@fontsource-variable/sora": "npm:^5.3.0"
-    "@obiba/quasar-ui-amber": "npm:^1.5.0"
-    "@obiba/quasar-ui-json-form": "npm:^0.11.0"
+    "@obiba/quasar-ui-amber": "npm:^1.6.0"
+    "@obiba/quasar-ui-json-form": "npm:^0.12.0"
     "@quasar/app-vite": "npm:^3.8.3"
     "@quasar/cli": "npm:^5.0.8"
     "@quasar/extras": "npm:^1.17.0"

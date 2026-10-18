@@ -121,7 +121,7 @@
               </q-btn-dropdown>
               <q-separator  class="q-mt-md"/>
               <q-scroll-area style="height: 400px" class="q-pt-md">
-                <AmberForm :key='remountCounter' :schema='selectedRevision.schema' v-model='modelData' :locale='locale' apply-defaults debug/>
+                <AmberForm :key='remountCounter' :schema='selectedRevision.schema' v-model='modelData' :locale='locale' :file-upload='previewFileUpload' apply-defaults debug/>
               </q-scroll-area>
             </q-tab-panel>
 
@@ -229,9 +229,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { date } from 'quasar'
 import { AmberForm } from '@obiba/quasar-ui-amber'
+import { createPreviewFileUpload } from '@/services/utils/files'
 import { useFormStore } from '@/stores/form'
 import { useAuth } from '@/composables/useAuth'
 import { useI18n } from 'vue-i18n'
@@ -242,6 +243,9 @@ const emit = defineEmits(['reinstate'])
 const formStore = useFormStore()
 const { isReadOnly } = useAuth()
 const { t } = useI18n()
+
+const previewFileUpload = createPreviewFileUpload()
+onBeforeUnmount(previewFileUpload.clear)
 
 // Refs
 const remountCounter = ref(0)
@@ -337,6 +341,7 @@ function onView (formRevision) {
   showViewRevision.value = true
   selectedRevision.value = formRevision
   modelData.value = {}
+  previewFileUpload.clear()
   remountCounter.value++
   viewTab.value = 'form'
 }

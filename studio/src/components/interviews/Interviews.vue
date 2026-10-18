@@ -248,6 +248,20 @@
           <q-btn dense flat icon="close" v-close-popup>
           </q-btn>
         </q-bar>
+        <q-card-section v-if="interviewFiles.length > 0">
+          <div class="text-subtitle1">{{ t('interview.files') }}</div>
+          <q-list dense>
+            <q-item v-for="file in interviewFiles" :key="file.step + file.path + file.id">
+              <q-item-section>
+                <q-item-label>{{ file.fileName || file.id }}</q-item-label>
+                <q-item-label caption>{{ file.step }}.{{ file.path }}</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-btn flat dense round size="sm" icon="download" :title="t('interview.download_file')" @click="onDownloadFile(file)" />
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
         <q-card-section>
           <div class="bg-black text-white q-pa-md">
             <pre>{{ modelDataStr }}</pre>
@@ -362,6 +376,8 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { interviewService } from '../../services/interview'
+import { formRevisionService, formService } from '../../services/form'
+import { downloadFile, fileRefs } from '@/services/utils/files'
 import { date, Notify } from 'quasar'
 import { useInterviewStore } from '@/stores/interview'
 import { useStudyStore } from '@/stores/study'
@@ -384,6 +400,8 @@ const fromDate = ref('')
 const toDate = ref('')
 const maximizedToggle = ref(false)
 const modelData = ref({})
+const interviewFiles = ref([])
+let interviewFilesToken = 0
 const selectedInterview = ref({})
 const selectedFillingDate = ref(null)
 const showInterview = ref(false)
@@ -612,6 +630,42 @@ function onShow (studyInterview) {
   })
   modelData.value.participant = studyInterview.data
   maximizedToggle.value = false
+  // the files of the steps, found with the controls of their form, in the order of the steps
+  const token = ++interviewFilesToken
+  interviewFiles.value = []
+  Promise.all(studyInterview.steps.filter(step => step.form && step.data).map(step =>
+    getStepSchema(step.form, step.revision)
+      .then(schema => fileRefs(schema, step.data).map(ref => ({ ...ref, step: step.name })))
+      .catch(err => {
+        console.error(err)
+        return []
+      })
+  )).then(files => {
+    if (token === interviewFilesToken) interviewFiles.value = files.flat()
+  })
+}
+
+// the schema of a form revision, or of the form when not found (as the server does), cached by revision
+const stepSchemas = {}
+function getStepSchema (form, revision) {
+  const key = `${form}:${revision}`
+  if (!revision || !stepSchemas[key]) {
+    const schema = formRevisionService.getFormRevision(form, revision)
+      .then(res => res.total > 0 ? res.data[0].schema : formService.getForm(form).then(f => f.schema))
+    if (!revision) return schema
+    stepSchemas[key] = schema.catch(err => {
+      delete stepSchemas[key]
+      throw err
+    })
+  }
+  return stepSchemas[key]
+}
+
+function onDownloadFile (file) {
+  downloadFile(file).catch(err => {
+    console.error(err)
+    Notify.create({ message: err.message, color: 'negative' })
+  })
 }
 
 function onShowEditFillingDate (studyInterview) {

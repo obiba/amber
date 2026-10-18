@@ -131,6 +131,8 @@ module.exports = (async () => {
       }
     },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    // the name of a downloaded file
+    exposedHeaders: ['Content-Disposition'],
     credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204,

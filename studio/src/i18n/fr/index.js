@@ -197,6 +197,8 @@ export default {
       completed: 'Complété'
     },
     export_case_reports_hint: 'Exporter les rapports de cas',
+    case_report_files_remove_unsupported: 'Des fichiers ne peuvent pas être retirés d\'un rapport de cas enregistré.',
+    case_report_files_upload_unsupported: 'Des fichiers ne peuvent pas être ajoutés à un rapport de cas enregistré.',
     all_forms: '(tous)',
     designs: 'Conceptions',
     interview_design: 'Conception d\'entrevue',
@@ -584,6 +586,8 @@ export default {
     tag_comment_hint: 'Commentaire optionnel à propos des changements dans le formulaire.'
   },
   interview: {
+    files: 'Fichiers',
+    download_file: 'Télécharger le fichier',
     design: 'Conception',
     steps: 'Étapes',
     campaigns: 'Campagnes',

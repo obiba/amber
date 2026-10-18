@@ -226,7 +226,7 @@
                 </q-list>
               </q-btn-dropdown>
               <q-separator  class="q-mt-md"/>
-              <AmberForm :key='remountCounter' :schema='selectedFormRevision.schema' v-model='modelData' :locale='locale' debug/>
+              <AmberForm :key='remountCounter' :schema='selectedFormRevision.schema' v-model='modelData' :locale='locale' :file-upload='fileUpload' :readonly='isReadOnly' debug/>
             </q-tab-panel>
 
             <q-tab-panel name="data" class="q-pl-none q-pr-none">
@@ -327,8 +327,16 @@ import { useCaseReportStore } from '@/stores/caseReport'
 import { useStudyStore } from '@/stores/study'
 import { useFormStore } from '@/stores/form'
 import { AmberForm } from '@obiba/quasar-ui-amber'
+import { downloadFile, fileRefs } from '@/services/utils/files'
 
 const { t } = useI18n()
+
+// the files of a case report are downloaded with the user token; they are attached on its creation only,
+// and cannot be removed (the stored files would no longer be referenced)
+const fileUpload = {
+  upload: async () => { throw new Error(t('study.case_report_files_upload_unsupported')) },
+  download: downloadFile
+}
 const route = useRoute()
 const { isReadOnly } = useAuth()
 const caseReportStore = useCaseReportStore()
@@ -337,6 +345,7 @@ const formStore = useFormStore()
 
 // Refs
 const remountCounter = ref(0)
+const caseReportFileIds = ref([])
 const showTab = ref('form')
 const locale = ref('en')
 const selected = ref([])
@@ -507,11 +516,17 @@ function onShow (studyCaseReport) {
     .then(res => {
       selectedFormRevision.value = res.data[0]
       modelData.value = studyCaseReport.data
+      caseReportFileIds.value = fileRefs(selectedFormRevision.value?.schema, studyCaseReport.data).map(ref => ref.id)
       remountCounter.value++
     })
 }
 
 function onSave () {
+  const ids = fileRefs(selectedFormRevision.value?.schema, modelData.value).map(ref => ref.id)
+  if (caseReportFileIds.value.some(id => !ids.includes(id))) {
+    Notify.create({ message: t('study.case_report_files_remove_unsupported'), color: 'negative' })
+    return
+  }
   const updatedData = { ...modelData.value }
   caseReportStore.updateCaseReport(
     { data: updatedData },
