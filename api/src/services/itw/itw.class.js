@@ -1,6 +1,8 @@
 const { BadRequest } = require('@feathersjs/errors');
 const { ItwBase } = require('../../utils/itw');
 const { checkStepsFiles, syncStepsFiles } = require('../../utils/files');
+const interviewEncrypt = require('../../hooks/interview-encrypt');
+const interviewDecrypt = require('../../hooks/interview-decrypt');
 
 /**
  * Get or create the interview for the requesting participant (either by the
@@ -98,8 +100,12 @@ exports.Itw = class Itw extends ItwBase {
     }
 
     params.query = {};
-    // internal call - bypass authorization hooks
-    const interviewUpdated = await itwService._patch(interview._id, patched, params);
+    // internal call - bypass authorization hooks, but not the encryption ones
+    await interviewEncrypt()({ app: this.app, data: patched });
+    const { result: interviewUpdated } = await interviewDecrypt()({
+      app: this.app,
+      result: await itwService._patch(interview._id, patched, params)
+    });
     await syncStepsFiles(this.app, interviewUpdated, stepsFileIds);
     return this.digestInterview(interviewUpdated);
   }

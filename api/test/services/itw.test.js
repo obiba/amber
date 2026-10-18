@@ -259,6 +259,26 @@ describe('\'itw\' service', () => {
   });
 
   describe('patch', () => {
+    it('should encrypt the steps data when data encryption is enabled', async () => {
+      const get = mockApp.get;
+      mockApp.get = (key) => key === 'encrypt_data' ? true : (key === 'crypto' ? app.get('crypto') : get(key));
+      let saved;
+      const _patch = mockServices.interview._patch;
+      mockServices.interview._patch = async (id, data) => {
+        saved = JSON.parse(JSON.stringify(data));
+        return _patch(id, data);
+      };
+
+      const result = await service.patch(null, {
+        steps: [{ name: 'step2', form: 'form2', revision: 1, state: 'completed', data: { field2: 'value2' } }]
+      }, { participant: { _id: 'p1', code: 'P001', campaign: 'camp1', interviewDesign: 'itwd1' }, query: {} });
+
+      assert.ok(saved.steps.every(step => step.data.__value));
+      assert.ok(!JSON.stringify(saved).includes('value2'));
+      assert.deepStrictEqual(result.steps.find(step => step.name === 'step2').data, { field2: 'value2' });
+      assert.deepStrictEqual(result.steps.find(step => step.name === 'step1').data, { field1: 'value1' });
+    });
+
     it('should update interview steps', async () => {
       const params = {
         participant: {
