@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { secureStorage } from './index'
 import caseReportService from '../services/record'
+import { fileQueue } from '../services/record/files'
 import { t } from '../boot/i18n'
 import { Notify } from 'quasar'
 
@@ -61,6 +62,11 @@ export const useRecordStore = defineStore('record', () => {
   }
 
   async function deleteCaseReport (payload) {
+    const record = caseReports.value.filter(rec => rec.id === payload.id).pop()
+    if (record && record.data) {
+      // the queued files of the record
+      await fileQueue.clear(record.data).catch(err => console.error(err))
+    }
     caseReports.value = caseReports.value.filter(rec => rec.id !== payload.id)
     delete caseReportsInProcess.value[payload.id]
     delete caseReportsInError.value[payload.id]
@@ -169,7 +175,8 @@ export const useRecordStore = defineStore('record', () => {
     const result = await caseReportService
       .saveCaseReport(caseReport)
       .catch(err => {
-        const errorCode = err.code
+        // an HTTP status: a network error (feathers client or file upload) has a string code (ERR_NETWORK...)
+        const errorCode = typeof err.code === 'number' ? err.code : undefined
         if (!payload.silent) {
           if (errorCode) {
             console.error(err)

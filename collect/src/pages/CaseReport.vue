@@ -33,7 +33,7 @@
             <div class="col-md-6 col-sm-8 col-xs-12 q-mt-sm q-mb-sm">
               <div>
                 <AmberForm ref="form" :key="remountCounter" :schema="crf.schema" v-model="formData" :locale="currentLocale"
-                  :page="isMulti() ? formData.__step : undefined" :lang="lang" apply-defaults @update:model-value="onFormDataUpdated" />
+                  :page="isMulti() ? formData.__step : undefined" :lang="lang" :file-upload="fileQueue.fileUpload" apply-defaults @update:model-value="onFormDataUpdated" />
               </div>
               <!--div class="bg-black text-white q-mt-lg q-pa-md">
                 <pre>{{ JSON.stringify(formData, null, '  ') }}</pre>
@@ -111,6 +111,7 @@ import { t } from '../boot/i18n'
 import { settings } from '../boot/settings'
 import { useRecordStore } from '../stores/record'
 import { useFormStore } from '../stores/form'
+import { fileQueue } from '../services/record/files'
 
 const { getScrollTarget, setVerticalScrollPosition } = scroll
 
