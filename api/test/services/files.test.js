@@ -113,6 +113,36 @@ describe('\'files\' service', () => {
     assert.deepStrictEqual(fileIds({ items: [] }, { doc: 'a' }), []);
   });
 
+  it('finds the file ids of the object and UI option file controls', () => {
+    const objSchema = {
+      schema: {
+        type: 'object',
+        properties: {
+          a: { type: 'object', format: 'files' },
+          b: { type: 'object', format: 'obibaFiles' },
+          c: { type: 'object' },
+          d: { type: 'array' }
+        }
+      },
+      uischema: {
+        type: 'VerticalLayout',
+        elements: [
+          { type: 'Control', scope: '#/properties/a' },
+          { type: 'Control', scope: '#/properties/b' },
+          { type: 'Control', scope: '#/properties/c', options: { format: 'files', itemsKey: 'docs' } },
+          { type: 'Control', scope: '#/properties/d', options: { format: 'files' } }
+        ]
+      }
+    };
+    const ids = fileIds(objSchema, {
+      a: { files: [{ id: 'a1' }] },
+      b: { obibaFiles: [{ id: 'b1' }, { id: 'b2' }] },
+      c: { docs: [{ id: 'c1' }], files: [{ id: 'x' }] },
+      d: [{ id: 'd1' }]
+    });
+    assert.deepStrictEqual(ids, ['a1', 'b1', 'b2', 'c1', 'd1']);
+  });
+
   describe('upload', () => {
     it('stores a pending file, accessible by the uploader only', async () => {
       const ref = await upload(as(emails[1]));
@@ -184,6 +214,30 @@ describe('\'files\' service', () => {
       const cr = await createCaseReport(emails[1], { doc: doc.id });
       await assert.rejects(createCaseReport(emails[1], { doc: doc.id }), { name: 'BadRequest' });
       await app.service('case-report').remove(cr._id, as(emails[0]));
+    });
+
+    it('keeps the replaced case report when the new one is rejected', async () => {
+      const admin = as(emails[0]);
+      await app.service('case-report-form').patch(crf._id, { repeatPolicy: 'single_update' }, admin);
+      try {
+        const doc = await upload(as(emails[1]));
+        const cr = await createCaseReport(emails[1], { doc: doc.id });
+        const crData = { _id: cr.data._id };
+        // a file of another user: rejected, the case report and its file are kept
+        const foreign = await upload(as(emails[2]));
+        await assert.rejects(createCaseReport(emails[1], { ...crData, doc: foreign.id }), { name: 'BadRequest' });
+        assert.ok(await app.service('case-report').get(cr._id, admin));
+        assert.strictEqual(await exists(doc.id), true);
+        // replaced: the old case report and its file are removed
+        const doc2 = await upload(as(emails[1]));
+        const cr2 = await createCaseReport(emails[1], { ...crData, doc: doc2.id });
+        await assert.rejects(app.service('case-report').get(cr._id, admin), { name: 'NotFound' });
+        assert.strictEqual(await exists(doc.id), false);
+        assert.strictEqual((await getFile(app, doc2.id)).metadata.state, 'attached');
+        await app.service('case-report').remove(cr2._id, admin);
+      } finally {
+        await app.service('case-report-form').patch(crf._id, { repeatPolicy: 'multiple' }, admin);
+      }
     });
   });
 

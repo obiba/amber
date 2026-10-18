@@ -2,9 +2,21 @@
 // For more information on hooks see: http://docs.feathersjs.com/api/hooks.html
 const { BadRequest } = require('@feathersjs/errors');
 
+/**
+ * Before create: set the case report form info, and apply its repeat policy.
+ * After create: remove the case report replaced by the new one (`single_replace` policy),
+ * so that it is kept when the creation fails.
+ */
 // eslint-disable-next-line no-unused-vars
 module.exports = (options = {}) => {
   return async context => {
+    const crService = context.app.service('case-report');
+    if (context.type === 'after') {
+      if (context.params.replacedCaseReport) {
+        await crService.remove(context.params.replacedCaseReport);
+      }
+      return context;
+    }
     // Get CRF
     if (context.data.crfId) {
       const crfService = context.app.service('case-report-form');
@@ -14,7 +26,6 @@ module.exports = (options = {}) => {
       context.data.form = crf.form;
       const policy = crf.repeatPolicy ? crf.repeatPolicy : 'multiple';
       if (policy !== 'multiple') {
-        const crService = context.app.service('case-report');
         const crs = await crService.find({
           query: {
             $limit: 1,
@@ -26,7 +37,7 @@ module.exports = (options = {}) => {
           if (policy === 'single_reject') {
             throw new BadRequest('There is already a Case Report with ID ' + context.data.data._id);
           } else {
-            await crService.remove(crs.data[0]._id);
+            context.params.replacedCaseReport = crs.data[0]._id;
           }
         }
       }

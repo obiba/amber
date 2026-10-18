@@ -115,25 +115,53 @@ const deletePendingFiles = async (app) => {
   });
 };
 
-const collectIds = (prop, value, ids) => {
+const FILE_FORMATS = ['file', 'files', 'obibaFiles'];
+
+/** the options of the UI schema controls, by scope */
+const controlOptions = (element, rval = {}) => {
+  if (element && typeof element === 'object') {
+    if (typeof element.scope === 'string') rval[element.scope] = element.options || {};
+    (element.elements || []).forEach(child => controlOptions(child, rval));
+  }
+  return rval;
+};
+
+/** the file control format of a property, from its schema or its UI options */
+const fileFormat = (prop, opts = {}) => [prop.format, opts.format].find(f => FILE_FORMATS.includes(f));
+
+/** the property of an object value that holds the list of file references */
+const fileItemsKey = (format, opts = {}) => opts.itemsKey || (format === 'obibaFiles' ? 'obibaFiles' : 'files');
+
+/**
+ * The ids of a file control value, as stored by the file upload renderer: a file id,
+ * a list of file references, or an object holding this list in its `itemsKey` property.
+ */
+const fileRefIds = (value, itemsKey) => {
+  const list = value && typeof value === 'object' && !Array.isArray(value) && !value.id ? value[itemsKey] : value;
+  return [].concat(list || []).map(f => f && typeof f === 'object' ? f.id : f).filter(id => id).map(String);
+};
+
+const collectIds = (prop, value, ids, scope, options) => {
   if (!prop || value === undefined || value === null) return ids;
-  if (prop.format === 'file') {
-    if (typeof value === 'string') ids.push(value);
-  } else if (prop.format === 'files') {
-    [].concat(value).forEach(item => item && item.id && ids.push(String(item.id)));
+  const opts = options[scope] || {};
+  const format = fileFormat(prop, opts);
+  if (format) {
+    ids.push(...fileRefIds(value, fileItemsKey(format, opts)));
   } else if (Array.isArray(value)) {
-    value.forEach(item => collectIds(prop.items, item, ids));
+    value.forEach(item => collectIds(prop.items, item, ids, undefined, options));
   } else if (typeof value === 'object' && prop.properties) {
-    Object.entries(prop.properties).forEach(([name, p]) => collectIds(p, value[name], ids));
+    Object.entries(prop.properties).forEach(([name, p]) => collectIds(p, value[name], ids, `${scope}/properties/${name}`, options));
   }
   return ids;
 };
 
 /**
  * The ids of the files referenced by the data, found with the file controls
- * (`format: file|files`) of a JSON Forms form schema.
+ * (`format: file|files|obibaFiles`, in the schema or the UI options) of a JSON Forms form schema.
  */
-const fileIds = (schema, data) => schema && schema.uischema ? collectIds(schema.schema, data, []) : [];
+const fileIds = (schema, data) => schema && schema.uischema
+  ? collectIds(schema.schema, data, [], '#', controlOptions(schema.uischema))
+  : [];
 
 /** the schema of a form revision, or of the form when not found */
 const getFormSchema = async (app, form, revision) => {
@@ -230,6 +258,10 @@ module.exports = {
   deleteFiles,
   deleteRecordFiles,
   deletePendingFiles,
+  controlOptions,
+  fileFormat,
+  fileItemsKey,
+  fileRefIds,
   fileIds,
   getFormSchema,
   checkFiles,

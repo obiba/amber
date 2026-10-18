@@ -1,27 +1,20 @@
 /* eslint-disable no-unused-vars */
 const { BadRequest } = require('@feathersjs/errors');
-const { getFiles } = require('./files');
-
-/** the options of the UI schema controls, by scope */
-const controlOptions = (element, rval = {}) => {
-  if (element && typeof element === 'object') {
-    if (typeof element.scope === 'string') rval[element.scope] = element.options || {};
-    (element.elements || []).forEach(child => controlOptions(child, rval));
-  }
-  return rval;
-};
+const { getFiles, controlOptions, fileFormat, fileItemsKey, fileRefIds } = require('./files');
 
 /** a JSON schema property as a legacy Amber item, for the data dictionary */
 const toItem = (name, property, scope, options) => {
   const many = property.type === 'array' && property.items && typeof property.items === 'object';
   const prop = many ? property.items : property;
   const item = { name, label: property.title, description: property.description };
-  if (property.format === 'file' || property.format === 'files') {
+  const format = fileFormat(property, options[scope]);
+  if (format) {
     // a file reference (or a list of them)
     const opts = options[scope] || {};
     const accept = opts.accept || opts.acceptedFileTypes;
     item.type = 'file';
-    if (property.format === 'files') item.multiple = true;
+    item.itemsKey = fileItemsKey(format, opts);
+    if (format !== 'file') item.multiple = true;
     if (accept) item.accept = [].concat(accept).join(',');
     return item;
   }
@@ -268,7 +261,7 @@ exports.FormDataExport = class FormDataExport {
           });
         } else if (item.type === 'file') {
           rval[item.name] = {
-            __files: [].concat(data[item.name] || []).map(f => f && typeof f === 'object' ? f.id : f).filter(id => id),
+            __files: fileRefIds(data[item.name], item.itemsKey),
             multiple: item.multiple === true
           };
         } else {

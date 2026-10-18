@@ -62,7 +62,7 @@ module.exports = {
     ],
     find: [caseReportDecrypt()],
     get: [caseReportDecrypt()],
-    create: [caseReportFiles()],
+    create: [caseReportFiles(), caseReportCreate()],
     update: [],
     patch: [],
     remove: [caseReportFiles()]
