@@ -32,10 +32,30 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
+import { LocalStorage } from 'quasar'
 import { settings } from '../boot/settings'
+import { useAuthStore } from '../stores/auth'
 
 const { t } = useI18n()
+const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
+
+// Token could be not expired but also still not valid, then reauth.
+// Done here (not in the router guard) so that landing directly on /loading
+// (page refresh, history back) does not leave the app stuck.
+onMounted(() => {
+  authStore.reAuthenticate().then(() => {
+    router.replace(route.query.redirect || '/')
+  }).catch(() => {
+    // Remove expired/unusable token
+    LocalStorage.remove('feathers-jwt')
+    router.replace('/login')
+  })
+})
 </script>
 
 <style>

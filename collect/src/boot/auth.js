@@ -43,11 +43,12 @@ export default defineBoot(async ({ router }) => {
           next()
         }
       } else if (LocalStorage.getItem('feathers-jwt')) {
-        if (recordStore.user) {
-          next()
-        } else {
-          next('/loading')
+        if (!recordStore.user) {
+          // Loading page reauthenticates and redirects back
+          next({ path: '/loading', query: { redirect: to.fullPath } })
+          return
         }
+        next()
         // could be not expired but also still not valid, then reauth
         feathersClient.reAuthenticate().then((response) => {
           // show application page
@@ -62,16 +63,10 @@ export default defineBoot(async ({ router }) => {
             LocalStorage.remove('feathers-jwt')
             router.push('/login')
           } else {
-            // network cannot be reached, go to login screen
-            if (!recordStore.user) {
-              router.push('/login')
-            } else {
-              Notify.create({
-                message: t('error.network_error'),
-                color: 'negative'
-              })
-              // router.push('/')
-            }
+            Notify.create({
+              message: t('error.network_error'),
+              color: 'negative'
+            })
           }
         })
       } else if (to.path !== '/login') {

@@ -1,7 +1,6 @@
 import { defineBoot } from '#q-app'
 import { LocalStorage, Notify } from 'quasar'
 import { useAuthStore } from '../stores/auth'
-import { feathersClient } from './feathersClient'
 
 export default defineBoot(async ({ router, app }) => {
   router.beforeEach((to, from, next) => {
@@ -29,16 +28,8 @@ export default defineBoot(async ({ router, app }) => {
           next()
         }
       } else if (LocalStorage.getItem('feathers-jwt')) {
-        next('/loading')
-        // Could be not expired but also still not valid, then reauth
-        feathersClient.reAuthenticate().then((response) => {
-          authStore.responseHandler(response)
-          router.push(to.path)
-        }).catch(() => {
-          // Remove expired/unusable token
-          LocalStorage.remove('feathers-jwt')
-          router.push('/login')
-        })
+        // Loading page reauthenticates and redirects back
+        next({ path: '/loading', query: { redirect: to.fullPath } })
       } else if (to.path !== '/login') {
         next('/login')
       } else {

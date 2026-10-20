@@ -32,7 +32,37 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { LocalStorage } from 'quasar'
 import { settings } from '../boot/settings'
+import { feathersClient } from '../boot/feathersClient'
+import { useAuthStore } from '../stores/auth'
+import { useRecordStore } from '../stores/record'
+
+const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
+const recordStore = useRecordStore()
+
+// Token could be not expired but also still not valid, then reauth.
+// Done here (not in the router guard) so that landing directly on /loading
+// (page refresh, history back) does not leave the app stuck.
+onMounted(() => {
+  feathersClient.reAuthenticate().then((response) => {
+    authStore.responseHandler(response)
+    // update user identity associated to records
+    recordStore.initUser(response.user)
+    router.replace(route.query.redirect || '/')
+  }).catch((err) => {
+    console.error(err)
+    if (err.response) {
+      // remove expired/unusable token
+      LocalStorage.remove('feathers-jwt')
+    }
+    router.replace('/login')
+  })
+})
 </script>
 
 <style>
