@@ -8,6 +8,7 @@ services:
       - "3030:3030"
     depends_on:
       - mongo
+      - mailpit
     environment:
       - APP_NAME=${APP_NAME:-Amber}
       - APP_URL=http://localhost:3030
@@ -24,6 +25,10 @@ services:
       - RECAPTCHA_SECRET_KEY=${RECAPTCHA_SECRET_KEY:-}
       - BREVO_API_KEY=${BREVO_API_KEY:-}
       - FROM_EMAIL=${FROM_EMAIL:-}
+      # used when BREVO_API_KEY is empty; defaults to the mailpit test inbox
+      - SMTP_HOST=${SMTP_HOST:-mailpit}
+      - SMTP_PORT=${SMTP_PORT:-1025}
+      - SMTP_SECURE=${SMTP_SECURE:-false}
       - LOG_LEVEL=${LOG_LEVEL:-info}
 
   studio:
@@ -53,6 +58,14 @@ services:
       - "${MONGO_PORT:-27017}:27017"
     volumes:
       - mongo-data:/data/db
+
+  # Test inbox: catches all outgoing emails, web UI at http://localhost:8025
+  # (from `npm run dev`, use SMTP_HOST=localhost SMTP_PORT=1025)
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - "${MAILPIT_UI_PORT:-8025}:8025"
+      - "${MAILPIT_SMTP_PORT:-1025}:1025"
 
 volumes:
   mongo-data:
