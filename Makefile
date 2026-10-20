@@ -33,3 +33,19 @@ logs:
 	docker compose logs -f
 
 .PHONY: up down logs
+
+# Mailpit test inbox only (web UI at http://localhost:8025, SMTP on localhost:1025)
+mailpit-up:
+	docker compose up -d mailpit
+
+mailpit-down:
+	docker compose rm -sf mailpit
+
+mailpit-logs:
+	docker compose logs -f mailpit
+
+# Delete all caught emails
+mailpit-clear:
+	curl -fsS -X DELETE http://localhost:$${MAILPIT_UI_PORT:-8025}/api/v1/messages
+
+.PHONY: mailpit-up mailpit-down mailpit-logs mailpit-clear
