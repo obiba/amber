@@ -714,6 +714,8 @@ export default {
   save: 'Sauvegarder',
   saving: 'Sauvegarde en cours...',
   save_done: 'Toutes les modifications ont été sauvegardées',
+  saved_ago: 'Sauvegardé {ago}',
+  just_now: 'à l\'instant',
   edit_settings: 'Éditer les paramètres',
   reinstate: 'Rétablir',
   export: 'Exporter',

@@ -38,6 +38,7 @@
           dense
           round>
         </q-btn>
+        <span v-if="!isReadOnly && savedAgo" class="self-center text-caption text-grey-7 q-ml-xs">{{ savedAgo }}</span>
       </div>
       <div class="text-body2 text-secondary q-mb-sm">
         <span v-html="t('study.form_hint')"/>
@@ -297,6 +298,7 @@
 import { ref, computed, toRaw, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useSavedAgo } from '@/composables/useSavedAgo'
 import useVuelidate from '@vuelidate/core'
 import { required, minLength, maxLength } from '../boot/vuelidate'
 import { useFormStore } from '@/stores/form'
@@ -314,6 +316,7 @@ import { settings } from '@/boot/settings'
 import { createPreviewFileUpload } from '@/services/utils/files'
 
 const { t } = useI18n()
+const { savedAgo, markSaved } = useSavedAgo()
 
 // the preview of the file controls does not upload the files
 const previewFileUpload = createPreviewFileUpload()
@@ -389,6 +392,7 @@ async function initStudyFormData () {
   studyFormData.value = JSON.parse(JSON.stringify(studyForm.value))
   generateIds(studyFormData.value.schema.items)
   originalSchemaStr.value = JSON.stringify(studyFormData.value.schema)
+  markSaved(studyForm.value.updatedAt)
   await studyStore.getStudy(studyForm.value.study)
 }
 
@@ -399,6 +403,7 @@ async function save (notification) {
   const toSave = toRaw(studyFormData.value)
   return formStore.updateForm(toSave, undefined, notification).then(() => {
     changeDetected.value = 0
+    markSaved()
   })
 }
 

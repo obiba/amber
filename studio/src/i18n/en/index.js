@@ -711,6 +711,8 @@ export default {
   save: 'Save',
   saving: 'Saving...',
   save_done: 'All changes saved',
+  saved_ago: 'Saved {ago}',
+  just_now: 'just now',
   edit_settings: 'Edit settings',
   reinstate: 'Reinstate',
   export: 'Export',

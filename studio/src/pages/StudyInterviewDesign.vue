@@ -36,6 +36,7 @@
           dense
           round>
         </q-btn>
+        <span v-if="!isReadOnly && savedAgo" class="self-center text-caption text-grey-7 q-ml-xs">{{ savedAgo }}</span>
       </div>
       <div class="text-body2 text-secondary q-mb-sm">
         <span v-html="t('study.interview_designs_hint')"/>
@@ -215,6 +216,7 @@
 import { ref, reactive, computed, toRaw, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useSavedAgo } from '@/composables/useSavedAgo'
 import useVuelidate from '@vuelidate/core'
 import { required, minLength, maxLength } from '../boot/vuelidate'
 import InterviewDesignSteps from '@/components/interviews/InterviewDesignSteps.vue'
@@ -228,6 +230,7 @@ import { useAuth } from '@/composables/useAuth'
 import { settings } from '@/boot/settings'
 
 const { t } = useI18n()
+const { savedAgo, markSaved } = useSavedAgo()
 
 const route = useRoute()
 const interviewStore = useInterviewStore()
@@ -285,6 +288,7 @@ async function initStudyInterviewDesignData () {
   await interviewStore.getInterviewDesign(route.params.itwid)
   interviewDesignData.value = JSON.parse(JSON.stringify(interviewDesign.value))
   initOriginalInterviewDesign()
+  markSaved(interviewDesign.value.updatedAt)
   await studyStore.getStudy(interviewDesign.value.study)
 }
 
@@ -300,6 +304,7 @@ async function save (notification, interviewDesignArg) {
   return interviewStore.updateInterviewDesign(toSave, undefined, undefined, notification).then(() => {
     initOriginalInterviewDesign()
     changeDetected.value = 0
+    markSaved()
   })
 }
 
