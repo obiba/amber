@@ -66,6 +66,7 @@ a.q-btn {
   border: 1px solid $border;
   border-radius: 6px;
   font-size: larger;
+  line-height: 1.75rem;
   .q-input-field {
     // the card is drawn behind the content, inset by the gutter of a
     // `q-col-gutter-*` row: Quasar makes the gutter with the padding of the
@@ -102,7 +103,6 @@ a.q-btn {
   .q-form-description {
     margin-top: 1rem;
     margin-bottom: 1rem;
-    line-height: 1.5rem;
   }
 }
 

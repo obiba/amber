@@ -92,6 +92,7 @@ pre {
 }
 
 .q-builder-preview .json-form-wrapper, .amber-form.json-form-wrapper {
+  line-height: 1.75rem;
   .q-input-field {
     // the card is drawn behind the content, inset by the gutter of a
     // `q-col-gutter-*` row: Quasar makes the gutter with the padding of the
