@@ -18,8 +18,8 @@ server {
         sub_filter_types application/javascript text/css;
     }
 
-    # runtime config files: always revalidated, so that modifications apply to new app instances
-    location ~ ^/(settings\.json|env\.js)$ {
+    # runtime config and branding files: always revalidated, so that modifications apply to new app instances
+    location ~ ^/(settings\.json|env\.js|favicon\.(ico|svg)|apple-touch-icon\.png|manifest\.json|icons/[^/]+)$ {
         root   /usr/share/nginx/html;
         add_header Cache-Control "no-cache";
     }

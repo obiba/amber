@@ -219,6 +219,20 @@ h1, h2, h3, .text-h1, .text-h2, .text-h3, .text-h4, .text-h5, .text-h6,
   width: 64px;
 }
 
+// the host organization logo (settings.theme.logo), whatever its size
+.brand-logo {
+  height: 28px;
+  width: auto;
+  max-width: 160px;
+  object-fit: contain;
+}
+
+.banner-logo {
+  max-height: 120px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
 // Buttons: sentence case, flat
 .q-btn {
   text-transform: none;

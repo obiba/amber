@@ -145,12 +145,17 @@ export default defineConfig(function (ctx) {
           cleanupOutdatedCaches: true,
           skipWaiting: true,
           clientsClaim: true,
-          // runtime config files are fetched from the network first, so that they can be modified after build
-          globIgnores: [...(cfg.globIgnores || []), "**/settings.json", "**/env.js"],
+          // runtime config and branding files are fetched from the network first, so that they can be replaced after build
+          globIgnores: [...(cfg.globIgnores || []), "**/settings.json", "**/env.js", "**/favicon.*", "**/apple-touch-icon.png", "**/manifest.json", "**/icons/**"],
           runtimeCaching: [{
-            urlPattern: ({ url }) => /\/(settings\.json|env\.js)$/.test(url.pathname),
+            urlPattern: ({ url }) => /\/(settings\.json|env\.js|favicon\.(ico|svg)|apple-touch-icon\.png|manifest\.json|icons\/[^/]+)$/.test(url.pathname),
             handler: "NetworkFirst",
             options: { cacheName: "runtime-config", networkTimeoutSeconds: 3 }
+          }, {
+            // the logo of the settings (any other same-origin image), cached for offline use
+            urlPattern: ({ request, sameOrigin }) => sameOrigin && request.destination === "image",
+            handler: "NetworkFirst",
+            options: { cacheName: "runtime-images", networkTimeoutSeconds: 3 }
           }],
         });
       },

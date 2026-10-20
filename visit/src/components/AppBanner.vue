@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="col text-center q-mb-md">
-      <img :src="settings.theme.logo || amberMark" :class="settings.theme.logo ? '' : 'banner-mark'" alt="" />
+      <img :src="settings.theme.logo || amberMark" :class="settings.theme.logo ? 'banner-logo' : 'banner-mark'" alt="" />
     </div>
     <div class="col text-center q-mb-lg">
       <div v-if="$t('login.brand')" class="text-h6">

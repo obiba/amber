@@ -55,6 +55,20 @@ a {
   width: 64px;
 }
 
+// the host organization logo (settings.theme.logo), whatever its size
+.brand-logo {
+  height: 28px;
+  width: auto;
+  max-width: 160px;
+  object-fit: contain;
+}
+
+.banner-logo {
+  max-height: 120px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
 a.q-btn {
   line-height: 2em;
 }

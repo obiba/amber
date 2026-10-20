@@ -12,7 +12,7 @@
         />
 
         <q-toolbar-title class="row items-center no-wrap">
-          <img :src="amberMark" alt="" class="brand-mark q-mr-sm" />
+          <img :src="settings.theme.logo || amberMark" alt="" :class="settings.theme.logo ? 'brand-logo' : 'brand-mark'" class="q-mr-sm" />
           <span :style="$q.screen.lt.sm?{'font-size': 'smaller'}:{}">
             {{$t('main.brand')}}
           </span>
