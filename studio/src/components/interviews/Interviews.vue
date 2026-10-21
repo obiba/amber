@@ -276,7 +276,24 @@
                 </q-list>
               </q-btn-dropdown>
               <div v-for="step in interviewSteps" :key="step.name" class="q-mt-md">
-                <div class="text-h6">{{ step.name }}</div>
+                <div class="text-h6">
+                  {{ step.name }}
+                  <span v-if="step.duration" class="text-caption text-grey-7 q-ml-sm" :title="t('interview.duration')">
+                    <q-icon name="schedule" /> {{ formatDuration(step.duration.total) }}
+                  </span>
+                  <a v-if="Object.keys(step.duration?.pages || {}).length > 0" class="text-caption text-primary cursor-pointer q-ml-sm">
+                    {{ t('interview.duration_details') }}
+                    <q-menu>
+                      <q-list dense class="q-py-xs">
+                        <q-item-label header class="q-py-xs">{{ t('interview.duration_pages') }}</q-item-label>
+                        <q-item v-for="[page, ms] in Object.entries(step.duration.pages)" :key="page">
+                          <q-item-section>{{ t('interview.page', { page: Number(page) + 1 }) }}</q-item-section>
+                          <q-item-section side>{{ formatDuration(ms) }}</q-item-section>
+                        </q-item>
+                      </q-list>
+                    </q-menu>
+                  </a>
+                </div>
                 <q-separator class="q-mb-md"/>
                 <AmberForm :key="step.name + locale" :schema="step.schema" :model-value="step.data" :locale="locale" :file-upload="fileUpload" readonly />
               </div>
@@ -289,6 +306,22 @@
             </q-tab-panel>
 
             <q-tab-panel name="actions" class="q-pl-none q-pr-none">
+              <q-markup-table v-if="interviewDurations.length > 0" flat dense class="q-mb-md">
+                <thead>
+                  <tr>
+                    <th class="text-left">{{ t('interview.action_step') }}</th>
+                    <th class="text-left">{{ t('interview.duration') }}</th>
+                    <th class="text-left">{{ t('interview.duration_pages') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="step in interviewDurations" :key="step.name">
+                    <td>{{ step.name }}</td>
+                    <td>{{ formatDuration(step.duration.total) }}</td>
+                    <td>{{ Object.entries(step.duration.pages || {}).map(([page, ms]) => `${Number(page) + 1}: ${formatDuration(ms)}`).join(', ') }}</td>
+                  </tr>
+                </tbody>
+              </q-markup-table>
               <q-markup-table flat dense>
                 <thead>
                   <tr>
@@ -645,6 +678,17 @@ const interviewActions = computed(() => (selectedInterview.value.steps || [])
   .flatMap(step => (step.actions || []).map(action => ({ ...action, step: step.name })))
   .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)))
 
+// the time spent on the step pages
+const interviewDurations = computed(() => (selectedInterview.value.steps || []).filter(step => step.duration))
+
+function formatDuration (ms) {
+  const s = Math.round(ms / 1000)
+  return [[Math.floor(s / 3600), 'h'], [Math.floor(s / 60) % 60, 'min'], [s % 60, 's']]
+    .filter(([value]) => value > 0)
+    .map(([value, unit]) => `${value} ${unit}`)
+    .join(' ') || '0 s'
+}
+
 const modelDataStr = computed(() => JSON.stringify(modelData.value, null, '  '))
 
 // Methods
@@ -712,14 +756,17 @@ function onShow (studyInterview) {
   interviewSteps.value = []
   Promise.all(studyInterview.steps.filter(step => step.form && step.data).map(step =>
     getStepSchema(step.form, step.revision)
-      .then(schema => ({ name: step.name, schema, data: modelData.value[step.name] }))
+      .then(schema => ({ name: step.name, schema, data: modelData.value[step.name], duration: step.duration }))
       .catch(err => {
         console.error(err)
         return undefined
       })
   )).then(steps => {
     if (token !== interviewFilesToken) return
-    interviewSteps.value = steps.filter(step => step && step.schema)
+    // in the order of the interview design steps, if known, otherwise in the order of the saves
+    const names = (interviewDesigns.value.find(itwd => itwd._id === studyInterview.interviewDesign)?.steps || []).map(step => step.name)
+    const rank = (step) => names.includes(step.name) ? names.indexOf(step.name) : names.length
+    interviewSteps.value = steps.filter(step => step && step.schema).sort((a, b) => rank(a) - rank(b))
     interviewFiles.value = interviewSteps.value.flatMap(step => fileRefs(step.schema, step.data).map(ref => ({ ...ref, step: step.name })))
   })
 }

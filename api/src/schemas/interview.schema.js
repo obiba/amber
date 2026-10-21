@@ -14,12 +14,19 @@ const interviewActionSchema = Joi.object({
   timestamp: Joi.date()
 });
 
+// the time spent on the step page, in milliseconds: in total, and per form page in the multi-pages mode
+const interviewStepDurationSchema = Joi.object({
+  total: Joi.number().min(0).required(),
+  pages: Joi.object().pattern(/^\d+$/, Joi.number().min(0))
+});
+
 const interviewStepSchema = Joi.object({
   name: Joi.string().required(),
   form: objectId.required(),
   revision: Joi.number().integer().required(),
   state: Joi.string().valid(...stateEnums.interviewStep).default('in_progress'),
   actions: Joi.array().items(interviewActionSchema).default([]),
+  duration: interviewStepDurationSchema,
   data: Joi.object().default({})
 });
 
@@ -51,5 +58,6 @@ const interviewPatchSchema = Joi.object({
 
 module.exports = {
   interviewCreateSchema,
-  interviewPatchSchema
+  interviewPatchSchema,
+  interviewStepDurationSchema
 };

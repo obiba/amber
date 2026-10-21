@@ -25,6 +25,8 @@ export const useInterviewStore = defineStore(
     const fillingDate = ref(null); // the interview filling date
     let saving = Promise.resolve(); // the saves, one at a time
     const unsaved = new Set(); // the steps changed and not saved yet, besides the ones that could not be saved (tosave)
+    let clock = null; // the time being counted on the current step page: { name, start, page, multi }
+    let spent = null; // the time counted on a step page, not saved yet: { name, total, pages }
 
     // the files are uploaded with the participant credentials, or the interviewer token
     setFilesAuthHeaders(async () =>
@@ -391,6 +393,28 @@ export const useInterviewStore = defineStore(
     }
 
     /**
+     * Start counting the time spent on the current step page, when the browser tab is visible.
+     * @param {boolean} multi The multi-pages mode: the time is also counted per form page
+     */
+    function startClock(multi) {
+      stopClock();
+      if (!record.value || document.visibilityState === "hidden") return;
+      clock = { name: record.value.name, start: Date.now(), page: multi ? record.value.data.__page ?? 0 : undefined, multi };
+    }
+
+    /**
+     * Stop counting the time spent on the current step page, it is added to the step when saved.
+     */
+    function stopClock() {
+      if (!clock) return;
+      const ms = Date.now() - clock.start;
+      if (spent?.name !== clock.name) spent = { name: clock.name, total: 0, pages: {} };
+      spent.total += ms;
+      if (clock.page !== undefined) spent.pages[clock.page] = (spent.pages[clock.page] || 0) + ms;
+      clock = null;
+    }
+
+    /**
      * Save the interview with the provided state.
      * @param {string} state
      * @param {boolean} recording Keep on recording
@@ -406,6 +430,19 @@ export const useInterviewStore = defineStore(
         data: {},
       };
       if (paused) stepObj.paused = true;
+      // the total time spent on the step page (the total, not the time added, so that a step sent again is not counted twice)
+      const running = clock;
+      stopClock();
+      const duration = itw.value.steps?.find((step) => step.name === stepObj.name)?.duration;
+      stepObj.duration = { total: duration?.total || 0, pages: { ...duration?.pages } };
+      if (spent?.name === stepObj.name) {
+        stepObj.duration.total += spent.total;
+        for (const page in spent.pages) {
+          stepObj.duration.pages[page] = (stepObj.duration.pages[page] || 0) + spent.pages[page];
+        }
+      }
+      spent = null;
+      if (running && recording) startClock(running.multi);
       // exclude entries from other steps and participant data
       const excludedKeys = design.value.steps
         .filter((step) => step.name !== record.value.name)
@@ -525,6 +562,8 @@ export const useInterviewStore = defineStore(
         fillingDate.value = null;
         tosave.value = [];
         unsaved.clear();
+        clock = null;
+        spent = null;
         instructed.value = false;
         rendering.value = {};
       }
@@ -570,6 +609,8 @@ export const useInterviewStore = defineStore(
       intermediateRecord,
       pauseRecord,
       completeRecord,
+      startClock,
+      stopClock,
       getRecordStatus,
       savePendingRecords,
       reset,

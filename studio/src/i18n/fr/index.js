@@ -591,6 +591,10 @@ export default {
     actions: 'Actions',
     action_step: 'Étape',
     action_user: 'Utilisateur',
+    duration: 'Temps passé',
+    duration_pages: 'Temps passé par page',
+    duration_details: 'Détails',
+    page: 'Page {page}',
     action_types: {
       init: 'Démarré',
       pause: 'Mis en pause',

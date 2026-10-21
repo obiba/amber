@@ -3,6 +3,7 @@ const { ItwBase } = require('../../utils/itw');
 const { checkStepsFiles, syncStepsFiles } = require('../../utils/files');
 const interviewEncrypt = require('../../hooks/interview-encrypt');
 const interviewDecrypt = require('../../hooks/interview-decrypt');
+const { interviewStepDurationSchema } = require('../../schemas/interview.schema');
 
 /**
  * Get or create the interview for the requesting participant (either by the
@@ -53,8 +54,14 @@ exports.Itw = class Itw extends ItwBase {
         }
         // the actions are the step state changes: the intermediate saves are not recorded,
         // and a step sent again (e.g. retried after a lost response) is not completed twice
-        const { paused, ...saved } = step;
+        const { paused, duration, ...saved } = step;
         const prev = idx < 0 ? undefined : patched.steps[idx];
+        // the time spent is measured by the client, the previous one is kept if not valid
+        if (duration && !interviewStepDurationSchema.validate(duration).error) {
+          saved.duration = duration;
+        } else if (prev?.duration) {
+          saved.duration = prev.duration;
+        }
         const types = prev ? [] : ['init'];
         if (!saved.data) {
           if (prev) types.push('invalid');
@@ -166,6 +173,7 @@ exports.Itw = class Itw extends ItwBase {
         return {
           name: step.name,
           state: step.state,
+          duration: step.duration,
           data: step.data
         };
       })
