@@ -1,6 +1,6 @@
 const { resolve } = require('@feathersjs/schema');
 const { resolveQueryObjectId } = require('@feathersjs/mongodb');
-const { resolveObjectId, resolveStepsField, resolveCreatedBy, resolveUpdatedBy } = require('../../resolvers');
+const { resolveObjectId, resolveStepsField, resolveCreatedBy, resolveUpdatedBy, resolveQueryDate } = require('../../resolvers');
 
 /**
  * Resolver for interview create/update/patch data
@@ -28,7 +28,9 @@ const interviewQueryResolver = resolve({
   updatedBy: resolveQueryObjectId,
   campaign: resolveQueryObjectId,
   interviewDesign: resolveQueryObjectId,
-  study: resolveQueryObjectId
+  study: resolveQueryObjectId,
+  createdAt: resolveQueryDate,
+  updatedAt: resolveQueryDate
 });
 
 module.exports = {

@@ -162,8 +162,18 @@ const resolveInteger = async (value) => {
   return toInteger(value);
 };
 
+/**
+ * Date query value, or its range operators ($gte, $lte...): arrive as strings in a REST query
+ */
+const resolveQueryDate = async (value) => {
+  if (value === undefined || value === null) return value;
+  if (typeof value !== 'object') return new Date(value);
+  return Object.fromEntries(Object.entries(value).map(([op, v]) => [op, new Date(v)]));
+};
+
 module.exports = {
   resolve,
+  resolveQueryDate,
   resolveObjectId,
   resolveQueryObjectId,
   toObjectId,

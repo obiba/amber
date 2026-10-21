@@ -111,6 +111,9 @@ describe('\'api-key\' service', () => {
     const all = await exportTables(apiKey.key);
     assert.deepStrictEqual(Object.keys(all), [`${crfs[0].name}-1`]);
     assert.deepStrictEqual(await exportTables(apiKey.key, { study: studies[1]._id.toString() }), {});
+    // date range on the records update, as sent in a REST query
+    assert.deepStrictEqual(Object.keys(await exportTables(apiKey.key, { 'updatedAt[$gte]': new Date(Date.now() - 3600000).toISOString() })), [`${crfs[0].name}-1`]);
+    assert.deepStrictEqual(await exportTables(apiKey.key, { 'updatedAt[$gte]': new Date(Date.now() + 3600000).toISOString() }), {});
     const { data: found } = await axios.get(`${url}/study`, withKey(apiKey.key));
     assert.deepStrictEqual(found.data.map(s => String(s._id)), [String(studies[0]._id)]);
     const { data: crfFound } = await axios.get(`${url}/case-report-form`, withKey(apiKey.key));

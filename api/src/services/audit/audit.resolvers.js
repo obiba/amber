@@ -1,6 +1,6 @@
 const { resolve } = require('@feathersjs/schema');
 const { resolveQueryObjectId } = require('@feathersjs/mongodb');
-const { resolveObjectId } = require('../../resolvers');
+const { resolveObjectId, resolveQueryDate } = require('../../resolvers');
 
 /**
  * Resolver for audit create/update/patch data
@@ -9,14 +9,6 @@ const { resolveObjectId } = require('../../resolvers');
 const auditDataResolver = resolve({
   accessedBy: resolveObjectId
 });
-
-/**
- * Date range operators ($gte, $lte...) arrive as strings
- */
-const resolveQueryDate = async (value) => {
-  if (!value || typeof value !== 'object') return value;
-  return Object.fromEntries(Object.entries(value).map(([op, v]) => [op, new Date(v)]));
-};
 
 /**
  * Resolver for audit queries
