@@ -123,7 +123,7 @@
 
         <q-item class="fixed-bottom text-caption">
           <div>
-            {{$t('main.powered_by')}} <a class="text-weight-bold" href="https://www.obiba.org" target="_blank">OBiBa Amber</a>
+            {{$t('main.powered_by')}} <a class="text-weight-bold" href="https://www.obiba.org" target="_blank">OBiBa Amber</a> <span>{{ settings.version }}</span>
           </div>
         </q-item>
       </q-list>

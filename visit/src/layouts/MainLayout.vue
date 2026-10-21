@@ -107,6 +107,7 @@
               target="_blank"
               >OBiBa Amber</a
             >
+            <span class="q-ml-xs">{{ settings.version }}</span>
           </div>
         </q-item>
       </q-list>
