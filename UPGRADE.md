@@ -1,6 +1,6 @@
 # Upgrade
 
-## From 2.0.1
+## Upgrading to 3.0.0
 
 ### Interview step actions cleanup
 
