@@ -26,6 +26,7 @@ const itw = require('./itw/itw.service.js');
 const interviewExport = require('./interview-export/interview-export.service.js');
 const task = require('./task/task.service.js');
 const files = require('./files/files.service.js');
+const apiKey = require('./api-key/api-key.service.js');
  
 module.exports = function (app) {
   app.configure(user);
@@ -56,4 +57,5 @@ module.exports = function (app) {
   app.configure(interviewExport);
   app.configure(task);
   app.configure(files);
+  app.configure(apiKey);
 };

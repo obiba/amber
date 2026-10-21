@@ -5,7 +5,7 @@ const authActivity = require('./hooks/auth-activity');
 const authEmailOtp = require('./hooks/auth-email-otp');
 const { iff } = require('feathers-hooks-common');
 
-const { AnonymousStrategy, ActiveLocalStrategy, ApiKeyStrategy, ParticipantStrategy, WalkInParticipantStrategy, BaseOAuthUserStrategy, GithubStrategy, GoogleStrategy, OidcStrategy } = require('./utils/auth-strategies');
+const { AnonymousStrategy, ActiveLocalStrategy, ApiKeyStrategy, DataApiKeyStrategy, ParticipantStrategy, WalkInParticipantStrategy, BaseOAuthUserStrategy, GithubStrategy, GoogleStrategy, OidcStrategy } = require('./utils/auth-strategies');
 
 const NON_PROVIDER_KEYS = new Set(['redirect', 'origins', 'defaults']);
 
@@ -18,6 +18,8 @@ module.exports = app => {
   authentication.register('local', new ActiveLocalStrategy());
   authentication.register('anonymous', new AnonymousStrategy());
   authentication.register('apiKey', new ApiKeyStrategy());
+  // not in authStrategies: a data api key is not exchanged for a JWT
+  authentication.register('dataApiKey', new DataApiKeyStrategy());
   authentication.register('participant', new ParticipantStrategy());
   authentication.register('campaign', new WalkInParticipantStrategy());
   // Register strategies for configured OAuth providers; OIDC providers detected by issuer_url

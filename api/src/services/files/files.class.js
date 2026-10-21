@@ -2,6 +2,7 @@ const { BadRequest, Forbidden } = require('@feathersjs/errors');
 const { uploadFile, getFile, deleteFiles } = require('../../utils/files');
 const caseReportAbilities = require('../case-report/case-report.abilities');
 const interviewAbilities = require('../interview/interview.abilities');
+const { inScope } = require('../../utils/data-api-key');
 
 /** the user or the participant who makes the request */
 const ownerOf = (params) => params.user ? params.user._id : (params.participant ? params.participant._id : undefined);
@@ -34,7 +35,7 @@ exports.Files = class Files {
     if (file.size > maxSize) {
       throw new BadRequest(`File size exceeds ${maxSize} bytes`);
     }
-    if (params.user && !['interviewer', 'manager', 'administrator'].includes(params.user.role)) {
+    if (params.dataApiKey || (params.user && !['interviewer', 'manager', 'administrator'].includes(params.user.role))) {
       throw new Forbidden('You are not allowed to upload files');
     }
     return uploadFile(this.app, file, ownerOf(params));
@@ -51,7 +52,7 @@ exports.Files = class Files {
 
   async remove (id, params) {
     const file = await getFile(this.app, id);
-    if (file.metadata.state !== 'pending' || String(file.metadata.uploadedBy) !== String(ownerOf(params))) {
+    if (params.dataApiKey || file.metadata.state !== 'pending' || String(file.metadata.uploadedBy) !== String(ownerOf(params))) {
       throw new Forbidden('Only a pending file can be removed, by the one who uploaded it');
     }
     await deleteFiles(this.app, { _id: file._id });
@@ -69,13 +70,19 @@ exports.Files = class Files {
       return;
     }
     const user = params.user;
+    if (params.dataApiKey && record.service === 'case-report') {
+      if (!inScope(params.dataApiKey, record.study)) throw forbidden;
+      return;
+    }
     if (record.service === 'case-report') {
       if (!user || !caseReportAbilities.defineAbilitiesFor(user).can('read', 'case-report')) throw forbidden;
       return;
     }
     // internal call - bypass authorization hooks
     const interview = await this.app.service('interview')._get(record.id);
-    if (user) {
+    if (params.dataApiKey) {
+      if (!inScope(params.dataApiKey, interview.study)) throw forbidden;
+    } else if (user) {
       if (!interviewAbilities.defineAbilitiesFor(user).can('read', 'interview')) throw forbidden;
       if (user.role === 'interviewer') {
         const campaign = await this.app.service('campaign').get(interview.campaign);

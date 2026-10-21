@@ -20,6 +20,8 @@ const toItem = (name, property, scope, options) => {
   }
   if (prop.type === 'object' && prop.properties && prop.format !== 'geo') {
     item.items = toItems(prop, scope, options);
+    // a list of objects: each object is an occurrence of the group
+    if (many) item.repeated = true;
     return item;
   }
   if (many) item.multiple = true;
@@ -42,6 +44,7 @@ const toItem = (name, property, scope, options) => {
   } else if (prop.type === 'number' || prop.type === 'integer') {
     // as the legacy number, slider and rating items
     item.type = 'number';
+    if (prop.type === 'integer') item.integer = true;
   } else if (prop.format === 'date') {
     item.type = 'date';
   } else if (prop.format === 'date-time') {
@@ -65,6 +68,22 @@ const formItems = (schema) => {
 };
 
 
+
+/**
+ * A row of the data.csv of a zip export, with the lists as Opal value sequences:
+ * comma separated, the strings in double quotes.
+ */
+const toOpalRow = (row) => {
+  const toValue = (v) => {
+    if (v === null || v === undefined) return '';
+    if (typeof v === 'string') return '"' + v.replace(/"/g, '""') + '"';
+    if (typeof v === 'object') return '"' + JSON.stringify(v).replace(/"/g, '""') + '"';
+    return String(v);
+  };
+  return Object.fromEntries(Object.entries(row).map(([key, value]) => [key, Array.isArray(value) ? value.map(toValue).join(',') : value]));
+};
+
+exports.toOpalRow = toOpalRow;
 
 exports.FormDataExport = class FormDataExport {
   constructor (options, app) {
@@ -249,7 +268,9 @@ exports.FormDataExport = class FormDataExport {
         if (item.items) {
           const npath = path ? [...path] : [];
           npath.push(item.name);
-          const rval2 = this.flattenByItems(item.items, data[item.name], npath);
+          const rval2 = item.repeated
+            ? this.flattenOccurrences(item.items, data[item.name], npath)
+            : this.flattenByItems(item.items, data[item.name], npath);
           const prefix = npath.join('.') + '.';
           Object.entries(rval2).forEach(([key, value]) => {
             if (key.startsWith(prefix)) {
@@ -273,21 +294,53 @@ exports.FormDataExport = class FormDataExport {
   }
 
   /**
+   * Flatten the objects of a list (a repeated group): each variable gets the list of its values, one per object.
+   * A list value inside an object (e.g. multiple choices) is a JSON string, as there are no nested sequences.
+   */
+  flattenOccurrences (items, list, path) {
+    const rows = (Array.isArray(list) ? list : []).map(obj => this.flattenByItems(items, obj, path));
+    const keys = [...new Set(rows.flatMap(row => Object.keys(row)))].filter(key => key !== '_id');
+    const rval = {};
+    keys.forEach(key => {
+      rval[key] = rows.map(row => {
+        const value = row[key];
+        if (value === undefined) return null;
+        if (Array.isArray(value)) return JSON.stringify(value);
+        return value;
+      });
+    });
+    return rval;
+  }
+
+  /**
    * Replace the file references of a row by `files/<id>/<fileName>`, the path of the file relative to
    * the `data.csv` file of its table in a zip export (as Opal imports it).
    * @param {Object} row The flattened data
    * @returns the GridFS files of the row
    */
   async resolveFiles (row) {
-    const refs = Object.entries(row).filter(([, value]) => value && value.__files);
+    const isRef = (value) => value && value.__files;
+    const refs = Object.entries(row).filter(([, value]) => isRef(value) || (Array.isArray(value) && value.some(isRef)));
     if (refs.length === 0) return [];
-    const files = await getFiles(this.app, refs.flatMap(([, value]) => value.__files));
-    refs.forEach(([key, value]) => {
-      const paths = value.__files.map(id => {
+    const ids = refs.flatMap(([, value]) => [value].flat().filter(isRef).flatMap(ref => ref.__files));
+    const files = await getFiles(this.app, ids);
+    const toPaths = (ref) => {
+      const paths = ref.__files.map(id => {
         const file = files.find(f => f._id.toString() === String(id));
         return file ? `files/${id}/${file.filename}` : String(id);
       });
-      row[key] = value.multiple ? paths : paths[0];
+      return ref.multiple ? paths : paths[0];
+    };
+    refs.forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        // occurrences of a repeated group: one path, or a JSON list of paths, per occurrence
+        row[key] = value.map(v => {
+          if (!isRef(v)) return v;
+          return v.multiple ? JSON.stringify(toPaths(v)) : (toPaths(v) || null);
+        });
+      } else {
+        row[key] = toPaths(value);
+      }
     });
     return files;
   }
@@ -309,13 +362,21 @@ exports.FormDataExport = class FormDataExport {
     const prefix = options.prefix ? options.prefix + '.' : '';
     if (item.items) {
       const variables = [];
+      const childOptions = {
+        entityType: options.entityType,
+        i18n: options.i18n,
+        repeated: options.repeated,
+        occurrenceGroup: options.occurrenceGroup,
+        nested: options.nested,
+        prefix: prefix + item.name
+      };
+      if (item.repeated) {
+        // a group inside a repeated group has its values as JSON strings
+        if (options.occurrenceGroup) childOptions.nested = true;
+        else childOptions.occurrenceGroup = prefix + item.name;
+      }
       item.items.filter(it => it.type !== 'section').forEach(it => {
-        const vars = this.makeVariables(it, {
-          entityType: options.entityType,
-          i18n: options.i18n,
-          repeated: options.repeated,
-          prefix: prefix + item.name
-        });
+        const vars = this.makeVariables(it, childOptions);
         if (Array.isArray(vars)) {
           vars.forEach(v => variables.push(v));
         } else {
@@ -332,7 +393,10 @@ exports.FormDataExport = class FormDataExport {
       // TODO get valueType from schema
       if (item.type === 'toggle') {
         variable.valueType = 'boolean';
-      } else if (['number', 'slider', 'rating'].includes(item.type)) {
+      } else if (item.type === 'number') {
+        // a number can be integer or decimal
+        variable.valueType = item.integer ? 'integer' : 'decimal';
+      } else if (['slider', 'rating'].includes(item.type)) {
         variable.valueType = 'integer';
       } else if (['date'].includes(item.type)) {
         variable.valueType = 'date';
@@ -343,9 +407,20 @@ exports.FormDataExport = class FormDataExport {
       } else if (['map'].includes(item.type)) {
         variable.valueType = item.geometryType ? item.geometryType.toLowerCase() : 'point';
       } else if (item.type === 'file') {
-        variable.mimeType = item.accept || 'application/octet-stream';
+        variable.valueType = 'binary';
+        // a single media type only, as the accepted file types can be extensions or wildcards
+        variable.mimeType = item.accept && /^[\w.+-]+\/[\w.+-]+$/.test(item.accept) ? item.accept : 'application/octet-stream';
       }
-      if (item.multiple || item.type === 'checkboxgroup') {
+      const multiple = item.multiple || item.type === 'checkboxgroup';
+      if (options.occurrenceGroup) {
+        variable.isRepeatable = true;
+        variable.occurrenceGroup = options.occurrenceGroup;
+        if (multiple || options.nested) {
+          // ponytail: no nested sequences, the value of an occurrence is a JSON list (of paths, for files)
+          variable.valueType = 'text';
+          delete variable.mimeType;
+        }
+      } else if (multiple) {
         variable.isRepeatable = true;
       }
       variable.attributes = [];

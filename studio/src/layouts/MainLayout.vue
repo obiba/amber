@@ -146,6 +146,24 @@
           </q-item-section>
         </q-item>
 
+        <q-item v-if="isAdministrator" to="/api-keys">
+          <q-item-section avatar>
+            <q-icon name="key"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>{{t('api_keys.title')}}</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item v-if="isAdministrator" to="/audit">
+          <q-item-section avatar>
+            <q-icon name="policy"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>{{t('audit.title')}}</q-item-label>
+          </q-item-section>
+        </q-item>
+
         <!--q-item v-if="isAdministrator" to="/settings">
           <q-item-section avatar>
             <q-icon name="settings"/>

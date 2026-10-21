@@ -1,4 +1,5 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
+const allowDataApiKey = require('../../hooks/allow-data-api-key');
 const { authorize } = require('feathers-casl');
 const { hooks: schemaHooks } = require('@feathersjs/schema');
 const { defineAbilitiesFor } = require('./study.abilities');
@@ -6,6 +7,7 @@ const { defineAbilitiesFor } = require('./study.abilities');
 const makeAbilities = require('../../hooks/make-abilities');
 const searchQuery = require('../../hooks/search-query');
 const studyRemoveForms = require('../../hooks/study-remove-forms');
+const studyRemoveApiKeys = require('../../hooks/study-remove-api-keys');
 const { studyDataResolver, studyQueryResolver } = require('./study.resolvers');
 
 const validate = require('../../utils/validate-joi');
@@ -15,7 +17,8 @@ const { joiOptions } = require('../../schemas/common');
 module.exports = {
   before: {
     all: [
-      authenticate('jwt'),
+      allowDataApiKey(),
+      authenticate('jwt', 'dataApiKey'),
       makeAbilities(defineAbilitiesFor)
     ],
     find: [
@@ -59,6 +62,7 @@ module.exports = {
     update: [],
     patch: [],
     remove: [
+      studyRemoveApiKeys()
     ]
   },
 

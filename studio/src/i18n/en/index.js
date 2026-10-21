@@ -87,6 +87,43 @@ export default {
     search_users: 'Search',
     search_users_hint: 'Search users to add by email or name'
   },
+  api_keys: {
+    title: 'API Keys',
+    hint: 'API keys allow external applications, such as Opal, to extract the case reports and interviews data, and their files, of some studies. A key cannot modify anything.',
+    add_hint: 'Add a new API key',
+    edit_hint: 'Edit API key',
+    regenerate: 'Regenerate',
+    audit_hint: 'View the audit of the API key',
+    regenerate_hint: 'Regenerate the key value',
+    regenerate_confirm: 'Please confirm that you want to regenerate the key value (the current one will stop working):',
+    delete_hint: 'Delete API key',
+    delete_confirm: 'Please confirm that you want to remove the API key (applications using it will lose access):',
+    key: 'Key',
+    studies: 'Studies',
+    studies_hint: 'The studies of which the data can be extracted',
+    expires_at: 'Expires',
+    expires_at_hint: 'Optional, the key is valid until this date',
+    last_used_at: 'Last used',
+    active: 'Active',
+    expired: 'Expired',
+    shown_once: 'Copy this key now, it will not be shown again.',
+    copy: 'Copy to clipboard',
+    copied: 'Key copied to clipboard'
+  },
+  audit: {
+    title: 'Audit',
+    hint: 'The data extractions (case reports and interviews exports) and the files downloads, by users or API keys.',
+    date: 'Date',
+    accessed_by: 'Accessed by',
+    api_key: 'API key',
+    service: 'Access',
+    details: 'Details',
+    services: {
+      'case-report-export': 'Case reports export',
+      'interview-export': 'Interviews export',
+      files: 'File download'
+    }
+  },
   tasks: {
     title: 'Tasks',
     hint: 'Tasks are the background jobs which are executed by the system. Each task has a type, a state and an optional error message. See the <a href="https://amberdoc.obiba.org/en/latest/studio-user-guide/administration/tasks.html" target="_blank">Tasks administration documentation</a>.',
@@ -320,6 +357,8 @@ export default {
     get_case_reports: 'There was an error while retrieving the case reports.',
     form_remove_error: 'The form {name} cannot be removed because some items ({count} "{type}") are still associated to it.',
     form_revision_remove_error: 'The form {name} with revision {revision} cannot be removed because some items ({count} "{type}") are still associated to it.',
+    get_api_keys: 'There was an error while retrieving API keys.',
+    get_audits: 'There was an error while retrieving the audit.',
     get_tasks: 'There was an error while retrieving tasks.'
   },
   success: {
@@ -377,6 +416,9 @@ export default {
     reset_participant_password: 'Participant password reset successful.',
     create_task: 'Task successfully added.',
     delete_task: 'Task successfully deleted.',
+    create_api_key: 'API key successfully added.',
+    update_api_key: 'API key successfully updated.',
+    delete_api_key: 'API key successfully deleted.',
     delete_tasks: 'Tasks successfully deleted.'
   },
   form: {

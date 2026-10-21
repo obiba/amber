@@ -9,6 +9,7 @@ const path = require('path');
 var archiver = require('archiver');
 const { appendFiles } = require('../../utils/files');
 const { GeneralError } = require('@feathersjs/errors');
+const { toOpalRow } = require('../../utils/form-export');
 
 const toCSV = (data, fields) => {
   return new Parser({ fields: fields }).parse(data);
@@ -120,7 +121,7 @@ const doZipResponse = async (res) => {
       fs.mkdirSync(path.join(tmpDir, tableName));
     }
     // write data
-    const csv = toCSV(res.data.export[key].data, res.data.export[key].fields);
+    const csv = toCSV(res.data.export[key].data.map(toOpalRow), res.data.export[key].fields);
     fs.writeFileSync(path.join(tmpDir, tableName, 'data.csv'), csv);
     // write variables
     const variables = [];
