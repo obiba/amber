@@ -269,6 +269,10 @@ describe('\'files\' service', () => {
 
       await app.service('files').get(doc.id, asParticipant(participant1));
       await app.service('files').get(doc.id, as(emails[1]));
+      // audited with a name that outlives the participant and the user
+      const audits = await app.service('audit')._find({ query: { service: 'files', query: JSON.stringify({ id: doc.id }) }, paginate: false });
+      assert.deepStrictEqual(audits.map(a => [a.accessedByType, a.accessedByName]).sort(),
+        [['participant', participant1.code], ['user', emails[1]]]);
       await assert.rejects(app.service('files').get(doc.id, asParticipant(participant2)), { name: 'Forbidden' });
       // not an investigator of the campaign
       await assert.rejects(app.service('files').get(doc.id, as(emails[2])), { name: 'Forbidden' });

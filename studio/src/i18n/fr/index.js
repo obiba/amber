@@ -115,6 +115,7 @@ export default {
     hint: 'Les extractions de données (exports des rapports de cas et des entretiens) et les téléchargements de fichiers, par des utilisateurs ou des clés d\'API.',
     date: 'Date',
     accessed_by: 'Accédé par',
+    participant: 'Participant',
     api_key: 'Clé d\'API',
     service: 'Accès',
     details: 'Détails',

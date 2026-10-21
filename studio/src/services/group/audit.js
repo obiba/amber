@@ -16,3 +16,10 @@ export async function getAudits (opts, filters) {
   }
   return feathersClient.service('audit').find({ query })
 }
+
+// the codes of the participants who accessed, for the entries without a name
+export async function getParticipantsByIds (ids) {
+  return feathersClient.service('participant').find({
+    query: { _id: { $in: ids }, $select: ['_id', 'code'], $limit: ids.length }
+  })
+}

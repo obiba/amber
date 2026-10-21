@@ -73,7 +73,10 @@
             <q-badge v-if="props.row.apiKey" color="accent" :title="t('audit.api_key')">
               <q-icon name="key" class="q-mr-xs"/>{{ props.row.apiKey.name }}
             </q-badge>
-            <span v-else>{{ userLabel(props.row.accessedBy) }}</span>
+            <span v-else-if="accessor(props.row).participant">
+              <q-icon name="person" class="q-mr-xs" :title="t('audit.participant')"/>{{ accessor(props.row).name }}
+            </span>
+            <span v-else>{{ accessor(props.row).name }}</span>
           </q-td>
         </template>
         <template v-slot:body-cell-details='props'>
@@ -105,6 +108,7 @@ const route = useRoute()
 
 const audits = ref([])
 const users = ref({})
+const participants = ref({})
 const apiKeys = ref([])
 const filters = ref({ apiKey: route.query.apiKey || null })
 const paginationOpts = ref({
@@ -126,9 +130,13 @@ const serviceOptions = ['case-report-export', 'interview-export', 'files']
   .map(value => ({ value, label: t(`audit.services.${value}`) }))
 const apiKeyOptions = computed(() => apiKeys.value.map(k => ({ value: k._id, label: k.name })))
 
-function userLabel (id) {
-  const user = users.value[id]
-  return user ? user.email : id
+// the name recorded in the entry, or of the existing user or participant (older entries)
+function accessor (row) {
+  const id = row.accessedBy
+  if (row.accessedByName) return { name: row.accessedByName, participant: row.accessedByType === 'participant' }
+  if (users.value[id]) return { name: users.value[id].email }
+  if (participants.value[id]) return { name: participants.value[id].code, participant: true }
+  return { name: id }
 }
 
 // the export criteria, without the paging
@@ -154,10 +162,18 @@ async function getTableAudits (requestProp) {
     })
     audits.value = result.data || []
     paginationOpts.value.rowsNumber = result.total || 0
-    const ids = [...new Set(audits.value.map(a => a.accessedBy).filter(id => id && !users.value[id]))]
+    const unknown = () => [...new Set(audits.value
+      .filter(a => !a.accessedByName && a.accessedBy && !users.value[a.accessedBy] && !participants.value[a.accessedBy])
+      .map(a => a.accessedBy))]
+    let ids = unknown()
     if (ids.length > 0) {
       const found = await userService.getUsersByIds(ids)
       found.data.forEach(user => { users.value[user._id] = user })
+      ids = unknown()
+    }
+    if (ids.length > 0) {
+      const found = await auditService.getParticipantsByIds(ids)
+      found.data.forEach(participant => { participants.value[participant._id] = participant })
     }
   } catch (err) {
     errorHandler.onError(err, t('error.get_audits'))

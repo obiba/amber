@@ -26,15 +26,11 @@ const defineAbilitiesFor = (dataApiKey) => {
   return build({ resolveAction });
 };
 
-/** The api key reference to be audited, if any */
-const apiKeyOf = (params) => params.dataApiKey ? { _id: params.dataApiKey._id, name: params.dataApiKey.name } : undefined;
-
 const inScope = (dataApiKey, study) => dataApiKey.studies.some(s => String(s) === String(study));
 
 module.exports = {
   hashApiKey,
   generateApiKey,
   defineAbilitiesFor,
-  inScope,
-  apiKeyOf
+  inScope
 };

@@ -85,7 +85,8 @@ describe('\'api-key\' service', () => {
   after(async () => {
     await server.close();
     const admin = as(emails[0]);
-    await app.service('api-key')._remove(null, { query: { name: { $regex: '^ApiKey Test' } } }).catch(() => {});
+    // no multi remove on the service
+    await (await app.service('api-key').getModel()).deleteMany({ name: { $regex: '^ApiKey Test' } });
     for (let i = 0; i < studies.length; i++) {
       await app.service('case-report').remove(null, { ...admin, query: { caseReportForm: crfs[i]._id } }).catch(() => {});
       await app.service('case-report-form').remove(crfs[i]._id, admin).catch(() => {});
