@@ -190,7 +190,7 @@
     </div>
 
     <q-dialog v-model='showCaseReport' persistent :maximized="maximizedToggle">
-      <q-card :style="$q.screen.lt.sm ? 'min-width: 200px' : 'min-width: 400px'">
+      <q-card :style="maximizedToggle ? '' : 'width: 900px; max-width: 90vw'">
         <q-bar>
           <q-space />
           <q-btn dense flat icon="minimize" @click="maximizedToggle = false" :disable="!maximizedToggle">
@@ -212,6 +212,7 @@
           >
             <q-tab name="form" label="form" />
             <q-tab name="data" label="data" />
+            <q-tab v-if="caseReportFiles.length > 0" name="files" :label="t('interview.files')" />
           </q-tabs>
 
           <q-separator/>
@@ -233,6 +234,20 @@
               <div class="bg-black text-white q-pa-md">
                 <pre>{{ modelDataStr }}</pre>
               </div>
+            </q-tab-panel>
+
+            <q-tab-panel name="files" class="q-pl-none q-pr-none">
+              <q-list dense>
+                <q-item v-for="file in caseReportFiles" :key="file.path + file.id">
+                  <q-item-section>
+                    <q-item-label>{{ file.fileName || file.id }}</q-item-label>
+                    <q-item-label caption>{{ file.path }}</q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-btn flat dense round size="sm" icon="download" :title="t('interview.download_file')" @click="onDownloadFile(file)" />
+                  </q-item-section>
+                </q-item>
+              </q-list>
             </q-tab-panel>
           </q-tab-panels>
         </q-card-section>
@@ -454,6 +469,8 @@ const formOptions = computed(() => {
 
 const modelDataStr = computed(() => JSON.stringify(modelData.value, null, '  '))
 
+const caseReportFiles = computed(() => fileRefs(selectedFormRevision.value?.schema, modelData.value))
+
 const formRevisionLocales = computed(() => {
   return Object.keys(selectedFormRevision.value.schema.i18n || selectedFormRevision.value.schema.translations || {}).filter(loc => locale.value !== loc)
 })
@@ -500,6 +517,13 @@ function onExport (format) {
         })
       }
     })
+}
+
+function onDownloadFile (file) {
+  downloadFile(file).catch(err => {
+    console.error(err)
+    Notify.create({ message: err.message, color: 'negative' })
+  })
 }
 
 function onLocale (newLocale) {
