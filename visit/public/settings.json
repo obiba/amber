@@ -16,12 +16,6 @@
       "caption": "amberdoc.obiba.org",
       "icon": "school",
       "link": "https://amberdoc.obiba.org/en/latest/visit-user-guide/"
-    },
-    {
-      "title": "main.forum",
-      "caption": "forum.obiba.org",
-      "icon": "record_voice_over",
-      "link": "https://forum.obiba.org"
     }
   ],
   "i18n": {
