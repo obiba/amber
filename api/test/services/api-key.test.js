@@ -97,11 +97,13 @@ describe('\'api-key\' service', () => {
   });
 
   it('is managed by administrators, the key is shown once and the hash never', async () => {
-    apiKey = await app.service('api-key').create({ name: 'ApiKey Test', studies: [studies[0]._id.toString()] }, as(emails[0]));
+    // the hash is protected from external clients
+    const withJwt = { headers: { Authorization: `Bearer ${auth[emails[0]]}` } };
+    apiKey = (await axios.post(`${url}/api-key`, { name: 'ApiKey Test', studies: [studies[0]._id.toString()], hash: 'forged' }, withJwt)).data;
     assert.match(apiKey.key, /^amb_/);
     assert.strictEqual(apiKey.prefix, apiKey.key.substring(0, 8));
     assert.strictEqual(apiKey.hash, undefined);
-    const read = await app.service('api-key').get(apiKey._id, as(emails[0]));
+    const read = (await axios.get(`${url}/api-key/${apiKey._id}`, withJwt)).data;
     assert.strictEqual(read.key, undefined);
     assert.strictEqual(read.hash, undefined);
     await assert.rejects(app.service('api-key').find(as(emails[1])), { name: 'Forbidden' });
@@ -180,6 +182,8 @@ describe('\'api-key\' service', () => {
   it('cannot write nor read other services', async () => {
     await assert.rejects(axios.post(`${url}/study`, { name: 'nope' }, withKey(apiKey.key)), status(403));
     await assert.rejects(axios.post(`${url}/files`, 'x', { headers: { ...withKey(apiKey.key).headers, 'Content-Type': 'text/plain', 'X-File-Name': 'x.txt' } }), status(403));
+    // an existing name out of scope is not revealed by the uniqueness check
+    await assert.rejects(axios.post(`${url}/case-report-form`, { name: crfs[1].name, study: studies[1]._id, form: forms[1]._id }, withKey(apiKey.key)), status(403));
     await assert.rejects(axios.get(`${url}/case-report`, withKey(apiKey.key)), status(401));
     await assert.rejects(axios.get(`${url}/participant`, withKey(apiKey.key)), status(401));
     await assert.rejects(axios.get(`${url}/api-key`, withKey(apiKey.key)), status(401));

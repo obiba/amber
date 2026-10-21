@@ -95,4 +95,3 @@ exports.Files = class Files {
   }
 };
 
-exports.ownerOf = ownerOf;

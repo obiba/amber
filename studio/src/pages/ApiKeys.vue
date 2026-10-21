@@ -261,7 +261,9 @@ function editApiKey (apiKey) {
 
 function saveEdit () {
   const { _id, name, description, studies, expiresAt } = apiKeyData.value
-  save({ name, description, studies, expiresAt: expiresAt || null }, _id)
+  // the key stays valid until the end of the chosen day, in the local time zone
+  const expiry = expiresAt ? date.endOfDate(date.extractDate(expiresAt, 'YYYY-MM-DD'), 'day') : null
+  save({ name, description, studies, expiresAt: expiry }, _id)
 }
 
 function confirm (apiKey, action) {

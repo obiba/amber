@@ -1,4 +1,5 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
+const { protect } = require('@feathersjs/authentication-local').hooks;
 const { authorize } = require('feathers-casl');
 const { hooks: schemaHooks } = require('@feathersjs/schema');
 const { defineAbilitiesFor } = require('./api-key.abilities');
@@ -48,7 +49,8 @@ module.exports = {
   after: {
     all: [
       authorize({ adapter: '@feathersjs/mongodb' }),
-      apiKeyGenerate()
+      apiKeyGenerate(),
+      protect('hash')
     ],
     find: [],
     get: [],
