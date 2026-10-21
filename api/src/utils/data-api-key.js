@@ -23,6 +23,8 @@ const defineAbilitiesFor = (dataApiKey) => {
   const studies = dataApiKey.studies;
   can('read', ['case-report', 'interview', 'case-report-form', 'interview-design'], { study: { $in: studies } });
   can('read', 'study', { _id: { $in: studies } });
+  // to filter the interviews by campaign: the campaign names only, not their settings (investigators, reminders...)
+  can('read', 'campaign', ['_id', 'name', 'study', 'interviewDesign'], { study: { $in: studies } });
   return build({ resolveAction });
 };
 

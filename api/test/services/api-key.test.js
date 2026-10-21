@@ -125,6 +125,40 @@ describe('\'api-key\' service', () => {
     assert.deepStrictEqual(interviews.data, {});
   });
 
+  it('lists the campaign names of its studies, to filter the interviews', async () => {
+    const design = await app.service('interview-design')._create({
+      name: 'ApiKey Design', study: studies[0]._id, steps: [{ name: 'step1', form: forms[0]._id, revision: 1 }]
+    });
+    const campaigns = [];
+    for (const [i, study] of [studies[0], studies[0], studies[1]].entries()) {
+      campaigns.push(await app.service('campaign')._create({
+        name: `ApiKey Campaign ${i}`, study: study._id, interviewDesign: design._id, investigators: [users[emails[1]]._id], withPassword: true
+      }));
+    }
+    const interviews = [];
+    for (const campaign of campaigns.slice(0, 2)) {
+      interviews.push(await app.service('interview')._create({
+        code: `AK-${campaign.name.slice(-1)}`, campaign: campaign._id, study: studies[0]._id, interviewDesign: design._id, state: 'completed',
+        steps: [{ name: 'step1', form: forms[0]._id, revision: 1, state: 'completed', data: { note: campaign.name } }]
+      }));
+    }
+    try {
+      const { data: found } = await axios.get(`${url}/campaign`, { ...withKey(apiKey.key), params: { $sort: { name: 1 } } });
+      assert.deepStrictEqual(found.data.map(c => c.name), ['ApiKey Campaign 0', 'ApiKey Campaign 1']);
+      // no campaign settings
+      assert.deepStrictEqual(Object.keys(found.data[0]).sort(), ['_id', 'interviewDesign', 'name', 'study']);
+      await assert.rejects(axios.patch(`${url}/campaign/${campaigns[0]._id}`, { name: 'x' }, withKey(apiKey.key)), status(403));
+
+      const { data: itw } = await axios.get(`${url}/interview-export`, { ...withKey(apiKey.key), params: { $limit: 100, campaign: campaigns[1]._id.toString() } });
+      const rows = Object.values(itw.data).flatMap(t => t.data);
+      assert.deepStrictEqual(rows.map(r => r.note), ['ApiKey Campaign 1']);
+    } finally {
+      for (const interview of interviews) await app.service('interview')._remove(interview._id);
+      for (const campaign of campaigns) await app.service('campaign')._remove(campaign._id);
+      await app.service('interview-design')._remove(design._id);
+    }
+  });
+
   it('downloads the files of the studies in its scope only', async () => {
     const res = await axios.get(`${url}/files/${files[0].id}`, { ...withKey(apiKey.key), responseType: 'text' });
     assert.strictEqual(res.data, 'ApiKey Study A');
