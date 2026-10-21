@@ -2,6 +2,33 @@
 const { BadRequest } = require('@feathersjs/errors');
 const { getFiles, controlOptions, fileFormat, fileItemsKey, fileRefIds } = require('./files');
 
+const MATRIX_FORMATS = ['radio-matrix', 'radioGroupCollection'];
+
+/** the rows or the columns of a matrix: a list of `{ key, label }` (or `value`/`const`, `title`/`name`/`caption`), or an object of labels by key */
+const matrixEntries = (input) => {
+  if (Array.isArray(input)) {
+    return input.map(e => (e && typeof e === 'object'
+      ? { key: e.key ?? e.value ?? e.const, label: e.label ?? e.title ?? e.name ?? e.caption }
+      : { key: e })).filter(e => e.key !== undefined && e.key !== null);
+  }
+  if (input && typeof input === 'object') return Object.entries(input).map(([key, label]) => ({ key, label }));
+  return [];
+};
+
+/**
+ * A matrix is a group of one variable per row: a choice among the columns (radio),
+ * or a boolean (checkbox mode).
+ */
+const toMatrixItem = (item, prop, opts) => {
+  const checkbox = opts.checkboxMode === true;
+  const values = matrixEntries(opts.values ?? prop.values).map(v => ({ value: String(v.key), label: v.label }));
+  item.matrix = checkbox ? 'checkbox' : 'radio';
+  item.items = matrixEntries(opts.items ?? prop.items).map(row => (checkbox
+    ? { name: String(row.key), label: row.label, type: 'toggle' }
+    : { name: String(row.key), label: row.label, type: 'text', options: values }));
+  return item;
+};
+
 /** a JSON schema property as a legacy Amber item, for the data dictionary */
 const toItem = (name, property, scope, options) => {
   const many = property.type === 'array' && property.items && typeof property.items === 'object';
@@ -17,6 +44,9 @@ const toItem = (name, property, scope, options) => {
     if (format !== 'file') item.multiple = true;
     if (accept) item.accept = [].concat(accept).join(',');
     return item;
+  }
+  if (MATRIX_FORMATS.includes(prop.format)) {
+    return toMatrixItem(item, prop, options[scope] || {});
   }
   if (prop.type === 'object' && prop.properties && prop.format !== 'geo') {
     item.items = toItems(prop, scope, options);
@@ -268,9 +298,14 @@ exports.FormDataExport = class FormDataExport {
         if (item.items) {
           const npath = path ? [...path] : [];
           npath.push(item.name);
+          let value = data[item.name];
+          if (item.matrix === 'checkbox' && value && typeof value === 'object') {
+            // an answered checkbox matrix: the rows not checked are false
+            value = Object.fromEntries(item.items.map(it => [it.name, value[it.name] === true]));
+          }
           const rval2 = item.repeated
-            ? this.flattenOccurrences(item.items, data[item.name], npath)
-            : this.flattenByItems(item.items, data[item.name], npath);
+            ? this.flattenOccurrences(item.items, value, npath)
+            : this.flattenByItems(item.items, value, npath);
           const prefix = npath.join('.') + '.';
           Object.entries(rval2).forEach(([key, value]) => {
             if (key.startsWith(prefix)) {

@@ -62,6 +62,51 @@ describe('\'form-export\' utils', () => {
       assert.strictEqual(variable('CONTACTS.scan').valueType, 'binary');
     });
 
+    it('splits a matrix in one variable per row, categorical or boolean', () => {
+      const matrixSchema = {
+        schema: {
+          type: 'object',
+          properties: {
+            MATRIX: { type: 'object', format: 'radio-matrix' },
+            MATRIX_CHECK: { type: 'object', format: 'radio-matrix' }
+          }
+        },
+        uischema: {
+          type: 'VerticalLayout',
+          elements: [
+            {
+              type: 'Control',
+              scope: '#/properties/MATRIX',
+              options: {
+                items: [{ key: 'BLUE', label: 'Blue' }, { key: 'RED', label: 'Red' }],
+                values: [{ key: '1', label: 'Dislike' }, { key: '2', label: 'Like' }]
+              }
+            },
+            {
+              type: 'Control',
+              scope: '#/properties/MATRIX_CHECK',
+              options: { checkboxMode: true, items: [{ key: 'BLUE', label: 'Blue' }, { key: 'RED', label: 'Red' }] }
+            }
+          ]
+        }
+      };
+      const matrixItems = exporter.formItems(matrixSchema);
+      const vars = matrixItems.flatMap(item => [exporter.makeVariables(item, { entityType: 'Participant' })].flat());
+      assert.deepStrictEqual(vars.map(v => [v.name, v.valueType, (v.categories || []).map(c => c.name).join('|')]), [
+        ['MATRIX.BLUE', 'text', '1|2'],
+        ['MATRIX.RED', 'text', '1|2'],
+        ['MATRIX_CHECK.BLUE', 'boolean', ''],
+        ['MATRIX_CHECK.RED', 'boolean', '']
+      ]);
+      assert.strictEqual(vars[0].attributes[0].value, 'Blue');
+      const row = exporter.flattenByItems(matrixItems, { _id: 'P1', MATRIX: { RED: '2' }, MATRIX_CHECK: { BLUE: true } });
+      assert.deepStrictEqual(row, {
+        _id: 'P1', 'MATRIX.BLUE': undefined, 'MATRIX.RED': '2', 'MATRIX_CHECK.BLUE': true, 'MATRIX_CHECK.RED': false
+      });
+      // not answered
+      assert.strictEqual(exporter.flattenByItems(matrixItems, { _id: 'P2' })['MATRIX_CHECK.RED'], undefined);
+    });
+
     it('flattens a list of objects as occurrences, with the file paths', async () => {
       const row = exporter.flattenByItems(items, {
         _id: 'P1',
