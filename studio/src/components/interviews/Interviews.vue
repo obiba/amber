@@ -260,6 +260,7 @@
           >
             <q-tab name="form" label="form" />
             <q-tab name="data" label="data" />
+            <q-tab v-if="interviewActions.length > 0" name="actions" :label="t('interview.actions')" />
             <q-tab v-if="interviewFiles.length > 0" name="files" :label="t('interview.files')" />
           </q-tabs>
 
@@ -285,6 +286,27 @@
               <div class="bg-black text-white q-pa-md">
                 <pre>{{ modelDataStr }}</pre>
               </div>
+            </q-tab-panel>
+
+            <q-tab-panel name="actions" class="q-pl-none q-pr-none">
+              <q-markup-table flat dense>
+                <thead>
+                  <tr>
+                    <th class="text-left">{{ t('interview.action_step') }}</th>
+                    <th class="text-left">{{ t('action') }}</th>
+                    <th class="text-left">{{ t('interview.action_user') }}</th>
+                    <th class="text-left">{{ t('date') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(action, idx) in interviewActions" :key="idx">
+                    <td>{{ action.step }}</td>
+                    <td>{{ t('interview.action_types.' + action.type) }}</td>
+                    <td>{{ userNames[action.user] || action.user || '-' }}</td>
+                    <td>{{ action.timestamp ? date.formatDate(action.timestamp, 'YYYY-MM-DD HH:mm:ss') : '' }}</td>
+                  </tr>
+                </tbody>
+              </q-markup-table>
             </q-tab-panel>
 
             <q-tab-panel name="files" class="q-pl-none q-pr-none">
@@ -418,6 +440,7 @@ import { useInterviewStore } from '@/stores/interview'
 import { useStudyStore } from '@/stores/study'
 import { useAuth } from '@/composables/useAuth'
 import { AmberForm } from '@obiba/quasar-ui-amber'
+import { getUsersByIds } from '@/services/user/admin'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -443,6 +466,7 @@ const interviewFiles = ref([])
 const interviewSteps = ref([])
 let interviewFilesToken = 0
 const showTab = ref('form')
+const userNames = ref({})
 const locale = ref('en')
 const selectedInterview = ref({})
 const selectedFillingDate = ref(null)
@@ -616,6 +640,11 @@ const eligibleOptions = computed(() => [
 const stepLocales = computed(() => [...new Set(interviewSteps.value.flatMap(step => Object.keys(step.schema.i18n || step.schema.translations || {})))]
   .filter(loc => loc !== locale.value))
 
+// the actions of all the steps, in chronological order
+const interviewActions = computed(() => (selectedInterview.value.steps || [])
+  .flatMap(step => (step.actions || []).map(action => ({ ...action, step: step.name })))
+  .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)))
+
 const modelDataStr = computed(() => JSON.stringify(modelData.value, null, '  '))
 
 // Methods
@@ -676,6 +705,7 @@ function onShow (studyInterview) {
   modelData.value.participant = studyInterview.data
   maximizedToggle.value = false
   showTab.value = 'form'
+  loadUserNames()
   // the forms of the steps and their files, found with the controls of their form, in the order of the steps
   const token = ++interviewFilesToken
   interviewFiles.value = []
@@ -708,6 +738,15 @@ function getStepSchema (form, revision) {
     })
   }
   return stepSchemas[key]
+}
+
+// the names of the users of the actions, by id; the ids are shown when the users cannot be read
+function loadUserNames () {
+  const ids = [...new Set(interviewActions.value.map(action => action.user).filter(id => id && !userNames.value[id]))]
+  if (ids.length === 0) return
+  getUsersByIds(ids)
+    .then(res => res.data.forEach(user => { userNames.value[user._id] = `${user.firstname || ''} ${user.lastname || ''}`.trim() || user.email }))
+    .catch(err => console.error(err))
 }
 
 function onDownloadFile (file) {

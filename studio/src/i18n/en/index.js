@@ -585,6 +585,16 @@ export default {
   interview: {
     files: 'Files',
     download_file: 'Download the file',
+    actions: 'Actions',
+    action_step: 'Step',
+    action_user: 'User',
+    action_types: {
+      init: 'Started',
+      pause: 'Paused',
+      complete: 'Completed',
+      invalid: 'Invalidated',
+      reopen: 'Reopened'
+    },
     design: 'Design',
     steps: 'Steps',
     campaigns: 'Campaigns',
