@@ -109,6 +109,9 @@ describe('\'api-key\' service', () => {
 
   it('extracts the data of the studies in its scope only', async () => {
     const all = await exportTables(apiKey.key);
+    // no duplicates when the limit is split in chunks, without $skip
+    const { data: chunked } = await axios.get(`${url}/case-report-export`, { ...withKey(apiKey.key), params: { $limit: 1000 } });
+    assert.strictEqual(chunked.found, chunked.total);
     assert.deepStrictEqual(Object.keys(all), [`${crfs[0].name}-1`]);
     assert.deepStrictEqual(await exportTables(apiKey.key, { study: studies[1]._id.toString() }), {});
     // date range on the records update, as sent in a REST query
