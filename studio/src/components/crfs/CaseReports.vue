@@ -190,7 +190,7 @@
     </div>
 
     <q-dialog v-model='showCaseReport' persistent :maximized="maximizedToggle">
-      <q-card :style="$q.screen.lt.sm ? 'min-width: 200px' : 'min-width: 400px'">
+      <q-card :style="maximizedToggle ? '' : 'width: 900px; max-width: 90vw'">
         <q-bar>
           <q-space />
           <q-btn dense flat icon="minimize" @click="maximizedToggle = false" :disable="!maximizedToggle">
@@ -212,6 +212,8 @@
           >
             <q-tab name="form" label="form" />
             <q-tab name="data" label="data" />
+            <q-tab v-if="selectedCaseReport.actions?.length > 0" name="actions" :label="t('interview.actions')" />
+            <q-tab v-if="caseReportFiles.length > 0" name="files" :label="t('interview.files')" />
           </q-tabs>
 
           <q-separator/>
@@ -233,6 +235,39 @@
               <div class="bg-black text-white q-pa-md">
                 <pre>{{ modelDataStr }}</pre>
               </div>
+            </q-tab-panel>
+
+            <q-tab-panel name="actions" class="q-pl-none q-pr-none">
+              <q-markup-table flat dense>
+                <thead>
+                  <tr>
+                    <th class="text-left">{{ t('action') }}</th>
+                    <th class="text-left">{{ t('interview.action_user') }}</th>
+                    <th class="text-left">{{ t('date') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(action, idx) in selectedCaseReport.actions" :key="idx">
+                    <td>{{ t('interview.action_types.' + action.type) }}</td>
+                    <td>{{ userNames[action.user] || action.user || '-' }}</td>
+                    <td>{{ action.timestamp ? date.formatDate(action.timestamp, 'YYYY-MM-DD HH:mm:ss') : '' }}</td>
+                  </tr>
+                </tbody>
+              </q-markup-table>
+            </q-tab-panel>
+
+            <q-tab-panel name="files" class="q-pl-none q-pr-none">
+              <q-list dense>
+                <q-item v-for="file in caseReportFiles" :key="file.path + file.id">
+                  <q-item-section>
+                    <q-item-label>{{ file.fileName || file.id }}</q-item-label>
+                    <q-item-label caption>{{ file.path }}</q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-btn flat dense round size="sm" icon="download" :title="t('interview.download_file')" @click="onDownloadFile(file)" />
+                  </q-item-section>
+                </q-item>
+              </q-list>
             </q-tab-panel>
           </q-tab-panels>
         </q-card-section>
@@ -327,6 +362,7 @@ import { useCaseReportStore } from '@/stores/caseReport'
 import { useStudyStore } from '@/stores/study'
 import { useFormStore } from '@/stores/form'
 import { AmberForm } from '@obiba/quasar-ui-amber'
+import { getUsersByEmails } from '@/services/user/admin'
 import { downloadFile, fileRefs } from '@/services/utils/files'
 
 const { t } = useI18n()
@@ -347,6 +383,7 @@ const formStore = useFormStore()
 const remountCounter = ref(0)
 const caseReportFileIds = ref([])
 const showTab = ref('form')
+const userNames = ref({})
 const locale = ref('en')
 const selected = ref([])
 const filter = ref('')
@@ -454,6 +491,8 @@ const formOptions = computed(() => {
 
 const modelDataStr = computed(() => JSON.stringify(modelData.value, null, '  '))
 
+const caseReportFiles = computed(() => fileRefs(selectedFormRevision.value?.schema, modelData.value))
+
 const formRevisionLocales = computed(() => {
   return Object.keys(selectedFormRevision.value.schema.i18n || selectedFormRevision.value.schema.translations || {}).filter(loc => locale.value !== loc)
 })
@@ -502,6 +541,22 @@ function onExport (format) {
     })
 }
 
+// the names of the users of the actions, by email; the emails are shown when the users cannot be read
+function loadUserNames (actions) {
+  const emails = [...new Set((actions || []).map(action => action.user).filter(email => email && !userNames.value[email]))]
+  if (emails.length === 0) return
+  getUsersByEmails(emails)
+    .then(res => res.data.forEach(user => { userNames.value[user.email] = `${user.firstname || ''} ${user.lastname || ''}`.trim() || user.email }))
+    .catch(err => console.error(err))
+}
+
+function onDownloadFile (file) {
+  downloadFile(file).catch(err => {
+    console.error(err)
+    Notify.create({ message: err.message, color: 'negative' })
+  })
+}
+
 function onLocale (newLocale) {
   locale.value = newLocale
 }
@@ -511,6 +566,7 @@ function onShow (studyCaseReport) {
   selectedCaseReport.value = studyCaseReport
   modelData.value = {}
   showTab.value = 'form'
+  loadUserNames(studyCaseReport.actions)
   maximizedToggle.value = false
   formRevisionService.getFormRevision(studyCaseReport.form, studyCaseReport.revision)
     .then(res => {

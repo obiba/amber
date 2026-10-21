@@ -588,6 +588,16 @@ export default {
   interview: {
     files: 'Fichiers',
     download_file: 'Télécharger le fichier',
+    actions: 'Actions',
+    action_step: 'Étape',
+    action_user: 'Utilisateur',
+    action_types: {
+      init: 'Démarré',
+      pause: 'Mis en pause',
+      complete: 'Complété',
+      invalid: 'Invalidé',
+      reopen: 'Réouvert'
+    },
     design: 'Conception',
     steps: 'Étapes',
     campaigns: 'Campagnes',

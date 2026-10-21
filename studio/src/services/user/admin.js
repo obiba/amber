@@ -56,6 +56,17 @@ export async function getUsersByIds (ids) {
   })
 }
 
+export async function getUsersByEmails (emails) {
+  return feathersClient.service('user').find({
+    query: {
+      $limit: 100,
+      email: {
+        $in: emails
+      }
+    }
+  })
+}
+
 export async function getUser (id) {
   return feathersClient.service('user').get(id)
 }

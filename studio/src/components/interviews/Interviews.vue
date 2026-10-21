@@ -238,7 +238,7 @@
     </div>
 
     <q-dialog v-model='showInterview' persistent :maximized="maximizedToggle">
-      <q-card :style="$q.screen.lt.sm ? 'min-width: 200px' : 'min-width: 400px'">
+      <q-card :style="maximizedToggle ? '' : 'width: 900px; max-width: 90vw'">
         <q-bar>
           <q-space />
           <q-btn dense flat icon="minimize" @click="maximizedToggle = false" :disable="!maximizedToggle">
@@ -248,24 +248,81 @@
           <q-btn dense flat icon="close" v-close-popup>
           </q-btn>
         </q-bar>
-        <q-card-section v-if="interviewFiles.length > 0">
-          <div class="text-subtitle1">{{ t('interview.files') }}</div>
-          <q-list dense>
-            <q-item v-for="file in interviewFiles" :key="file.step + file.path + file.id">
-              <q-item-section>
-                <q-item-label>{{ file.fileName || file.id }}</q-item-label>
-                <q-item-label caption>{{ file.step }}.{{ file.path }}</q-item-label>
-              </q-item-section>
-              <q-item-section side>
-                <q-btn flat dense round size="sm" icon="download" :title="t('interview.download_file')" @click="onDownloadFile(file)" />
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-card-section>
         <q-card-section>
-          <div class="bg-black text-white q-pa-md">
-            <pre>{{ modelDataStr }}</pre>
-          </div>
+          <q-tabs
+            v-model="showTab"
+            dense
+            class="text-grey"
+            active-color="primary"
+            indicator-color="primary"
+            align="justify"
+            narrow-indicator
+          >
+            <q-tab name="form" label="form" />
+            <q-tab name="data" label="data" />
+            <q-tab v-if="interviewActions.length > 0" name="actions" :label="t('interview.actions')" />
+            <q-tab v-if="interviewFiles.length > 0" name="files" :label="t('interview.files')" />
+          </q-tabs>
+
+          <q-separator/>
+
+          <q-tab-panels v-model="showTab">
+            <q-tab-panel name="form" class="q-pl-none q-pr-none">
+              <q-btn-dropdown v-if="stepLocales.length > 0" icon="translate" flat size="sm" :label="locale">
+                <q-list>
+                  <q-item @click="locale = loc" clickable v-close-popup v-for="loc in stepLocales" :key="loc">
+                    <q-item-section class="text-uppercase">{{ loc }}</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-btn-dropdown>
+              <div v-for="step in interviewSteps" :key="step.name" class="q-mt-md">
+                <div class="text-h6">{{ step.name }}</div>
+                <q-separator class="q-mb-md"/>
+                <AmberForm :key="step.name + locale" :schema="step.schema" :model-value="step.data" :locale="locale" :file-upload="fileUpload" readonly />
+              </div>
+            </q-tab-panel>
+
+            <q-tab-panel name="data" class="q-pl-none q-pr-none">
+              <div class="bg-black text-white q-pa-md">
+                <pre>{{ modelDataStr }}</pre>
+              </div>
+            </q-tab-panel>
+
+            <q-tab-panel name="actions" class="q-pl-none q-pr-none">
+              <q-markup-table flat dense>
+                <thead>
+                  <tr>
+                    <th class="text-left">{{ t('interview.action_step') }}</th>
+                    <th class="text-left">{{ t('action') }}</th>
+                    <th class="text-left">{{ t('interview.action_user') }}</th>
+                    <th class="text-left">{{ t('date') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(action, idx) in interviewActions" :key="idx">
+                    <td>{{ action.step }}</td>
+                    <td>{{ t('interview.action_types.' + action.type) }}</td>
+                    <td>{{ userNames[action.user] || action.user || '-' }}</td>
+                    <td>{{ action.timestamp ? date.formatDate(action.timestamp, 'YYYY-MM-DD HH:mm:ss') : '' }}</td>
+                  </tr>
+                </tbody>
+              </q-markup-table>
+            </q-tab-panel>
+
+            <q-tab-panel name="files" class="q-pl-none q-pr-none">
+              <q-list dense>
+                <q-item v-for="file in interviewFiles" :key="file.step + file.path + file.id">
+                  <q-item-section>
+                    <q-item-label>{{ file.fileName || file.id }}</q-item-label>
+                    <q-item-label caption>{{ file.step }}.{{ file.path }}</q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-btn flat dense round size="sm" icon="download" :title="t('interview.download_file')" @click="onDownloadFile(file)" />
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-tab-panel>
+          </q-tab-panels>
         </q-card-section>
         <q-separator />
         <q-card-actions align="right" class="bg-grey-3">
@@ -382,12 +439,17 @@ import { date, Notify } from 'quasar'
 import { useInterviewStore } from '@/stores/interview'
 import { useStudyStore } from '@/stores/study'
 import { useAuth } from '@/composables/useAuth'
+import { AmberForm } from '@obiba/quasar-ui-amber'
+import { getUsersByIds } from '@/services/user/admin'
 
 const { t } = useI18n()
 const route = useRoute()
 const interviewStore = useInterviewStore()
 const studyStore = useStudyStore()
 const { isReadOnly } = useAuth()
+
+// the files of an interview are only downloaded from its read-only form
+const fileUpload = { download: downloadFile }
 
 // Refs
 const selected = ref([])
@@ -401,7 +463,11 @@ const toDate = ref('')
 const maximizedToggle = ref(false)
 const modelData = ref({})
 const interviewFiles = ref([])
+const interviewSteps = ref([])
 let interviewFilesToken = 0
+const showTab = ref('form')
+const userNames = ref({})
+const locale = ref('en')
 const selectedInterview = ref({})
 const selectedFillingDate = ref(null)
 const showInterview = ref(false)
@@ -571,6 +637,14 @@ const eligibleOptions = computed(() => [
   }
 ])
 
+const stepLocales = computed(() => [...new Set(interviewSteps.value.flatMap(step => Object.keys(step.schema.i18n || step.schema.translations || {})))]
+  .filter(loc => loc !== locale.value))
+
+// the actions of all the steps, in chronological order
+const interviewActions = computed(() => (selectedInterview.value.steps || [])
+  .flatMap(step => (step.actions || []).map(action => ({ ...action, step: step.name })))
+  .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)))
+
 const modelDataStr = computed(() => JSON.stringify(modelData.value, null, '  '))
 
 // Methods
@@ -630,18 +704,23 @@ function onShow (studyInterview) {
   })
   modelData.value.participant = studyInterview.data
   maximizedToggle.value = false
-  // the files of the steps, found with the controls of their form, in the order of the steps
+  showTab.value = 'form'
+  loadUserNames()
+  // the forms of the steps and their files, found with the controls of their form, in the order of the steps
   const token = ++interviewFilesToken
   interviewFiles.value = []
+  interviewSteps.value = []
   Promise.all(studyInterview.steps.filter(step => step.form && step.data).map(step =>
     getStepSchema(step.form, step.revision)
-      .then(schema => fileRefs(schema, step.data).map(ref => ({ ...ref, step: step.name })))
+      .then(schema => ({ name: step.name, schema, data: modelData.value[step.name] }))
       .catch(err => {
         console.error(err)
-        return []
+        return undefined
       })
-  )).then(files => {
-    if (token === interviewFilesToken) interviewFiles.value = files.flat()
+  )).then(steps => {
+    if (token !== interviewFilesToken) return
+    interviewSteps.value = steps.filter(step => step && step.schema)
+    interviewFiles.value = interviewSteps.value.flatMap(step => fileRefs(step.schema, step.data).map(ref => ({ ...ref, step: step.name })))
   })
 }
 
@@ -659,6 +738,15 @@ function getStepSchema (form, revision) {
     })
   }
   return stepSchemas[key]
+}
+
+// the names of the users of the actions, by id; the ids are shown when the users cannot be read
+function loadUserNames () {
+  const ids = [...new Set(interviewActions.value.map(action => action.user).filter(id => id && !userNames.value[id]))]
+  if (ids.length === 0) return
+  getUsersByIds(ids)
+    .then(res => res.data.forEach(user => { userNames.value[user._id] = `${user.firstname || ''} ${user.lastname || ''}`.trim() || user.email }))
+    .catch(err => console.error(err))
 }
 
 function onDownloadFile (file) {
