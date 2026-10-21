@@ -51,25 +51,28 @@ exports.Itw = class Itw extends ItwBase {
           }
           continue;
         }
-        const type = step.data ? (step.state === 'completed' ? 'complete' : 'pause') : 'init';
-        if (idx<0) {
-          step.actions = [
-            {
-              type: type,
-              user: params.user ? params.user._id : null,
-              timestamp: new Date()
-            }
-          ];
-          patched.steps.push(step);
+        // the actions are the step state changes: the intermediate saves are not recorded,
+        // and a step sent again (e.g. retried after a lost response) is not completed twice
+        const { paused, ...saved } = step;
+        const prev = idx < 0 ? undefined : patched.steps[idx];
+        const types = prev ? [] : ['init'];
+        if (!saved.data) {
+          if (prev) types.push('invalid');
+        } else if (saved.state === 'completed') {
+          if (prev?.state !== 'completed') types.push('complete');
+        } else if (paused) {
+          types.push('pause');
+        }
+        const timestamp = new Date();
+        saved.actions = (prev ? prev.actions : []).concat(types.map(type => ({
+          type,
+          user: params.user ? params.user._id : null,
+          timestamp
+        })));
+        if (prev) {
+          patched.steps.splice(idx, 1, saved);
         } else {
-          const action = {
-            type: step.data ? type : 'invalid',
-            user: params.user ? params.user._id : null,
-            timestamp: new Date()
-          };
-          step.actions = patched.steps[idx].actions;
-          step.actions.push(action);
-          patched.steps.splice(idx, 1, step);
+          patched.steps.push(saved);
         }
       }
     }

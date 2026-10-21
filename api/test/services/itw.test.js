@@ -382,10 +382,9 @@ describe('\'itw\' service', () => {
       mockServices.interview._patch = async (id, patchData) => {
         const step = patchData.steps.find(s => s.name === 'step2');
         assert.ok(step.actions);
-        assert.ok(step.actions.length > 0);
-        assert.strictEqual(step.actions[0].type, 'complete');
-        assert.strictEqual(step.actions[0].user, 'user1');
-        assert.ok(step.actions[0].timestamp);
+        assert.deepStrictEqual(step.actions.map(a => a.type), ['init', 'complete']);
+        assert.strictEqual(step.actions[1].user, 'user1');
+        assert.ok(step.actions[1].timestamp);
 
         return {
           _id: id,
@@ -611,7 +610,7 @@ describe('\'itw\' service', () => {
       await service.patch('int1', data, params);
     });
 
-    it('should handle pause action for steps with data', async () => {
+    it('should record init, pause and complete actions on state changes only', async () => {
       const params = {
         participant: {
           _id: 'p1',
@@ -635,14 +634,34 @@ describe('\'itw\' service', () => {
             form: 'form2',
             revision: 1,
             state: 'in_progress',
+            paused: true,
             data: { field2: 'partial' }
+          },
+          {
+            name: 'step3',
+            form: 'form3',
+            revision: 1,
+            state: 'in_progress',
+            data: { field3: 'partial' }
+          },
+          {
+            name: 'step1',
+            form: 'form1',
+            revision: 1,
+            state: 'completed',
+            data: { field1: 'value1' }
           }
         ]
       };
 
       mockServices.interview._patch = async (id, patchData) => {
-        const step = patchData.steps.find(s => s.name === 'step2');
-        assert.strictEqual(step.actions[0].type, 'pause');
+        const types = (name) => patchData.steps.find(s => s.name === name).actions.map(a => a.type);
+        assert.deepStrictEqual(types('step2'), ['init', 'pause']);
+        assert.strictEqual(patchData.steps.find(s => s.name === 'step2').paused, undefined);
+        // an intermediate save is not an action
+        assert.deepStrictEqual(types('step3'), ['init']);
+        // a completed step sent again is not completed twice
+        assert.deepStrictEqual(types('step1'), []);
 
         return {
           _id: id,

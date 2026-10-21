@@ -380,7 +380,7 @@ export const useInterviewStore = defineStore(
      * Pause form: merge current record into the interview steps data with 'in_progress' state and set record to null.
      */
     async function pauseRecord() {
-      return saveRecord("in_progress", false);
+      return saveRecord("in_progress", false, true);
     }
 
     /**
@@ -394,8 +394,9 @@ export const useInterviewStore = defineStore(
      * Save the interview with the provided state.
      * @param {string} state
      * @param {boolean} recording Keep on recording
+     * @param {boolean} [paused] The step is paused, recorded as such (not an intermediate save)
      */
-    async function saveRecord(state, recording) {
+    async function saveRecord(state, recording, paused) {
       const stepDesign = getStepDesign(record.value.name);
       const stepObj = {
         name: record.value.name,
@@ -404,6 +405,7 @@ export const useInterviewStore = defineStore(
         revision: stepDesign.revision,
         data: {},
       };
+      if (paused) stepObj.paused = true;
       // exclude entries from other steps and participant data
       const excludedKeys = design.value.steps
         .filter((step) => step.name !== record.value.name)
