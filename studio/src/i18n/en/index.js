@@ -588,6 +588,10 @@ export default {
     actions: 'Actions',
     action_step: 'Step',
     action_user: 'User',
+    duration: 'Time spent',
+    duration_pages: 'Time spent per page',
+    duration_details: 'Details',
+    page: 'Page {page}',
     action_types: {
       init: 'Started',
       pause: 'Paused',

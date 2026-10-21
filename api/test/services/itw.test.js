@@ -635,6 +635,7 @@ describe('\'itw\' service', () => {
             revision: 1,
             state: 'in_progress',
             paused: true,
+            duration: { total: 18000, pages: { 0: 10000, 1: 8000 } },
             data: { field2: 'partial' }
           },
           {
@@ -642,6 +643,7 @@ describe('\'itw\' service', () => {
             form: 'form3',
             revision: 1,
             state: 'in_progress',
+            duration: { total: -1 },
             data: { field3: 'partial' }
           },
           {
@@ -658,6 +660,9 @@ describe('\'itw\' service', () => {
         const types = (name) => patchData.steps.find(s => s.name === name).actions.map(a => a.type);
         assert.deepStrictEqual(types('step2'), ['init', 'pause']);
         assert.strictEqual(patchData.steps.find(s => s.name === 'step2').paused, undefined);
+        assert.deepStrictEqual(patchData.steps.find(s => s.name === 'step2').duration, { total: 18000, pages: { 0: 10000, 1: 8000 } });
+        // an invalid duration is not saved
+        assert.strictEqual(patchData.steps.find(s => s.name === 'step3').duration, undefined);
         // an intermediate save is not an action
         assert.deepStrictEqual(types('step3'), ['init']);
         // a completed step sent again is not completed twice

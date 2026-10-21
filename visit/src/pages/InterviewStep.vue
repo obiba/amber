@@ -193,6 +193,7 @@ watch(mode, () => {
   updateFormData()
   updateProgress()
   remountCounter.value++
+  itwStore.startClock(isMulti())
 })
 
 watch(locale, () => {
@@ -213,7 +214,9 @@ onMounted(() => {
       formData.value = itwStore.record.data
       updateProgress()
       remountCounter.value++
+      itwStore.startClock(isMulti())
     }
+    document.addEventListener('visibilitychange', onVisibilityChange)
     if (!record || record.id !== stepName.value || !record.data) {
       itwStore.setupRecord(stepName.value).then(() => initForm())
     } else {
@@ -224,6 +227,17 @@ onMounted(() => {
     router.push('..')
   }
 })
+
+onBeforeUnmount(() => {
+  document.removeEventListener('visibilitychange', onVisibilityChange)
+  itwStore.stopClock()
+})
+
+// the time spent on the step page is counted while the browser tab is visible
+function onVisibilityChange() {
+  if (document.visibilityState === 'visible') itwStore.startClock(isMulti())
+  else itwStore.stopClock()
+}
 
 function tr(key: string) {
   let rval = makeSchemaFormTr(step.value.schema, { locale: locale.value })(key)
