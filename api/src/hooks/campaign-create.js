@@ -1,4 +1,5 @@
-const { BadRequest } = require('@feathersjs/errors');
+const { BadRequest, Forbidden } = require('@feathersjs/errors');
+const { inScope } = require('../utils/data-api-key');
 
 // eslint-disable-next-line no-unused-vars
 module.exports = (options = {}) => {
@@ -6,6 +7,10 @@ module.exports = (options = {}) => {
     // verify that study exists
     const itwDesignService = context.app.service('interview-design');
     const interviewDesign = await itwDesignService.get(context.data.interviewDesign);
+    // out of scope API key must not learn about other studies' campaign names
+    if (context.params.dataApiKey && !inScope(context.params.dataApiKey, interviewDesign.study)) {
+      throw new Forbidden();
+    }
     context.data.study = interviewDesign.study;
     // verify name is unique in its study
     const campaignService = context.app.service('campaign');

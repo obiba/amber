@@ -1,4 +1,5 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
+const allowDataApiKey = require('../../hooks/allow-data-api-key');
 const { authorize } = require('feathers-casl');
 const { hooks: schemaHooks } = require('@feathersjs/schema');
 const { defineAbilitiesFor } = require('./interview-design.abilities');
@@ -20,7 +21,8 @@ const { joiOptions } = require('../../schemas/common');
 module.exports = {
   before: {
     all: [
-      authenticate('jwt'),
+      allowDataApiKey(),
+      authenticate('jwt', 'dataApiKey'),
       addUserGroupsToContext(),
       makeAbilities(defineAbilitiesFor)
     ],

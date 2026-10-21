@@ -1,6 +1,7 @@
 const { resolve } = require('@feathersjs/schema');
 const { resolveQueryObjectId } = require('@feathersjs/mongodb');
 const { ObjectId } = require('mongodb');
+const { BadRequest } = require('@feathersjs/errors');
 
 /**
  * Checks if a value is a valid ObjectId string (24 hex characters)
@@ -162,8 +163,27 @@ const resolveInteger = async (value) => {
   return toInteger(value);
 };
 
+const DATE_QUERY_OPERATORS = ['$gt', '$gte', '$lt', '$lte', '$eq', '$ne', '$in', '$nin'];
+
+const toQueryDate = (value) => {
+  if (Array.isArray(value)) return value.map(toQueryDate);
+  if (typeof value !== 'string' && typeof value !== 'number') return value;
+  const d = new Date(value);
+  if (isNaN(d)) throw new BadRequest(`Invalid date: ${value}`);
+  return d;
+};
+
+/**
+ * Date query value, or its comparison operators ($gte, $lte...): arrive as strings in a REST query
+ */
+const resolveQueryDate = async (value) => {
+  if (value === null || typeof value !== 'object' || value instanceof Date) return toQueryDate(value);
+  return Object.fromEntries(Object.entries(value).map(([op, v]) => [op, DATE_QUERY_OPERATORS.includes(op) ? toQueryDate(v) : v]));
+};
+
 module.exports = {
   resolve,
+  resolveQueryDate,
   resolveObjectId,
   resolveQueryObjectId,
   toObjectId,

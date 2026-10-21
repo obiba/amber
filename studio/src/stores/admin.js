@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import userService from '../services/user'
-import { groupService, taskService } from '../services/group'
+import { groupService, taskService, apiKeyService } from '../services/group'
 import { t } from '../boot/i18n'
 import { errorHandler } from '../boot/errors'
 import { Notify } from 'quasar'
@@ -38,6 +38,16 @@ export const useAdminStore = defineStore('admin', () => {
   const taskPaginationOpts = ref({
     sortBy: 'createdTask',
     descending: true,
+    page: 1,
+    rowsPerPage: 10,
+    rowsNumber: 0
+  })
+
+  // Api Key State
+  const apiKeys = ref([])
+  const apiKeyPaginationOpts = ref({
+    sortBy: 'name',
+    descending: false,
     page: 1,
     rowsPerPage: 10,
     rowsNumber: 0
@@ -349,6 +359,50 @@ export const useAdminStore = defineStore('admin', () => {
     }
   }
 
+  // Api Key Actions
+  async function getApiKeys (paginationOpts) {
+    try {
+      const result = await apiKeyService.getApiKeys(paginationOpts)
+      apiKeys.value = result.data || []
+      apiKeyPaginationOpts.value.rowsNumber = result.total || 0
+    } catch (err) {
+      errorHandler.onError(err, t('error.get_api_keys'))
+      apiKeys.value = []
+    }
+  }
+
+  // returns the saved api key, with its value when (re)generated
+  async function saveApiKey (apiKeyData, id, paginationOpts) {
+    try {
+      const result = id
+        ? await apiKeyService.updateApiKey(apiKeyData, id)
+        : await apiKeyService.createApiKey(apiKeyData)
+      Notify.create({
+        message: t(id ? 'success.update_api_key' : 'success.create_api_key'),
+        color: 'positive',
+        icon: 'fas fa-check'
+      })
+      await getApiKeys(paginationOpts)
+      return result
+    } catch (err) {
+      errorHandler.onError(err, t('error.general'))
+    }
+  }
+
+  async function deleteApiKey (id, paginationOpts) {
+    try {
+      await apiKeyService.deleteApiKey(id)
+      Notify.create({
+        message: t('success.delete_api_key'),
+        color: 'positive',
+        icon: 'fas fa-check'
+      })
+      await getApiKeys(paginationOpts)
+    } catch (err) {
+      errorHandler.onError(err, t('error.general'))
+    }
+  }
+
   // Pagination Setters
   function setUserPagination (opts) {
     userPaginationOpts.value = opts
@@ -378,6 +432,9 @@ export const useAdminStore = defineStore('admin', () => {
     tasks,
     taskCount,
     taskPaginationOpts,
+    // Api Key State
+    apiKeys,
+    apiKeyPaginationOpts,
     // User Actions
     getUsers,
     getUser,
@@ -398,6 +455,10 @@ export const useAdminStore = defineStore('admin', () => {
     createTask,
     deleteTask,
     deleteTasks,
+    // Api Key Actions
+    getApiKeys,
+    saveApiKey,
+    deleteApiKey,
     // Pagination Setters
     setUserPagination,
     setGroupPagination,

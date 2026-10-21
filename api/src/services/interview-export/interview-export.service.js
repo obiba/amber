@@ -9,6 +9,7 @@ const path = require('path');
 var archiver = require('archiver');
 const { appendFiles } = require('../../utils/files');
 const { GeneralError } = require('@feathersjs/errors');
+const { toOpalRow } = require('../../utils/form-export');
 
 const toCSV = (data, fields) => {
   return new Parser({ fields: fields }).parse(data);
@@ -24,7 +25,7 @@ const makeTableName = (interviewDesign, step, formRevision) => {
 };
 
 const doCsvResponse = (res) => {
-  res.attachment('case-report-export.csv');
+  res.attachment('interview-export.csv');
   res.type('csv');
   for (const key in res.data.export) {
     const tableName = makeTableName(res.data.export[key].interviewDesign, res.data.export[key].step, res.data.export[key].formRevision);
@@ -91,7 +92,7 @@ const doExcelResponse = async (res) => {
     xlsx.utils.book_append_sheet(workbook, dataSheets[name], name);
   }
   // dump to a tmp file
-  const fname = 'case-report-export.xlsx';
+  const fname = 'interview-export.xlsx';
   const fpath = path.join(tmpDir, fname);
   await xlsx.writeFileXLSX(workbook, fpath);
   // stream the tmp file
@@ -119,7 +120,7 @@ const doZipResponse = async (res) => {
       fs.mkdirSync(path.join(tmpDir, tableName));
     }
     // write data
-    const csv = toCSV(res.data.export[key].data, res.data.export[key].fields);
+    const csv = toCSV(res.data.export[key].data.map(toOpalRow), res.data.export[key].fields);
     fs.writeFileSync(path.join(tmpDir, tableName, 'data.csv'), csv);
     // write variables
     const variables = [];
@@ -179,7 +180,7 @@ const doZipResponse = async (res) => {
     fs.rmSync(tmpDir, { recursive: true });
   });
   //set the archive name
-  res.attachment('case-report-export.zip');
+  res.attachment('interview-export.zip');
   //this is the streaming magic
   archive.pipe(res);
   archive.directory(tmpDir, '');

@@ -10,6 +10,8 @@ import User from '@/pages/User.vue'
 import Groups from '@/pages/Groups.vue'
 import Group from '@/pages/Group.vue'
 import Tasks from '@/pages/Tasks.vue'
+import ApiKeys from '@/pages/ApiKeys.vue'
+import Audit from '@/pages/Audit.vue'
 import Studies from '@/pages/Studies.vue'
 import Datasets from '@/pages/Datasets.vue'
 
@@ -73,6 +75,16 @@ const routes = [
       {
         path: '/tasks',
         component: Tasks,
+        meta: { requiresAuth: true, requiresAdmin: true }
+      },
+      {
+        path: '/api-keys',
+        component: ApiKeys,
+        meta: { requiresAuth: true, requiresAdmin: true }
+      },
+      {
+        path: '/audit',
+        component: Audit,
         meta: { requiresAuth: true, requiresAdmin: true }
       },
       {

@@ -515,7 +515,7 @@ describe('\'interview-export\' service', () => {
       const variable = service.makeVariables(item, options);
 
       assert.strictEqual(variable.name, 'numberField');
-      assert.strictEqual(variable.valueType, 'integer');
+      assert.strictEqual(variable.valueType, 'decimal');
     });
 
     it('should create variable for toggle field', () => {

@@ -87,6 +87,44 @@ export default {
     search_users: 'Chercher',
     search_users_hint: 'Chercher les utilisateurs à ajouter par email ou nom'
   },
+  api_keys: {
+    title: 'Clés d\'API',
+    hint: 'Les clés d\'API permettent à des applications externes, telles qu\'Opal, d\'extraire les données des rapports de cas et des entretiens, ainsi que leurs fichiers, de certaines études. Une clé ne peut rien modifier.',
+    add_hint: 'Ajouter une nouvelle clé d\'API',
+    edit_hint: 'Modifier la clé d\'API',
+    regenerate: 'Régénérer',
+    audit_hint: 'Voir l\'audit de la clé d\'API',
+    regenerate_hint: 'Régénérer la valeur de la clé',
+    regenerate_confirm: 'Veuillez confirmer que vous voulez régénérer la valeur de la clé (la valeur actuelle cessera de fonctionner) :',
+    delete_hint: 'Supprimer la clé d\'API',
+    delete_confirm: 'Veuillez confirmer que vous voulez supprimer la clé d\'API (les applications qui l\'utilisent perdront leur accès) :',
+    key: 'Clé',
+    studies: 'Études',
+    studies_hint: 'Les études dont les données peuvent être extraites',
+    expires_at: 'Expiration',
+    expires_at_hint: 'Optionnel, la clé est valide jusqu\'à cette date',
+    last_used_at: 'Dernière utilisation',
+    active: 'Active',
+    expired: 'Expirée',
+    shown_once: 'Copiez cette clé maintenant, elle ne sera plus affichée.',
+    copy: 'Copier dans le presse-papier',
+    copied: 'Clé copiée dans le presse-papier'
+  },
+  audit: {
+    title: 'Audit',
+    hint: 'Les extractions de données (exports des rapports de cas et des entretiens) et les téléchargements de fichiers, par des utilisateurs ou des clés d\'API.',
+    date: 'Date',
+    accessed_by: 'Accédé par',
+    participant: 'Participant',
+    api_key: 'Clé d\'API',
+    service: 'Accès',
+    details: 'Détails',
+    services: {
+      'case-report-export': 'Export des rapports de cas',
+      'interview-export': 'Export des entretiens',
+      files: 'Téléchargement de fichier'
+    }
+  },
   tasks: {
     title: 'Tâches',
     hint: 'Les tâches sont les travaux en arrière-plan qui sont exécutés par le système. Chaque tâche a un type, un état et un message d\'erreur éventuel. Voir la <a href="https://amberdoc.obiba.org/en/latest/studio-user-guide/administration/tasks.html" target="_blank">documentation d\'administration des tâches</a>.',
@@ -319,6 +357,8 @@ export default {
     get_case_reports: 'Erreur à la récupération des rapport de cas.',
     form_remove_error: 'Le formulaire {name} ne peut être supprimé car des éléments ({count} "{type}") lui sont toujours associés.',
     form_revision_remove_error: 'Le formulaire {name} dans la version {revision} ne peut être supprimé car des éléments ({count} "{type}") lui sont toujours associés.',
+    get_api_keys: 'Erreur à la récupération des clés d\'API.',
+    get_audits: 'Erreur à la récupération de l\'audit.',
     get_tasks: 'Erreur à la récupération des tâches.'
   },
   success: {
@@ -376,6 +416,9 @@ export default {
     reset_participant_password: 'Mot de passe du participant réinitialisé avec succès.',
     create_task: 'Tâche ajoutée avec succès.',
     delete_task: 'Tâche supprimée avec succès.',
+    create_api_key: 'Clé d\'API ajoutée avec succès.',
+    update_api_key: 'Clé d\'API mise à jour avec succès.',
+    delete_api_key: 'Clé d\'API supprimée avec succès.',
     delete_tasks: 'Tâches supprimées avec succès.'
   },
   form: {

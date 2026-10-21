@@ -13,7 +13,7 @@ exports.CaseReportExport = class CaseReportExport extends FormDataExport {
       export: {},
       total: 0,
       found: 0,
-      skip: this.parseInteger(params.query['$skip']),
+      skip: this.parseInteger(params.query['$skip'] || 0),
       limit: this.parseInteger(params.query['$limit']), // targetted limit, might be lower than database extraction allows
     };
     

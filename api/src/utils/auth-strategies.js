@@ -7,6 +7,7 @@ const { Issuer } = require('openid-client');
 const { isParticipantValid, isCampaignValid } = require('./participant-validity');
 const { comparePassword } = require('./password-hasher');
 const { get } = require('lodash');
+const { hashApiKey } = require('./data-api-key');
 
 class AnonymousStrategy extends AuthenticationBaseStrategy {
   // eslint-disable-next-line no-unused-vars
@@ -58,6 +59,29 @@ class ApiKeyStrategy extends AuthenticationBaseStrategy {
 
     return {
       apiKey: true
+    };
+  }
+}
+
+/**
+ * Data extraction API key, managed by the `api-key` service and scoped by studies.
+ */
+class DataApiKeyStrategy extends AuthenticationBaseStrategy {
+  async authenticate(authentication) {
+    const { token } = authentication;
+    const error = new NotAuthenticated('Invalid, expired or revoked API key');
+    if (!token) throw error;
+    const service = this.app.service('api-key');
+    const found = await service._find({ query: { hash: hashApiKey(token), $limit: 1 }, paginate: false });
+    const apiKey = found[0];
+    const now = new Date();
+    if (!apiKey || apiKey.active === false || (apiKey.expiresAt && new Date(apiKey.expiresAt) < now)) throw error;
+    // ponytail: last usage is recorded once per minute at most, enough to spot unused keys
+    if (!apiKey.lastUsedAt || now - new Date(apiKey.lastUsedAt) > 60000) {
+      service._patch(apiKey._id, { lastUsedAt: now }).catch(() => {});
+    }
+    return {
+      dataApiKey: { _id: apiKey._id, name: apiKey.name, studies: apiKey.studies }
     };
   }
 }
@@ -341,4 +365,4 @@ class OidcStrategy extends BaseOAuthUserStrategy {
   }
 }
 
-module.exports = { AnonymousStrategy, ActiveLocalStrategy, ApiKeyStrategy, ParticipantStrategy, WalkInParticipantStrategy, BaseOAuthUserStrategy, GithubStrategy, GoogleStrategy, OidcStrategy };
+module.exports = { AnonymousStrategy, ActiveLocalStrategy, ApiKeyStrategy, DataApiKeyStrategy, ParticipantStrategy, WalkInParticipantStrategy, BaseOAuthUserStrategy, GithubStrategy, GoogleStrategy, OidcStrategy };

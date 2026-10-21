@@ -1,8 +1,13 @@
-const { BadRequest } = require('@feathersjs/errors');
+const { BadRequest, Forbidden } = require('@feathersjs/errors');
+const { inScope } = require('../utils/data-api-key');
 
 // eslint-disable-next-line no-unused-vars
 module.exports = (options = {}) => {
   return async context => {
+    // out of scope API key must not learn about other studies' forms
+    if (context.params.dataApiKey && !inScope(context.params.dataApiKey, context.data.study)) {
+      throw new Forbidden();
+    }
     // verify that study exists
     const studyService = context.app.service('study');
     await studyService.get(context.data.study);

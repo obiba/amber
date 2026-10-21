@@ -1,11 +1,13 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
+const allowDataApiKey = require('../../hooks/allow-data-api-key');
 
 const caseReportExportAudit = require('../../hooks/case-report-export-audit');
 
 module.exports = {
   before: {
     all: [
-      authenticate('jwt')
+      allowDataApiKey(),
+      authenticate('jwt', 'dataApiKey')
     ],
     find: [],
     get: [],
